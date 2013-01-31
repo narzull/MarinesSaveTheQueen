@@ -1,4 +1,4 @@
 MarinesSaveTheQueen
 ===================
 
-virtual reality game
+Virtual Reality Game
