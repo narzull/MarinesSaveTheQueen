@@ -25,7 +25,7 @@ $(SRC_PATH)/%.o: $(SRC_PATH)/%.cpp
 	$(CC) -c -o $@ $(CFLAGS) $^ 
 
 clean:
-	rm $(OBJ_FILES)
+	rm $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o
 
 cleanall:
 	rm $(BIN_PATH)/$(EXEC) $(OBJ_FILES)
