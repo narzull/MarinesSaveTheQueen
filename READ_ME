@@ -1,0 +1,27 @@
+//Projet réalisé par Jean-Marc Dananché dans le cadre du cours de moteur physique de Master SIS dirigé par M. Eric Incerti
+
+//Pour compiler le projet, lancez un make a la racine du projet
+//Pour le lancer, lancez ensuite le fichier ./bin/ImacParticleSystem à partir de la racine du projet
+
+//Ce projet utilise la librairie mathématique GLM (inclue) ainsi que SDL_images
+
+//Cette simulation comprend pour le moment des modèles physiques par
+//-Liaisons conditionelles
+//-Dynamique inverse (à affiner)
+//-Liaisons conditionelles sur distances non euclidiennes incluant les formes suivantes : Sphere, Cube, Cylindre, Cone tronqué, Tore
+//-Modèles solides déformables
+
+//Commandes
+
+//Souris : Piloter la caméra
+//Z : Avancer
+//S : Reculer
+//Q : Pas à gauche
+//D : Pas à droite
+//Shift Gauche : Accelérer
+//N : Changer le mode wireframe
+//B : Changer le mode de culling
+//V : Activer le smooth automatique de normales sur l'objet formé de particules
+
+//P : Pause de la simulation
+
