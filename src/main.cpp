@@ -3,8 +3,6 @@
 
 
 int main(int argc, const char *argv[]) {
-	
-	// AH LOLZ
 	if(argc < 2){
 		std::string param = argv[0];
 		//Creatin the application
