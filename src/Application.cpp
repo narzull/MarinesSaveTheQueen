@@ -315,12 +315,7 @@ namespace api{
 		game::GroundUnit * randomGroundUnit = m_Board.getRandomGroundUnit();
 		if(randomGroundUnit != centralGroudUnit && !randomGroundUnit->isOccupied()){
 		  isValid = true;
-		  randomGroundUnit->setOccupied(true);
-		  glm::vec3 pos = randomGroundUnit->getPosition();
-		  unsigned int xIndex = 0;
-		  unsigned int yIndex = 0;
-		  randomGroundUnit->getGroundUnitCoord(xIndex, yIndex);
-		  m_Enemies.push_front(game::EnemyUnit(pos.x, pos.z, xIndex, yIndex, enemiesSpeed));
+		  m_Enemies.push_front(game::EnemyUnit(randomGroundUnit, enemiesSpeed));
 		}
 	      }while(!isValid);
 	    }
@@ -338,26 +333,22 @@ namespace api{
 	    enemy.walk();
 	  }
 	  else if(action == ENEMY_WAITING){
-	    unsigned int currentX = 0;
-	    unsigned int currentZ = 0;
-	    enemy.getGroundUnitToReach(currentX, currentZ);
-	    game::GroundUnit * currentGroundUnit = m_Board.getGroundUnitFromBoard(currentX, currentZ);
+	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();;
 	    if(currentGroundUnit->getWeight() <= 1){
 	      enemy.setAction(ENEMY_FIRING);
 	    }
 	    else{
-	      unsigned int closestX = 0;
-	      unsigned int closestZ = 0;
-	      m_Board.getNextGroundUnit(currentX, currentZ, closestX, closestZ);
-	      game::GroundUnit * nextGroundUnit = m_Board.getGroundUnitFromBoard(closestX, closestZ);
-	      if(!nextGroundUnit->isOccupied()){
-		currentGroundUnit->setOccupied(false);
-		nextGroundUnit->setOccupied(true);
-		enemy.setGroundUnitToReach(closestX, closestZ);
-		enemy.setPositionToReach(nextGroundUnit->getPosition());
-		enemy.setAction(ENEMY_WALKING);
-		enemy.autoRotateFromDirection();
-	     }
+	      std::vector<game::GroundUnit *> neighbourGroundUnit;
+	      m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
+	      for(unsigned int i = 0; i < neighbourGroundUnit.size(); ++i){
+		game::GroundUnit * nextGroundUnit = neighbourGroundUnit[i];
+		if(!nextGroundUnit->isOccupied()){
+		  currentGroundUnit->setOccupied(false);
+		  enemy.setGroundUnitToReach(nextGroundUnit);
+		  enemy.setAction(ENEMY_WALKING);
+		  break;
+	        }
+	      }
 	    }
 	  }
 	}

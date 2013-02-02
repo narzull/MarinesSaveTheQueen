@@ -31,7 +31,7 @@ public:
     GroundUnit * getRandomGroundUnit();
     const GroundUnit * getRandomGroundUnit()const;
     //Get Next Ground Unit
-    void getNextGroundUnit(unsigned int currentX, unsigned int currentZ, unsigned int & nextX, unsigned int & nextZ)const;
+    void getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach);
     
     //Public board methods
     void computeGroundUnitsWeightFromCenter();

@@ -107,26 +107,42 @@ namespace game{
      }
     }
     
-    void Board::getNextGroundUnit(unsigned int currentX, unsigned int currentZ, unsigned int & closestX, unsigned int & closestZ)const{
+    void Board::getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach){
+	unsigned int currentX = 0;
+	unsigned int currentZ = 0;
+	
+	//Selecting the neighbour index in board
 	std::vector<unsigned int> neighbourX;
 	std::vector<unsigned int> neighbourZ;
 	if(currentX != 0) neighbourX.push_back(currentX - 1);
 	if(currentX != s_GROUNDUNIT_NUMBER_WIDTH - 1) neighbourX.push_back(currentX+1);
 	if(currentZ != 0) neighbourZ.push_back(currentZ - 1);
 	if(currentZ != s_GROUNDUNIT_NUMBER_HEIGHT - 1) neighbourZ.push_back(currentZ+1);
+	
+	//Setting the min to the weight of the current groundunit
 	int minWeight = getGroundUnitFromBoard(currentX, currentZ)->getWeight();
+	
+	//Searching on the X neighbours
 	for(unsigned int i = 0; i < neighbourX.size(); ++i){
-	  if(getGroundUnitFromBoard(neighbourX[i], currentZ)->getWeight() < minWeight){
-	    minWeight = getGroundUnitFromBoard(neighbourX[i], currentZ)->getWeight();
-	    closestX = neighbourX[i];
-	    closestZ = currentZ;
+	  GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(neighbourX[i], currentZ);
+	  if(neighbourGroundUnit->getWeight() < minWeight){
+	    possibleGroundUnitToReach.clear();
+	    minWeight = neighbourGroundUnit->getWeight();
+	  }
+	  else if(neighbourGroundUnit->getWeight() == minWeight){
+	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
 	  }
 	}
+	
+	//Searching on the Z neighbours
 	for(unsigned int i = 0; i < neighbourZ.size(); ++i){
-	  if(getGroundUnitFromBoard(currentX, neighbourZ[i])->getWeight() < minWeight){
-	    minWeight = getGroundUnitFromBoard(currentX, neighbourZ[i])->getWeight();
-	    closestX = currentX;
-	    closestZ = neighbourZ[i];
+	  GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(currentX, neighbourZ[i]);
+	  if(neighbourGroundUnit->getWeight() < minWeight){
+	    possibleGroundUnitToReach.clear();
+	    minWeight = neighbourGroundUnit->getWeight();
+	  }
+	  else if(neighbourGroundUnit->getWeight() == minWeight){
+	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
 	  }
 	}
     }

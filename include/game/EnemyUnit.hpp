@@ -2,6 +2,7 @@
 #define __ENEMYUNIT_HPP__
 
 #include "../api/Entity.hpp"
+#include "../game/GroundUnit.hpp"
 
 #include <glm/glm.hpp>
 
@@ -18,29 +19,25 @@ public:
     const static float s_ENEMYUNIT_Y_COORD = 0.15f;
     
     //Constructor
-    EnemyUnit(float posX, float posZ, unsigned int xIndex, unsigned int yIndex, float speed);
+    EnemyUnit(GroundUnit * groundUnit, float speed);
     virtual ~EnemyUnit(){};
     
     //Getters
     unsigned int getAction()const{ return m_Action;};
     float getSpeed()const{ return m_Speed;};
-    void getGroundUnitToReach(unsigned int & x, unsigned int & y)const{ x = m_GroundUnitXToReach; y = m_GroundUnitYToReach;};
-    glm::vec3 getPositionToReach()const{return m_PositionToReach;};
+    GroundUnit * getGroundUnitToReach()const{return m_GroundUnitToReach;};
     
     //Setters
     void setSpeed(float speed){m_Speed = speed;};
-    void setGroundUnitToReach(unsigned int xIndex, unsigned int yIndex){ m_GroundUnitXToReach = xIndex; m_GroundUnitYToReach = yIndex;};
     void setAction(int action){m_Action = action;};
-    void setPositionToReach(glm::vec3 destination){m_PositionToReach = destination + glm::vec3(0.0,(float)game::EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);};
+    int setGroundUnitToReach(GroundUnit* groundUnitToReach);
     
     //Public methods
     void walk();
     void autoRotateFromDirection();
     
 private:
-    glm::vec3 m_PositionToReach;
-    unsigned int m_GroundUnitXToReach;
-    unsigned int m_GroundUnitYToReach;
+    GroundUnit * m_GroundUnitToReach;
     float m_Speed;
     unsigned int m_Action;
 };

@@ -4,13 +4,24 @@
 #include <iostream>
 
 namespace game{
-  EnemyUnit::EnemyUnit(float posX, float posZ, unsigned int xIndex, unsigned int yIndex, float speed):Entity(glm::vec3(posX,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,posZ)), m_PositionToReach(glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitXToReach(xIndex), m_GroundUnitYToReach(yIndex), m_Speed(speed), m_Action(ENEMY_WAITING){
-    autoRotateFromDirection();
+  EnemyUnit::EnemyUnit(GroundUnit * groundUnit, float speed):Entity(groundUnit->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitToReach(groundUnit), m_Speed(speed), m_Action(ENEMY_WAITING){
+    m_GroundUnitToReach->setOccupied(true);
     updateModel();
   }
   
+  int EnemyUnit::setGroundUnitToReach(GroundUnit* groundUnitToReach){
+    if(!groundUnitToReach->isOccupied()){
+      m_GroundUnitToReach = groundUnitToReach;
+      m_GroundUnitToReach->setOccupied(true);
+      autoRotateFromDirection();
+      return 0;
+    }
+    return 1;
+  }
+  
   void EnemyUnit::autoRotateFromDirection(){
-    glm::vec3 direction = m_PositionToReach - m_Position;
+    glm::vec3 positionToReach = m_GroundUnitToReach->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
+    glm::vec3 direction = positionToReach - m_Position;
     direction = glm::normalize(direction);
     float angle = acosf(direction.x) * 360 / (2*M_PI);
     float angleFinal = 90;
@@ -25,7 +36,8 @@ namespace game{
   
    void EnemyUnit::walk(){
     if(m_Action == ENEMY_WALKING){
-      glm::vec3 direction = m_PositionToReach - m_Position;
+      glm::vec3 positionToReach = m_GroundUnitToReach->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
+      glm::vec3 direction = positionToReach - m_Position;
       float norm = tools::getNorm(direction);
       direction = glm::normalize(direction);
       float step = m_Speed;
