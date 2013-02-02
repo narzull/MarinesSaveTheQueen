@@ -30,7 +30,7 @@ public:
     //Setters
     void setSpeed(float speed){m_Speed = speed;};
     void setAction(int action){m_Action = action;};
-    int setGroundUnitToReach(GroundUnit* groundUnitToReach);
+    bool setGroundUnitToReach(GroundUnit* groundUnitToReach);
     
     //Public methods
     void walk();

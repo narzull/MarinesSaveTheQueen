@@ -300,7 +300,7 @@ namespace api{
 	    
 	    //Computing the ground unit weight
 	    m_Board.computeGroundUnitsWeightFromCenter();
-	    //m_Board.printGroundUnitsWeight();
+	   //m_Board.printGroundUnitsWeight();
 	    
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(20*waveNumber) + 20*waveNumber;
@@ -322,9 +322,11 @@ namespace api{
 	}
 	
 	void Application::updateGame(){
+	  //std::cout << "------------" << std::endl;
 	  for(std::list<game::EnemyUnit>::iterator it = m_Enemies.begin(); it != m_Enemies.end(); ++it){
 	      updateEnemy((*it));
 	  }
+	  //m_Board.printGroundUnitsOccupation();
 	}
 	
 	void Application::updateEnemy(game::EnemyUnit & enemy){
@@ -333,21 +335,31 @@ namespace api{
 	    enemy.walk();
 	  }
 	  else if(action == ENEMY_WAITING){
-	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();;
+	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();
 	    if(currentGroundUnit->getWeight() <= 1){
 	      enemy.setAction(ENEMY_FIRING);
 	    }
 	    else{
 	      std::vector<game::GroundUnit *> neighbourGroundUnit;
 	      m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
-	      for(unsigned int i = 0; i < neighbourGroundUnit.size(); ++i){
-		game::GroundUnit * nextGroundUnit = neighbourGroundUnit[i];
-		if(!nextGroundUnit->isOccupied()){
-		  currentGroundUnit->setOccupied(false);
-		  enemy.setGroundUnitToReach(nextGroundUnit);
-		  enemy.setAction(ENEMY_WALKING);
-		  break;
-	        }
+	      int random = rand()%2;
+	      if(random == 0){
+		for(std::vector<game::GroundUnit*>::iterator it = neighbourGroundUnit.begin(); it != neighbourGroundUnit.end(); ++it){
+		  game::GroundUnit * nextGroundUnit = (*it);
+		  if(enemy.setGroundUnitToReach(nextGroundUnit)){
+		    enemy.setAction(ENEMY_WALKING);
+		    break;
+		  }
+		}
+	      }
+	      else{
+		for(std::vector<game::GroundUnit*>::reverse_iterator it = neighbourGroundUnit.rbegin(); it != neighbourGroundUnit.rend(); ++it){
+		  game::GroundUnit * nextGroundUnit = (*it);
+		  if(enemy.setGroundUnitToReach(nextGroundUnit)){
+		    enemy.setAction(ENEMY_WALKING);
+		    break;
+		  }
+		}
 	      }
 	    }
 	  }

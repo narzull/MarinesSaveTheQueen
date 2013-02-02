@@ -36,6 +36,7 @@ public:
     //Public board methods
     void computeGroundUnitsWeightFromCenter();
     void printGroundUnitsWeight();
+    void printGroundUnitsOccupation();
    
 private:
     //Attribute

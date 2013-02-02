@@ -9,14 +9,15 @@ namespace game{
     updateModel();
   }
   
-  int EnemyUnit::setGroundUnitToReach(GroundUnit* groundUnitToReach){
+  bool EnemyUnit::setGroundUnitToReach(GroundUnit* groundUnitToReach){
     if(!groundUnitToReach->isOccupied()){
+      m_GroundUnitToReach->setOccupied(false);
       m_GroundUnitToReach = groundUnitToReach;
       m_GroundUnitToReach->setOccupied(true);
       autoRotateFromDirection();
-      return 0;
+      return true;
     }
-    return 1;
+    return false;
   }
   
   void EnemyUnit::autoRotateFromDirection(){
