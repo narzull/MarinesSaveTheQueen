@@ -14,14 +14,14 @@ namespace game{
       m_GroundUnitToReach->setOccupied(false);
       m_GroundUnitToReach = groundUnitToReach;
       m_GroundUnitToReach->setOccupied(true);
-      autoRotateFromDirection();
+      autoRotateFromDirection(m_GroundUnitToReach->getPosition());
       return true;
     }
     return false;
   }
   
-  void EnemyUnit::autoRotateFromDirection(){
-    glm::vec3 positionToReach = m_GroundUnitToReach->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
+  void EnemyUnit::autoRotateFromDirection(glm::vec3 destinationPosition){
+    glm::vec3 positionToReach = destinationPosition + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
     glm::vec3 direction = positionToReach - m_Position;
     direction = glm::normalize(direction);
     float angle = acosf(direction.x) * 360 / (2*M_PI);
@@ -33,6 +33,11 @@ namespace game{
       angleFinal += angle;
     }
     setRotation(glm::vec3(0.0, angleFinal, 0.0));
+  }
+  
+  void EnemyUnit::autoRotateForFire(){
+    autoRotateFromDirection(glm::vec3(0.0, 0.0, 0.0));
+    updateModel();
   }
   
    void EnemyUnit::walk(){

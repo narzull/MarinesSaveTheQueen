@@ -11,8 +11,8 @@ namespace game {
 class Board{
 public:
     //Static attribute
-    const static unsigned int s_GROUNDUNIT_NUMBER_WIDTH = 33;
-    const static unsigned int s_GROUNDUNIT_NUMBER_HEIGHT = 33;
+    const static unsigned int s_GROUNDUNIT_NUMBER_WIDTH = 21;
+    const static unsigned int s_GROUNDUNIT_NUMBER_HEIGHT = 21;
   
     //Constructor
     Board();
@@ -31,7 +31,7 @@ public:
     GroundUnit * getRandomGroundUnit();
     const GroundUnit * getRandomGroundUnit()const;
     //Get Next Ground Unit
-    void getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach);
+    bool getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach);
     
     //Public board methods
     void computeGroundUnitsWeightFromCenter();

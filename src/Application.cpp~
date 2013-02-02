@@ -300,10 +300,10 @@ namespace api{
 	    
 	    //Computing the ground unit weight
 	    m_Board.computeGroundUnitsWeightFromCenter();
-	   //m_Board.printGroundUnitsWeight();
+	    //m_Board.printGroundUnitsWeight();
 	    
 	    //Setting the wave informations
-	    m_EnemiesToKill = rand()%(20*waveNumber) + 20*waveNumber;
+	    m_EnemiesToKill = rand()%(50*waveNumber) + 20*waveNumber;
 	    float enemiesSpeed = 0.01;
 	    
 	    //Init the enemy list
@@ -336,29 +336,19 @@ namespace api{
 	  }
 	  else if(action == ENEMY_WAITING){
 	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();
-	    if(currentGroundUnit->getWeight() <= 1){
+	    std::vector<game::GroundUnit *> neighbourGroundUnit;
+	    bool isBlocked = m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
+	    if(isBlocked && currentGroundUnit->getWeight() <= 3){
 	      enemy.setAction(ENEMY_FIRING);
+	      enemy.autoRotateForFire();
 	    }
 	    else{
-	      std::vector<game::GroundUnit *> neighbourGroundUnit;
-	      m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
-	      int random = rand()%2;
-	      if(random == 0){
-		for(std::vector<game::GroundUnit*>::iterator it = neighbourGroundUnit.begin(); it != neighbourGroundUnit.end(); ++it){
-		  game::GroundUnit * nextGroundUnit = (*it);
-		  if(enemy.setGroundUnitToReach(nextGroundUnit)){
-		    enemy.setAction(ENEMY_WALKING);
-		    break;
-		  }
-		}
-	      }
-	      else{
-		for(std::vector<game::GroundUnit*>::reverse_iterator it = neighbourGroundUnit.rbegin(); it != neighbourGroundUnit.rend(); ++it){
-		  game::GroundUnit * nextGroundUnit = (*it);
-		  if(enemy.setGroundUnitToReach(nextGroundUnit)){
-		    enemy.setAction(ENEMY_WALKING);
-		    break;
-		  }
+	      std::random_shuffle(neighbourGroundUnit.begin(), neighbourGroundUnit.end() );
+	      for(std::vector<game::GroundUnit*>::iterator it = neighbourGroundUnit.begin(); it != neighbourGroundUnit.end(); ++it){
+		game::GroundUnit * nextGroundUnit = (*it);
+		if(enemy.setGroundUnitToReach(nextGroundUnit)){
+		  enemy.setAction(ENEMY_WALKING);
+		  break;
 		}
 	      }
 	    }

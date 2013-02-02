@@ -73,24 +73,21 @@ namespace game{
       while(!stack.empty()){
 	 GroundUnit * localGroundUnit = stack.top();
 	 stack.pop();
-	 for(int i = 0; i <=1; ++i){
-	  for(int j = -1; j <=1; j= j+2){
+	 for(int i = -1; i <=1; ++i){
+	  for(int j = -1; j <=1; ++j){
 	    unsigned int groundUnitX, groundUnitZ;
 	    localGroundUnit->getGroundUnitCoord(groundUnitX, groundUnitZ);
 	    int indiceX, indiceZ;
-	    if(i%2 ==0){
-	      indiceX = groundUnitX + j;
-	      indiceZ = groundUnitZ;
-	    }
-	    else{
-	      indiceX = groundUnitX;
-	      indiceZ = groundUnitZ + j;
-	    }
+	    indiceX = groundUnitX + i;
+	    indiceZ = groundUnitZ + j;
+	    
 	    if(indiceX >= 0 && indiceZ >= 0 && indiceX < int(s_GROUNDUNIT_NUMBER_WIDTH) && indiceZ < int(s_GROUNDUNIT_NUMBER_HEIGHT)){
-	      GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(indiceX, indiceZ);
-	      if(neighbourGroundUnit->getWeight() > localGroundUnit->getWeight() + 1 && neighbourGroundUnit->getWeight() != -1){
-		neighbourGroundUnit->setWeight(localGroundUnit->getWeight()+1);
-		stack.push(neighbourGroundUnit);
+	      if(indiceX != (int)groundUnitX || indiceZ != (int)groundUnitZ){
+		GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(indiceX, indiceZ);
+		if(neighbourGroundUnit->getWeight() > localGroundUnit->getWeight() + 1 && neighbourGroundUnit->getWeight() != -1){
+		  neighbourGroundUnit->setWeight(localGroundUnit->getWeight()+1);
+		  stack.push(neighbourGroundUnit);
+		}
 	      }
 	    }
 	  }
@@ -116,46 +113,33 @@ namespace game{
      }
     }
     
-    void Board::getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach){
+    bool Board::getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach){
 	unsigned int currentX = 0;
 	unsigned int currentZ = 0;
+	bool isBlocked = false;
 	currentGroundUnit->getGroundUnitCoord(currentX, currentZ);
-	
-	//Selecting the neighbour index in board
-	std::vector<unsigned int> neighbourX;
-	std::vector<unsigned int> neighbourZ;
-	if(currentX != 0) neighbourX.push_back(currentX - 1);
-	if(currentX != s_GROUNDUNIT_NUMBER_WIDTH - 1) neighbourX.push_back(currentX+1);
-	if(currentZ != 0) neighbourZ.push_back(currentZ - 1);
-	if(currentZ != s_GROUNDUNIT_NUMBER_HEIGHT - 1) neighbourZ.push_back(currentZ+1);
-	
 	//Setting the min to the weight of the current groundunit
 	int minWeight = currentGroundUnit->getWeight();
-	
 	//Searching on the X neighbours
-	for(unsigned int i = 0; i < neighbourX.size(); ++i){
-	  GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(neighbourX[i], currentZ);
-	  if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied()){
-	    possibleGroundUnitToReach.clear();
-	    minWeight = neighbourGroundUnit->getWeight();
-	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
-	  }
-	  else if(neighbourGroundUnit->getWeight() == minWeight){
-	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
-	  }
-	}
-	
-	//Searching on the Z neighbours
-	for(unsigned int i = 0; i < neighbourZ.size(); ++i){
-	  GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(currentX, neighbourZ[i]);
-	  if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied()){
-	    possibleGroundUnitToReach.clear();
-	    minWeight = neighbourGroundUnit->getWeight();
-	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
-	  }
-	  else if(neighbourGroundUnit->getWeight() == minWeight){
-	    possibleGroundUnitToReach.push_back(neighbourGroundUnit);
+	for(int i = -1; i <= 1; ++i){
+	  for(int j = -1; j <= 1; ++j){
+	    int xIndex = currentX + i;
+	    int zIndex = currentZ + j;
+	    
+	    if(xIndex >= 0 && zIndex >= 0 && (unsigned int)xIndex < s_GROUNDUNIT_NUMBER_WIDTH && (unsigned int)zIndex < s_GROUNDUNIT_NUMBER_HEIGHT && ((unsigned int)xIndex != currentX || (unsigned int)zIndex != currentZ)){
+	      GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(xIndex, zIndex);
+	      if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied() && neighbourGroundUnit->getWeight() != 0 && neighbourGroundUnit->getWeight() != -1){
+		possibleGroundUnitToReach.clear();
+		minWeight = neighbourGroundUnit->getWeight();
+		possibleGroundUnitToReach.push_back(neighbourGroundUnit);
+	      }
+	      else if(neighbourGroundUnit->getWeight() == minWeight){
+		possibleGroundUnitToReach.push_back(neighbourGroundUnit);
+	      }
+	    }
 	  }
 	}
+	if(currentGroundUnit->getWeight() == minWeight) isBlocked = true;
+	return isBlocked;
     }
 }//namespace game

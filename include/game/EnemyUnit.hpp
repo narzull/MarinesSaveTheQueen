@@ -34,7 +34,8 @@ public:
     
     //Public methods
     void walk();
-    void autoRotateFromDirection();
+    void autoRotateFromDirection(glm::vec3 destinationPosition);
+    void autoRotateForFire();
     
 private:
     GroundUnit * m_GroundUnitToReach;
