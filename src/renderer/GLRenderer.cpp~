@@ -42,10 +42,10 @@ GLRenderer::GLRenderer(){
 	m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
 	//Loading alternative texture for the dirt
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	//m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
 	//Assign Default Texture for the ground
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+	//m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
 	
 	//Enemy Object
 	m_EnemyObject = objectBuilder.buildFromObj("obj/demon.obj", false);
@@ -112,27 +112,23 @@ int GLRenderer::renderBackground(const IplImage * webcamFrame)const{
 }
 
 void GLRenderer::renderBoard(const game::Board & board, const api::Camera & camera){
-     const std::vector<game::GroundUnit> grid = board.getGridBoard();
-     unsigned int centerX, centerY;
-     board.getCenterGroundUnitCoord(centerX, centerY);
-     for(std::vector<game::GroundUnit>::const_iterator it = grid.begin(); it != grid.end(); ++it){
-       //Getting the GroundUnit Coord
-	unsigned int x,y;
-	(*it).getGroundUnitCoord(x,y);
+     const std::vector<game::GroundUnit*> grid = board.getGridBoard();
+     const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
+     for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
 	//Getting the type and setting the texture
-	if((*it).getType() == ROCK_TYPE){
+	if((*it)->getType() == ROCK_TYPE){
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
 	}
 	else{
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
 	}
-	m_LightShaderManager->set3DMatrixInShader((*it).getModel(), camera.getView(), camera.getProjection());
+	m_LightShaderManager->set3DMatrixInShader((*it)->getModel(), camera.getView(), camera.getProjection());
 	m_LightShaderManager->setObjectTextureInShader(m_GroundUnitObject);
 	m_GroundUnitObject->draw(GL_TRIANGLES);
 	
-	if(x == centerX && y == centerY){
+	if((*it) == centralGroundUnit){
 	  m_LightShaderManager->set3DMatrixInShader(glm::mat4(), camera.getView(), camera.getProjection());
 	  m_LightShaderManager->setObjectTextureInShader(m_HouseObject);
 	  m_HouseObject->draw(GL_TRIANGLES);

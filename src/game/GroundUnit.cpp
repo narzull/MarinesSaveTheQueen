@@ -1,7 +1,7 @@
 #include "../include/game/GroundUnit.hpp"
 #include <iostream>
 namespace game{
-  GroundUnit::GroundUnit(unsigned int X, unsigned int Y, unsigned int centralX, unsigned int centralY):m_X(X),m_Y(Y), m_Type(GRASS_TYPE), m_Weight(5000){
+  GroundUnit::GroundUnit(unsigned int X, unsigned int Y, unsigned int centralX, unsigned int centralY):m_X(X),m_Y(Y), m_Type(GRASS_TYPE), m_Weight(5000), m_IsOccupied(false){
     int deltaX = m_X - centralX;
     int deltaY = m_Y - centralY;
     if(abs(deltaX) <= 1 && abs(deltaY) <= 1) m_Type = ROCK_TYPE;

@@ -304,20 +304,61 @@ namespace api{
 	    
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(20*waveNumber) + 20*waveNumber;
-	    float enemiesSpeed = 0.001;
+	    float enemiesSpeed = 0.01;
 	    
 	    //Init the enemy list
+	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
 	    for(unsigned int i = 0; i < m_EnemiesToKill; ++i){
-	      float posX;
-	      float posZ;
-	      m_Board.getRandomEnemyCoord(posX, posZ);
-	      m_Enemies.push_front(game::EnemyUnit(glm::vec3(posX, 0.15, posZ), enemiesSpeed));
+	      bool isValid = false;
+	      //Getting random positions to place the enemy unit
+	      do{
+		game::GroundUnit * randomGroundUnit = m_Board.getRandomGroundUnit();
+		if(randomGroundUnit != centralGroudUnit && !randomGroundUnit->isOccupied()){
+		  isValid = true;
+		  randomGroundUnit->setOccupied(true);
+		  glm::vec3 pos = randomGroundUnit->getPosition();
+		  unsigned int xIndex = 0;
+		  unsigned int yIndex = 0;
+		  randomGroundUnit->getGroundUnitCoord(xIndex, yIndex);
+		  m_Enemies.push_front(game::EnemyUnit(pos.x, pos.z, xIndex, yIndex, enemiesSpeed));
+		}
+	      }while(!isValid);
 	    }
 	}
 	
 	void Application::updateGame(){
 	  for(std::list<game::EnemyUnit>::iterator it = m_Enemies.begin(); it != m_Enemies.end(); ++it){
-	      (*it).walk();
+	      updateEnemy((*it));
+	  }
+	}
+	
+	void Application::updateEnemy(game::EnemyUnit & enemy){
+	  int action = enemy.getAction();
+	  if(action == ENEMY_WALKING){
+	    enemy.walk();
+	  }
+	  else if(action == ENEMY_WAITING){
+	    unsigned int currentX = 0;
+	    unsigned int currentZ = 0;
+	    enemy.getGroundUnitToReach(currentX, currentZ);
+	    game::GroundUnit * currentGroundUnit = m_Board.getGroundUnitFromBoard(currentX, currentZ);
+	    if(currentGroundUnit->getWeight() <= 1){
+	      enemy.setAction(ENEMY_FIRING);
+	    }
+	    else{
+	      unsigned int closestX = 0;
+	      unsigned int closestZ = 0;
+	      m_Board.getNextGroundUnit(currentX, currentZ, closestX, closestZ);
+	      game::GroundUnit * nextGroundUnit = m_Board.getGroundUnitFromBoard(closestX, closestZ);
+	      if(!nextGroundUnit->isOccupied()){
+		currentGroundUnit->setOccupied(false);
+		nextGroundUnit->setOccupied(true);
+		enemy.setGroundUnitToReach(closestX, closestZ);
+		enemy.setPositionToReach(nextGroundUnit->getPosition());
+		enemy.setAction(ENEMY_WALKING);
+		enemy.autoRotateFromDirection();
+	     }
+	    }
 	  }
 	}
 }//namespace api

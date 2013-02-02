@@ -8,7 +8,7 @@ EXTERNAL_PATH = externals
 CFLAGS = -Wall -ansi -I $(INCLUDE_PATH) -I $(EXTERNAL_PATH)/include
 LDFLAGS = -lSDL -lSDL_image -lGL -lopencv_core -lopencv_highgui 
 
-EXEC = TemplateOpenGL
+EXEC = MarinesSaveTheQueen
 
 SRC_FILES = $(shell find $(SRC_PATH) -type f -name '*.cpp')
 OBJ_FILES = $(patsubst $(SRC_PATH)/%.cpp, $(SRC_PATH)/%.o, $(SRC_FILES))

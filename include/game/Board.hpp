@@ -16,15 +16,22 @@ public:
   
     //Constructor
     Board();
-    ~Board(){};
+    ~Board();
     
     //Getters
-    GroundUnit & getGroundUnitFromBoard(unsigned int x, unsigned int y);
-    const GroundUnit & getGroundUnitFromBoard(unsigned int x, unsigned int y)const;
-    std::vector<GroundUnit> & getGridBoard();
-    const std::vector<GroundUnit> & getGridBoard()const;
-    void getCenterGroundUnitCoord(unsigned int & x, unsigned int & y)const{ x = m_CentralGroundUnitX; y = m_CentralGroundUnitY;};
-    void getRandomEnemyCoord(float & x, float & z)const;
+    //Get Ground Unit
+    GroundUnit * getGroundUnitFromBoard(unsigned int x, unsigned int z);
+    const GroundUnit * getGroundUnitFromBoard(unsigned int x, unsigned int z)const;
+    //Get Grid Board
+    std::vector<GroundUnit*> & getGridBoard();
+    const std::vector<GroundUnit*> & getGridBoard()const;
+    //Get Center Ground Unit 
+    const GroundUnit * getCentralGroundUnit()const;
+    //Get Random Ground Unit
+    GroundUnit * getRandomGroundUnit();
+    const GroundUnit * getRandomGroundUnit()const;
+    //Get Next Ground Unit
+    void getNextGroundUnit(unsigned int currentX, unsigned int currentZ, unsigned int & nextX, unsigned int & nextZ)const;
     
     //Public board methods
     void computeGroundUnitsWeightFromCenter();
@@ -33,8 +40,8 @@ public:
 private:
     //Attribute
     unsigned int m_CentralGroundUnitX;
-    unsigned int m_CentralGroundUnitY;
-    std::vector<GroundUnit> m_GridBoard;
+    unsigned int m_CentralGroundUnitZ;
+    std::vector<GroundUnit*> m_GridBoard;
 };
 } // namespace game
 #endif // __BOARD_HPP__

@@ -77,6 +77,7 @@ private:
 	//Private game methods
 	//*****************************
 	void initWave(unsigned int waveNumber);
+	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();
 public:
 	//Constructor & Destructor

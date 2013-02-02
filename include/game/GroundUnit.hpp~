@@ -22,15 +22,18 @@ public:
     void getGroundUnitCoord(unsigned int & x, unsigned int & y)const{ x=m_X; y=m_Y;};
     unsigned int getType()const{return m_Type;};
     int getWeight()const{return m_Weight;};
+    bool isOccupied()const{ return m_IsOccupied;};
     
     //Setters
     void setWeight(int weight){ m_Weight = weight;};
+    void setOccupied(bool occupation){m_IsOccupied = occupation;};
     
 private:
     unsigned int m_X;
     unsigned int m_Y;
     unsigned int m_Type;
     int m_Weight;
+    bool m_IsOccupied;
 };
 } // namespace game
 #endif // __GROUNDUNIT_HPP__

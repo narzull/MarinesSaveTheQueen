@@ -4,56 +4,90 @@
 #include <stack>
 
 namespace game{
+    //**********************
     //Constructor
-    Board::Board():m_CentralGroundUnitX((s_GROUNDUNIT_NUMBER_WIDTH - 1)/2), m_CentralGroundUnitY((s_GROUNDUNIT_NUMBER_HEIGHT - 1)/2){
+    //**********************
+    
+    Board::Board():m_CentralGroundUnitX((s_GROUNDUNIT_NUMBER_WIDTH - 1)/2), m_CentralGroundUnitZ((s_GROUNDUNIT_NUMBER_HEIGHT - 1)/2){
       //Checking the grid number
       if(s_GROUNDUNIT_NUMBER_WIDTH%2 != 1) std::cout << "Be carefull, the number of GroundUnit on width is not odd, the board will not be balanced" << std::endl;
       if(s_GROUNDUNIT_NUMBER_HEIGHT%2 != 1) std::cout << "Be carefull, the number of GroundUnit on height is not odd, the board will not be balanced" << std::endl;
       //Creating the GroundUnit
       for(unsigned int i = 0; i < s_GROUNDUNIT_NUMBER_WIDTH * s_GROUNDUNIT_NUMBER_HEIGHT; ++i){
-	m_GridBoard.push_back(GroundUnit(i%s_GROUNDUNIT_NUMBER_WIDTH, i/s_GROUNDUNIT_NUMBER_WIDTH, m_CentralGroundUnitX, m_CentralGroundUnitY));
+	m_GridBoard.push_back(new GroundUnit(i%s_GROUNDUNIT_NUMBER_WIDTH, i/s_GROUNDUNIT_NUMBER_WIDTH, m_CentralGroundUnitX, m_CentralGroundUnitZ));
       }
     };
     
+    Board::~Board(){
+      for(unsigned int i = 0; i < m_GridBoard.size(); ++i){
+	delete m_GridBoard[i];
+      }
+    }
+    
+    //************************
     //Getters
-    GroundUnit & Board::getGroundUnitFromBoard(unsigned int x, unsigned int y){
-      return m_GridBoard[y * s_GROUNDUNIT_NUMBER_WIDTH + x];
+    //************************
+    //Get Ground Unit
+    GroundUnit * Board::getGroundUnitFromBoard(unsigned int x, unsigned int z){
+      return m_GridBoard[z * s_GROUNDUNIT_NUMBER_WIDTH + x];
     }
     
-    const GroundUnit & Board::getGroundUnitFromBoard(unsigned int x, unsigned int y)const{
-      return m_GridBoard[y * s_GROUNDUNIT_NUMBER_WIDTH + x];
+    const GroundUnit * Board::getGroundUnitFromBoard(unsigned int x, unsigned int z)const{
+      return m_GridBoard[z * s_GROUNDUNIT_NUMBER_WIDTH + x];
     }
     
-    std::vector<GroundUnit> & Board::getGridBoard(){
+    //Get Grid Board
+    std::vector<GroundUnit*> & Board::getGridBoard(){
       return m_GridBoard;
     }
     
-    const std::vector<GroundUnit> & Board::getGridBoard()const{
+    const std::vector<GroundUnit*> & Board::getGridBoard()const{
       return m_GridBoard;
     }
     
-    //Public board methods
+    //Get Center Ground Unit 
+    const GroundUnit * Board::getCentralGroundUnit()const{
+      return getGroundUnitFromBoard(m_CentralGroundUnitX, m_CentralGroundUnitZ);
+    }
+    
+    //Get Random Ground Unit 
+    const GroundUnit * Board::getRandomGroundUnit()const{
+      unsigned int indiceX = rand()%s_GROUNDUNIT_NUMBER_WIDTH;
+      unsigned int indiceY = rand()%s_GROUNDUNIT_NUMBER_HEIGHT;
+      return getGroundUnitFromBoard(indiceX, indiceY);
+    }
+    
+    GroundUnit * Board::getRandomGroundUnit(){
+      unsigned int indiceX = rand()%s_GROUNDUNIT_NUMBER_WIDTH;
+      unsigned int indiceY = rand()%s_GROUNDUNIT_NUMBER_HEIGHT;
+      return getGroundUnitFromBoard(indiceX, indiceY);
+    }
+    
+    //***************************
+    //Other Public Board Methods
+    //***************************
+    
     void Board::computeGroundUnitsWeightFromCenter(){
       std::stack<GroundUnit*> stack;
-      stack.push(&getGroundUnitFromBoard(m_CentralGroundUnitX, m_CentralGroundUnitY));
+      stack.push(getGroundUnitFromBoard(m_CentralGroundUnitX, m_CentralGroundUnitZ));
       while(!stack.empty()){
 	 GroundUnit * localGroundUnit = stack.top();
 	 stack.pop();
 	 for(int i = 0; i <=1; ++i){
 	  for(int j = -1; j <=1; j= j+2){
-	    unsigned int groundUnitX, groundUnitY;
-	    localGroundUnit->getGroundUnitCoord(groundUnitX, groundUnitY);
-	    int indiceX, indiceY;
+	    unsigned int groundUnitX, groundUnitZ;
+	    localGroundUnit->getGroundUnitCoord(groundUnitX, groundUnitZ);
+	    int indiceX, indiceZ;
 	    if(i%2 ==0){
 	      indiceX = groundUnitX + j;
-	      indiceY = groundUnitY;
+	      indiceZ = groundUnitZ;
 	    }
 	    else{
 	      indiceX = groundUnitX;
-	      indiceY = groundUnitY + j;
+	      indiceZ = groundUnitZ + j;
 	    }
-	    if(indiceX >= 0 && indiceY >= 0 && indiceX < int(s_GROUNDUNIT_NUMBER_WIDTH) && indiceY < int(s_GROUNDUNIT_NUMBER_HEIGHT)){
-	      GroundUnit * neighbourGroundUnit = &getGroundUnitFromBoard(indiceX, indiceY);
+	    if(indiceX >= 0 && indiceZ >= 0 && indiceX < int(s_GROUNDUNIT_NUMBER_WIDTH) && indiceZ < int(s_GROUNDUNIT_NUMBER_HEIGHT)){
+	      GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(indiceX, indiceZ);
 	      if(neighbourGroundUnit->getWeight() > localGroundUnit->getWeight() + 1 && neighbourGroundUnit->getWeight() != -1){
 		neighbourGroundUnit->setWeight(localGroundUnit->getWeight()+1);
 		stack.push(neighbourGroundUnit);
@@ -67,23 +101,33 @@ namespace game{
     void Board::printGroundUnitsWeight(){
      for(unsigned int i = 0; i < s_GROUNDUNIT_NUMBER_HEIGHT; ++i){
       for(unsigned int j = 0; j < s_GROUNDUNIT_NUMBER_WIDTH; ++j){
-	std::cout << getGroundUnitFromBoard(j, i).getWeight() << " | ";
+	std::cout << getGroundUnitFromBoard(j, i)->getWeight() << " | ";
 	if(j == s_GROUNDUNIT_NUMBER_WIDTH-1) std::cout << std::endl;
       }
      }
     }
     
-    void Board::getRandomEnemyCoord(float & x, float & z)const{
-      bool unitPlaced = false;
-      do{
-	unsigned int caseIdX = rand()%s_GROUNDUNIT_NUMBER_WIDTH;
-	unsigned int caseIdY = rand()%s_GROUNDUNIT_NUMBER_HEIGHT;
-	if(caseIdX != m_CentralGroundUnitX && caseIdY != m_CentralGroundUnitY){
-	  unitPlaced = true;
-	  glm::vec3 pos = getGroundUnitFromBoard(caseIdX, caseIdY).getPosition();
-	  x = pos.x;
-	  z = pos.z;
+    void Board::getNextGroundUnit(unsigned int currentX, unsigned int currentZ, unsigned int & closestX, unsigned int & closestZ)const{
+	std::vector<unsigned int> neighbourX;
+	std::vector<unsigned int> neighbourZ;
+	if(currentX != 0) neighbourX.push_back(currentX - 1);
+	if(currentX != s_GROUNDUNIT_NUMBER_WIDTH - 1) neighbourX.push_back(currentX+1);
+	if(currentZ != 0) neighbourZ.push_back(currentZ - 1);
+	if(currentZ != s_GROUNDUNIT_NUMBER_HEIGHT - 1) neighbourZ.push_back(currentZ+1);
+	int minWeight = getGroundUnitFromBoard(currentX, currentZ)->getWeight();
+	for(unsigned int i = 0; i < neighbourX.size(); ++i){
+	  if(getGroundUnitFromBoard(neighbourX[i], currentZ)->getWeight() < minWeight){
+	    minWeight = getGroundUnitFromBoard(neighbourX[i], currentZ)->getWeight();
+	    closestX = neighbourX[i];
+	    closestZ = currentZ;
+	  }
 	}
-      }while(!unitPlaced);
+	for(unsigned int i = 0; i < neighbourZ.size(); ++i){
+	  if(getGroundUnitFromBoard(currentX, neighbourZ[i])->getWeight() < minWeight){
+	    minWeight = getGroundUnitFromBoard(currentX, neighbourZ[i])->getWeight();
+	    closestX = currentX;
+	    closestZ = neighbourZ[i];
+	  }
+	}
     }
 }//namespace game
