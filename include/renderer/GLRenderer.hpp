@@ -14,6 +14,7 @@
 //game includes
 #include "game/Board.hpp"
 #include "game/EnemyUnit.hpp"
+#include "game/Turret.hpp"
 
 #include <GL/glew.h>
 #include <vector>
@@ -29,15 +30,17 @@ public:
     GLRenderer();
     ~GLRenderer();
     //Public methods
-    void render(const game::Board & board, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
 	
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;
     void renderBoard(const game::Board & board, const api::Camera & camera);
     void renderEnemies(const std::list<game::EnemyUnit> & enemies, const api::Camera & camera)const;
+    void renderTurrets(const std::vector<game::Turret> & turrets, const api::Camera & camera)const;
 	
     //Modele use to render
+    UniformObject * m_TurretObject;
     UniformObject * m_EnemyObject;
     UniformObject * m_HouseObject;
     UniformObject * m_GroundUnitObject;

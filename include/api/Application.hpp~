@@ -6,6 +6,7 @@
 #include "../renderer/GLRenderer.hpp"
 #include "../game/Board.hpp"
 #include "../game/EnemyUnit.hpp"
+#include "../game/Turret.hpp"
 
 #include <string>
 #include <vector>
@@ -34,6 +35,7 @@ private:
 	unsigned int m_EnemiesToKill;
 	game::Board m_Board;
 	std::list<game::EnemyUnit> m_Enemies;
+	std::vector<game::Turret> m_Turrets;
 
 	//Renderer attribute
 	renderer::GLRenderer* m_GLRenderer;

@@ -128,7 +128,7 @@ namespace game{
 	    
 	    if(xIndex >= 0 && zIndex >= 0 && (unsigned int)xIndex < s_GROUNDUNIT_NUMBER_WIDTH && (unsigned int)zIndex < s_GROUNDUNIT_NUMBER_HEIGHT && ((unsigned int)xIndex != currentX || (unsigned int)zIndex != currentZ)){
 	      GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(xIndex, zIndex);
-	      if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied() && neighbourGroundUnit->getWeight() != 0 && neighbourGroundUnit->getWeight() != -1){
+	      if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied() && neighbourGroundUnit->getWeight() > 0){
 		possibleGroundUnitToReach.clear();
 		minWeight = neighbourGroundUnit->getWeight();
 		possibleGroundUnitToReach.push_back(neighbourGroundUnit);

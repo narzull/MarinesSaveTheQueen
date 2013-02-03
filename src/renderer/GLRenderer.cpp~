@@ -42,14 +42,19 @@ GLRenderer::GLRenderer(){
 	m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
 	//Loading alternative texture for the dirt
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-	//m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
 	//Assign Default Texture for the ground
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-	//m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
 	
 	//Enemy Object
-	m_EnemyObject = objectBuilder.buildFromObj("obj/demon.obj", false);
-	m_EnemyObject->assignTexture(m_TextureManager.getTextureID("textures/demon.png"));
+	m_EnemyObject = objectBuilder.buildFromObj("obj/zombie.obj", false);
+	m_EnemyObject->assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
+// 	m_EnemyObject->assignNormalMap(m_TextureManager.getTextureID("textures/zombieNormal.png"));
+	
+	//Turret Object
+	m_TurretObject = objectBuilder.buildFromObj("obj/turret.obj", false);
+	m_TurretObject->assignTexture(m_TextureManager.getTextureID("textures/turret.png"));
 	
 	//House Object
 	m_HouseObject = objectBuilder.buildFromObj("obj/house.obj", false);
@@ -63,12 +68,13 @@ GLRenderer::~GLRenderer() {
     delete(m_GroundUnitObject);
     delete(m_HouseObject);
     delete(m_EnemyObject);
+    delete(m_TurretObject);
     //Deleting Shaders
     delete(m_SimpleShaderManager);
     delete(m_LightShaderManager);
 }
 
-void GLRenderer::render(const game::Board & board, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
+void GLRenderer::render(const game::Board & board, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	if(webcamFrame != NULL) renderBackground(webcamFrame);
@@ -80,7 +86,7 @@ void GLRenderer::render(const game::Board & board, const std::list<game::EnemyUn
 	glUseProgram(m_LightShaderManager->getShaderID());	
 	//Setting variables in shader
 	m_LightShaderManager->setEyeInShader(camera.getPosition());
-	Light light(glm::vec3(1.0,2.0,1.0), 0.005);
+	Light light(glm::vec3(0.0,10.0,0.0), 0.005);
 	m_LightShaderManager->setLightInShader(light);
 	Material material(Color::White(),Color::White(), Color::White(), 0.0, 1.5, 0.20, 70);
 	m_LightShaderManager->setMaterialInShader(material);
@@ -89,6 +95,7 @@ void GLRenderer::render(const game::Board & board, const std::list<game::EnemyUn
 	
 	renderBoard(board, camera);
 	renderEnemies(enemies, camera);
+	renderTurrets(turrets, camera);
 }
 
 int GLRenderer::renderBackground(const IplImage * webcamFrame)const{
@@ -118,11 +125,11 @@ void GLRenderer::renderBoard(const game::Board & board, const api::Camera & came
 	//Getting the type and setting the texture
 	if((*it)->getType() == ROCK_TYPE){
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
 	}
 	else{
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
 	}
 	m_LightShaderManager->set3DMatrixInShader((*it)->getModel(), camera.getView(), camera.getProjection());
 	m_LightShaderManager->setObjectTextureInShader(m_GroundUnitObject);
@@ -141,6 +148,14 @@ void GLRenderer::renderEnemies(const std::list<game::EnemyUnit> & enemies, const
     	m_LightShaderManager->set3DMatrixInShader((*it).getModel(), camera.getView(), camera.getProjection());
 	m_LightShaderManager->setObjectTextureInShader(m_EnemyObject);
 	m_EnemyObject->draw(GL_TRIANGLES);
+  }
+}
+
+void GLRenderer::renderTurrets(const std::vector<game::Turret> & turrets, const api::Camera & camera)const{
+  for(std::vector<game::Turret>::const_iterator it = turrets.begin(); it != turrets.end(); ++it){
+    	m_LightShaderManager->set3DMatrixInShader((*it).getModel(), camera.getView(), camera.getProjection());
+	m_LightShaderManager->setObjectTextureInShader(m_TurretObject);
+	m_TurretObject->draw(GL_TRIANGLES);
   }
 }
 

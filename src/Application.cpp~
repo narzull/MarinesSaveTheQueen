@@ -37,7 +37,7 @@ namespace api{
 			}
 			
 			// Rendu
-			m_GLRenderer->render(m_Board, m_Enemies, m_WebcamFrame, m_Camera);
+			m_GLRenderer->render(m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
 			SDL_GL_SwapBuffers();
 
 			SDL_Event e;
@@ -318,6 +318,16 @@ namespace api{
 		  m_Enemies.push_front(game::EnemyUnit(randomGroundUnit, enemiesSpeed));
 		}
 	      }while(!isValid);
+	    }
+	    
+	    //Init some turrets
+	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90, 0.0), turretGroundUnit));
+	    }
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,15);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
 	    }
 	}
 	
