@@ -40,8 +40,7 @@ public:
    
 private:
     //Attribute
-    unsigned int m_CentralGroundUnitX;
-    unsigned int m_CentralGroundUnitZ;
+    std::pair<unsigned int, unsigned int> m_CentralCoord;
     std::vector<GroundUnit*> m_GridBoard;
 };
 } // namespace game

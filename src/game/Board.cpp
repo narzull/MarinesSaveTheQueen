@@ -8,13 +8,15 @@ namespace game{
     //Constructor
     //**********************
     
-    Board::Board():m_CentralGroundUnitX((s_GROUNDUNIT_NUMBER_WIDTH - 1)/2), m_CentralGroundUnitZ((s_GROUNDUNIT_NUMBER_HEIGHT - 1)/2){
+    Board::Board(){
+      m_CentralCoord.first = (s_GROUNDUNIT_NUMBER_WIDTH - 1)/2;
+      m_CentralCoord.second = (s_GROUNDUNIT_NUMBER_HEIGHT - 1)/2;
       //Checking the grid number
       if(s_GROUNDUNIT_NUMBER_WIDTH%2 != 1) std::cout << "Be carefull, the number of GroundUnit on width is not odd, the board will not be balanced" << std::endl;
       if(s_GROUNDUNIT_NUMBER_HEIGHT%2 != 1) std::cout << "Be carefull, the number of GroundUnit on height is not odd, the board will not be balanced" << std::endl;
       //Creating the GroundUnit
       for(unsigned int i = 0; i < s_GROUNDUNIT_NUMBER_WIDTH * s_GROUNDUNIT_NUMBER_HEIGHT; ++i){
-	m_GridBoard.push_back(new GroundUnit(i%s_GROUNDUNIT_NUMBER_WIDTH, i/s_GROUNDUNIT_NUMBER_WIDTH, m_CentralGroundUnitX, m_CentralGroundUnitZ));
+	m_GridBoard.push_back(new GroundUnit(i%s_GROUNDUNIT_NUMBER_WIDTH, i/s_GROUNDUNIT_NUMBER_WIDTH, m_CentralCoord.first, m_CentralCoord.second));
       }
     };
     
@@ -47,7 +49,7 @@ namespace game{
     
     //Get Center Ground Unit 
     const GroundUnit * Board::getCentralGroundUnit()const{
-      return getGroundUnitFromBoard(m_CentralGroundUnitX, m_CentralGroundUnitZ);
+      return getGroundUnitFromBoard(m_CentralCoord.first, m_CentralCoord.second);
     }
     
     //Get Random Ground Unit 
@@ -69,20 +71,19 @@ namespace game{
     
     void Board::computeGroundUnitsWeightFromCenter(){
       std::stack<GroundUnit*> stack;
-      stack.push(getGroundUnitFromBoard(m_CentralGroundUnitX, m_CentralGroundUnitZ));
+      stack.push(getGroundUnitFromBoard(m_CentralCoord.first, m_CentralCoord.second));
       while(!stack.empty()){
 	 GroundUnit * localGroundUnit = stack.top();
 	 stack.pop();
 	 for(int i = -1; i <=1; ++i){
 	  for(int j = -1; j <=1; ++j){
-	    unsigned int groundUnitX, groundUnitZ;
-	    localGroundUnit->getGroundUnitCoord(groundUnitX, groundUnitZ);
+	    std::pair<unsigned int, unsigned int> groundUnitCoord = localGroundUnit->getGroundUnitCoord();
 	    int indiceX, indiceZ;
-	    indiceX = groundUnitX + i;
-	    indiceZ = groundUnitZ + j;
+	    indiceX = groundUnitCoord.first + i;
+	    indiceZ = groundUnitCoord.second + j;
 	    
 	    if(indiceX >= 0 && indiceZ >= 0 && indiceX < int(s_GROUNDUNIT_NUMBER_WIDTH) && indiceZ < int(s_GROUNDUNIT_NUMBER_HEIGHT)){
-	      if(indiceX != (int)groundUnitX || indiceZ != (int)groundUnitZ){
+	      if(indiceX != (int)groundUnitCoord.first || indiceZ != (int)groundUnitCoord.second){
 		GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(indiceX, indiceZ);
 		if(neighbourGroundUnit->getWeight() > localGroundUnit->getWeight() + 1 && neighbourGroundUnit->getWeight() != -1){
 		  neighbourGroundUnit->setWeight(localGroundUnit->getWeight()+1);
@@ -114,19 +115,18 @@ namespace game{
     }
     
     bool Board::getNextGroundUnit(const GroundUnit * currentGroundUnit, std::vector<GroundUnit*> & possibleGroundUnitToReach){
-	unsigned int currentX = 0;
-	unsigned int currentZ = 0;
+	std::pair<unsigned int, unsigned int> currentGroundUnitCoord;
 	bool isBlocked = false;
-	currentGroundUnit->getGroundUnitCoord(currentX, currentZ);
+	currentGroundUnitCoord = currentGroundUnit->getGroundUnitCoord();
 	//Setting the min to the weight of the current groundunit
 	int minWeight = currentGroundUnit->getWeight();
 	//Searching on the X neighbours
 	for(int i = -1; i <= 1; ++i){
 	  for(int j = -1; j <= 1; ++j){
-	    int xIndex = currentX + i;
-	    int zIndex = currentZ + j;
+	    int xIndex = currentGroundUnitCoord.first + i;
+	    int zIndex = currentGroundUnitCoord.second + j;
 	    
-	    if(xIndex >= 0 && zIndex >= 0 && (unsigned int)xIndex < s_GROUNDUNIT_NUMBER_WIDTH && (unsigned int)zIndex < s_GROUNDUNIT_NUMBER_HEIGHT && ((unsigned int)xIndex != currentX || (unsigned int)zIndex != currentZ)){
+	    if(xIndex >= 0 && zIndex >= 0 && (unsigned int)xIndex < s_GROUNDUNIT_NUMBER_WIDTH && (unsigned int)zIndex < s_GROUNDUNIT_NUMBER_HEIGHT && ((unsigned int)xIndex != currentGroundUnitCoord.first || (unsigned int)zIndex != currentGroundUnitCoord.second)){
 	      GroundUnit * neighbourGroundUnit = getGroundUnitFromBoard(xIndex, zIndex);
 	      if(neighbourGroundUnit->getWeight() < minWeight && !neighbourGroundUnit->isOccupied() && neighbourGroundUnit->getWeight() > 0){
 		possibleGroundUnitToReach.clear();

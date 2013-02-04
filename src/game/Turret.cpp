@@ -21,10 +21,8 @@ namespace game{
   }
   
   void Turret::initFromOtherDefenseUnit(){
-    unsigned int x = 0;
-    unsigned int z = 0;
-    m_RelatedGroundUnit->getGroundUnitCoord(x, z);
-    computeAndAddRay(x, z, m_Angles, m_RayVector);
+    std::pair<unsigned int, unsigned int> coord = m_RelatedGroundUnit->getGroundUnitCoord();
+    computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector);
   }
   
   void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector){

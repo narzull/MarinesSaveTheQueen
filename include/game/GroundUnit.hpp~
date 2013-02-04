@@ -2,6 +2,7 @@
 #define __GROUNDUNIT_HPP__
 
 #include "../api/Entity.hpp"
+#include <iostream>
 
 #define GRASS_TYPE 1
 #define ROCK_TYPE 2
@@ -19,7 +20,7 @@ public:
     virtual ~GroundUnit(){};
     
     //Getters
-    void getGroundUnitCoord(unsigned int & x, unsigned int & y)const{ x=m_X; y=m_Y;};
+    std::pair<unsigned int, unsigned int> getGroundUnitCoord()const{return m_Coord;};
     unsigned int getType()const{return m_Type;};
     int getWeight()const{return m_Weight;};
     bool isOccupied()const{ return m_IsOccupied;};
@@ -29,8 +30,7 @@ public:
     void setOccupied(bool occupation){m_IsOccupied = occupation;};
     
 private:
-    unsigned int m_X;
-    unsigned int m_Y;
+    std::pair<unsigned int, unsigned int> m_Coord;
     unsigned int m_Type;
     int m_Weight;
     bool m_IsOccupied;

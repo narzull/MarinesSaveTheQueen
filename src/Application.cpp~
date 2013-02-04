@@ -353,9 +353,7 @@ namespace api{
 	      
 	      //Getting related ground unit informations
 	      game::GroundUnit * localGroundUnit = (*enemy).getGroundUnitToReach();
-	      unsigned int x = 0;
-	      unsigned int z = 0;
-	      localGroundUnit->getGroundUnitCoord(x, z);
+	      std::pair<unsigned int, unsigned int> localCoord = localGroundUnit->getGroundUnitCoord();
 	    
 	      //Verifying if the enemy is destructed
 	      bool delelteEnemy = false;
@@ -364,8 +362,8 @@ namespace api{
 		std::pair<unsigned int, unsigned int> end = (*ray).getEndingCoord();
 	      
 		//Cheking if the local ground unit is in the ray
-		if((x >= begin.first && x <= end.first) ||(x <= begin.first && x >= end.first)){
-		  if((z >= begin.second && z <= end.second) ||(z <= begin.second && z >= end.second)){
+		if((localCoord.first >= begin.first && localCoord.first <= end.first) ||(localCoord.first <= begin.first && localCoord.first >= end.first)){
+		  if((localCoord.second >= begin.second && localCoord.second <= end.second) ||(localCoord.second <= begin.second && localCoord.second >= end.second)){
 		      delelteEnemy = true;
 		  }
 		}
