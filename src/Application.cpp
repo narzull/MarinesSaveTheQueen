@@ -324,18 +324,64 @@ namespace api{
 	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90, 0.0), turretGroundUnit));
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
 	    }
 	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,15);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
 	    }
 	}
 	
 	void Application::updateGame(){
-	  //std::cout << "------------" << std::endl;
-	  for(std::list<game::EnemyUnit>::iterator it = m_Enemies.begin(); it != m_Enemies.end(); ++it){
-	      updateEnemy((*it));
+	  
+	  std::vector<game::Ray> rayVector;
+	  
+	  //Updating the turret
+	  for(std::vector<game::Turret>::iterator turret = m_Turrets.begin(); turret != m_Turrets.end(); ++turret){
+	      //Updating the current turret
+	      (*turret).update();
+	      //Getting all rays
+	      if((*turret).isFiring()){
+		(*turret).getRayVector(rayVector);
+	      }
 	  }
+	  
+	  //Updating the ennemies
+	  std::list<game::EnemyUnit>::iterator enemy = m_Enemies.begin();
+	  while(enemy != m_Enemies.end()){
+	      
+	      //Getting related ground unit informations
+	      game::GroundUnit * localGroundUnit = (*enemy).getGroundUnitToReach();
+	      unsigned int x = 0;
+	      unsigned int z = 0;
+	      localGroundUnit->getGroundUnitCoord(x, z);
+	    
+	      //Verifying if the enemy is destructed
+	      bool delelteEnemy = false;
+	      for(std::vector<game::Ray>::const_iterator ray = rayVector.begin(); ray != rayVector.end(); ++ray){
+		std::pair<unsigned int, unsigned int> begin = (*ray).getBeginningCoord();
+		std::pair<unsigned int, unsigned int> end = (*ray).getEndingCoord();
+	      
+		//Cheking if the local ground unit is in the ray
+		if((x >= begin.first && x <= end.first) ||(x <= begin.first && x >= end.first)){
+		  if((z >= begin.second && z <= end.second) ||(z <= begin.second && z >= end.second)){
+		      delelteEnemy = true;
+		  }
+		}
+	      }
+	      //If the enemy must be deleted
+	      if(delelteEnemy){
+		localGroundUnit->setOccupied(false);
+		enemy = m_Enemies.erase(enemy);
+		continue;
+	      }
+	    
+	      //Updating the enemy
+	      updateEnemy((*enemy));
+	      ++enemy;
+	  }
+	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
 	

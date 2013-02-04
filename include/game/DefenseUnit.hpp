@@ -24,7 +24,7 @@ public:
     int getDefenseUnitType()const{return m_Type;}
     GroundUnit * getRelatedGroundUnit()const{return m_RelatedGroundUnit;}
     
-private:
+protected:
     GroundUnit * m_RelatedGroundUnit;
     int m_Type;
 };
