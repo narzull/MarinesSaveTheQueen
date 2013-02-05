@@ -12,6 +12,7 @@ namespace renderer{
 		m_HasUvs = false;
 		m_HasTexture = false;
 		m_HasNormalMap = false;
+		m_HasSpecularMap = false;
 	}
 	
 	TexturedObject::~TexturedObject(){
@@ -45,5 +46,10 @@ namespace renderer{
 	void TexturedObject::assignNormalMap(GLuint normalMapID){
 		m_HasNormalMap = true;
 		m_NormalMapID = normalMapID;
+	}
+	
+	void TexturedObject::assignSpecularMap(GLuint specularMapID){
+		m_HasSpecularMap = true;
+		m_SpecularMapID = specularMapID;
 	}
 }

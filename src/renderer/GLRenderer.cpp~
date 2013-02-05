@@ -43,6 +43,7 @@ GLRenderer::GLRenderer(){
 	//Loading alternative texture for the dirt
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
 	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
 	//Assign Default Texture for the ground
 	m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
 	m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
@@ -86,10 +87,8 @@ void GLRenderer::render(const game::Board & board, const std::vector<game::Turre
 	glUseProgram(m_LightShaderManager->getShaderID());	
 	//Setting variables in shader
 	m_LightShaderManager->setEyeInShader(camera.getPosition());
-	Light light(glm::vec3(0.0,10.0,0.0), 0.005);
+	Light light(glm::vec3(-1.0,-1.0,-1.0), glm::vec3(1.0,1.0,1.0), 1.0);
 	m_LightShaderManager->setLightInShader(light);
-	Material material(Color::White(),Color::White(), Color::White(), 0.0, 1.5, 0.20, 70);
-	m_LightShaderManager->setMaterialInShader(material);
 	
 	m_LightShaderManager->setColorInShader(Color::Yellow());
 	

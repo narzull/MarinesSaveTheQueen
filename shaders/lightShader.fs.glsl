@@ -2,71 +2,78 @@
 struct Light
 {
     vec4 position;
+    vec3 color;
     float power;
-};
-
-struct Material
-{
- vec4 ambient;
- vec4 diffuse;
- vec4 specular;
- float ka;
- float kd;
- float ks;
- float shininess;  
 };
 
 // Uniforms : data shared by every shader
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec4 eye;
+uniform vec3 eye;
 uniform vec3 vertexColor;
 uniform Light light;
-uniform Material material;
 
 //Texture
 uniform bool hasUvs;
 uniform bool hasTexture;
 uniform bool hasNormalMap;
+uniform bool hasSpecularMap;
 uniform sampler2D textureUnitDiffuse;
 uniform sampler2D normalUnitDiffuse;
+uniform sampler2D specularUnitDiffuse;
    
 
 // Varyings : data receved and interpolated from the vertex shaders
-smooth in vec4 position;
-smooth in vec4 normal;
-smooth in vec2 uvs;
-smooth in vec4 localColor;
+in vec3 position;
+in vec3 normal;
+in vec2 uvs;
+in vec3 localColor;
 
 // Final output
 out vec4 fragColor;
 
+vec3 computePointLightLighting(in vec3 lPosition, in vec3 lColor, in float lIntensity, in float kAttenuation, vec3 fDiffuse, vec3 fNormal, float fSpec){
+	vec3 l = lPosition - position;
+	vec3 v = position - eye;
+	vec3 h = normalize(l-v);
+	float n_dot_l = clamp(dot(fNormal, l), 0, 1.0);
+	float n_dot_h = clamp(dot(fNormal, h), 0, 1.0);
+	
+	float d = distance(l, position);
+	float attenuation = clamp(1.0/(1.00 + kAttenuation * d * d), 0.0, 1.0);
+	
+	return attenuation * lColor * lIntensity * (fDiffuse * n_dot_l + fSpec * vec3(1.0, 1.0, 1.0) *  pow(n_dot_h, fSpec * 100.0));	
+}
+
+vec3 computeDirectionnalLightLighting(in vec3 lPosition, in vec3 lColor, in float lIntensity, in float kAttenuation, vec3 fDiffuse, vec3 fNormal, float fSpec){
+	vec3 l =  normalize(-lPosition);
+	vec3 v = position - eye;
+	vec3 h = normalize(l-v);
+	float n_dot_l = clamp(dot(fNormal, l), 0, 1.0);
+	float n_dot_h = clamp(dot(fNormal, h), 0, 1.0);
+
+	return lColor * lIntensity * (fDiffuse * n_dot_l + fSpec * vec3(1.0, 1.0, 1.0) *  pow(n_dot_h, fSpec * 100.0));
+}
+
 void main()
 {
-	vec4 diffuseColorMix;
-	vec4 localNormal = normal;
-	if(hasUvs && hasTexture){
-		diffuseColorMix = (1.0/light.power) * vec4(texture2D(textureUnitDiffuse, uvs).rgb, 1.0);
-		if(hasNormalMap){
-			localNormal += normalize(vec4(texture2D(normalUnitDiffuse, uvs).rgb * 2.0 - 1.0, 0.0));
-		}
-	}
-	else{
-		diffuseColorMix=mix(localColor, material.diffuse, 0.3);
-	}
-	vec4 L=normalize(light.position); // Direction of light from fragment -> light.position[3]==0.0 : Directional light
-	if (light.position.w==1.0) L=normalize(light.position-position); //   -> light.position[3]==1.0 : Point light
-	vec4 V=normalize(eye-position); // Direction from fragment to eye
-	vec4 R=normalize(reflect(-L, localNormal)); // Direction of reflected light beam, from fragment
-	vec4 N=normalize(localNormal); // Normal
 
-	float ambientValue=light.power;
-	float diffuseValue=light.power * max( dot(N, L), 0.0);
-	float specularValue=light.power * pow(max(dot(R, V), 0.0), material.shininess);
-	vec4 ambientContribution=vec4(ambientValue*material.ka*material.ambient.rgb, material.ambient.a);
-	vec4 diffuseContribution=vec4(diffuseValue*material.kd*diffuseColorMix.rgb, diffuseColorMix.a);
-	vec4 specularContribution=vec4(specularValue*material.ks*material.specular.rgb, material.specular.a);
+  vec3 fDiffuse = localColor;
+  float fSpec = 0;
+  vec3 fNormal = normalize(normal);
+  if(hasUvs){
+	  if(hasTexture){
+	    fDiffuse = texture2D(textureUnitDiffuse, uvs).rgb;
+	  }
+	  if(hasNormalMap){
+	    //fNormal = vec3(0.2, 0.2, 0.2) * normalize(texture2D(normalUnitDiffuse, uvs).rgb * 2.0 - 1.0);
+	  }
+	  if(hasSpecularMap){
+	    //fSpec = texture2D(specularUnitDiffuse, uvs).r;
+	  }
+  }
 
-	fragColor = ambientContribution + diffuseContribution + specularContribution;
+  //fragColor = vec4(computePointLightLighting(light.position.xyz, light.color, light.power, 0.2, fDiffuse, fNormal, fSpec), 1.0);
+  fragColor = vec4(computeDirectionnalLightLighting(light.position.xyz, light.color, light.power, 0.5, fDiffuse, fNormal, fSpec), 1.0);
 }

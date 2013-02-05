@@ -17,12 +17,15 @@ public:
 	void setUvs(const std::vector<glm::vec2> & uvs);
 	void assignTexture(GLuint textureID);
 	void assignNormalMap(GLuint normalMapID);
+	void assignSpecularMap(GLuint normalMapID);
 	//Getters
 	bool hasUvs(){return m_HasUvs;};
 	bool hasTexture(){return m_HasTexture;};
 	bool hasNormalMap(){return m_HasNormalMap;};
+	bool hasSpecularMap(){return m_HasSpecularMap;};
 	GLuint getTextureID(){return m_TextureID;};
 	GLuint getNormalMapID(){return m_NormalMapID;};
+	GLuint getSpecularMapID(){return m_SpecularMapID;};
 protected:
 	//Attribute
 	static const GLuint m_NORMAL_ATTRIB_LOCATION = 1;
@@ -33,8 +36,10 @@ protected:
 	//Texture
 	bool m_HasTexture;
 	bool m_HasNormalMap;
+	bool m_HasSpecularMap;
 	GLuint m_TextureID;
 	GLuint m_NormalMapID;
+	GLuint m_SpecularMapID;
 	//Normals
 	GLuint m_VBONormals;
 	//Indices

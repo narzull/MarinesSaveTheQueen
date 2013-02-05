@@ -11,22 +11,10 @@ namespace renderer{
 //Light struct
 struct Light{
 	glm::vec3 m_Pos;
+	glm::vec3 m_Color;
 	float m_Power;
 	//Constructor
-	Light(glm::vec3 pos, float power):m_Pos(pos), m_Power(power){};
-};
-
-//Material struct
-struct Material{
-	Color m_Ambiant;
-	Color m_Diffuse;
-	Color m_Specular;
-	float m_Ka;
-	float m_Kd;
-	float m_Ks;
-	float m_Shininess;
-	//Constructor
-	Material(Color ambiant, Color diffuse, Color specular, float ka, float kd, float ks, float shininess):m_Ambiant(ambiant), m_Diffuse(diffuse), m_Specular(specular), m_Ka(ka), m_Kd(kd), m_Ks(ks), m_Shininess(shininess){};
+	Light(glm::vec3 pos, glm::vec3 color, float power):m_Pos(pos), m_Color(color), m_Power(power){};
 };
 	
 //Shader that handle lighting and texturing
@@ -37,7 +25,6 @@ public:
 	//Setters
 	void setEyeInShader(const glm::vec3 & eye)const;
 	void setLightInShader(const Light & light)const;
-	void setMaterialInShader(const Material & material)const;
 	void setObjectTextureInShader(TexturedObject * object);
 	
 private:
@@ -47,20 +34,15 @@ private:
 	//Light
 	GLint m_LightPosUniformLocation;
 	GLint m_LightPowerUniformLocation;
-	//Material
-	GLint m_MaterialAmbiantUniformLocation;
-	GLint m_MaterialDiffuseUniformLocation;
-	GLint m_MaterialSpecularUniformLocation;
-	GLint m_MaterialKAUniformLocation;
-	GLint m_MaterialKDUniformLocation;
-	GLint m_MaterialKSUniformLocation;
-	GLint m_MaterialShininessUniformLocation;
+	GLint m_LightColorUniformLocation;
 	//Texture
 	GLint m_HasUvsUniformLocation;
 	GLint m_HasTextureUniformLocation;
 	GLint m_HasNormalMapUniformLocation;
+	GLint m_HasSpecularMapUniformLocation;
 	GLint m_TextureDiffuseUniformLocation;
 	GLint m_TextureNormalUniformLocation;
+	GLint m_TextureSpecularUniformLocation;
 };
 }
 
