@@ -10,6 +10,7 @@ public:
     //Constructor
     Entity():m_Model(glm::mat4()), m_Position(glm::vec3()), m_Angles(glm::vec3()), m_Scale(glm::vec3(1.0,1.0,1.0)){};
     Entity(glm::vec3 position):m_Model(glm::mat4()), m_Position(position), m_Angles(glm::vec3()), m_Scale(glm::vec3(1.0,1.0,1.0)){};
+    Entity(glm::vec3 position, glm::vec3 angles):m_Model(glm::mat4()), m_Position(position), m_Angles(angles), m_Scale(glm::vec3(1.0,1.0,1.0)){};
     virtual ~Entity(){};
     //Getters
     glm::mat4 getModel() const {return m_Model;};

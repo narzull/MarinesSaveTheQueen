@@ -22,10 +22,10 @@ namespace game{
   
   void Turret::initFromOtherDefenseUnit(){
     std::pair<unsigned int, unsigned int> coord = m_RelatedGroundUnit->getGroundUnitCoord();
-    computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector);
+    computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector, m_Position, m_Angles);
   }
   
-  void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector){
+  void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position, glm::vec3 angles){
     int endingX = x;
     int endingZ = z;
     if(int(rotation.y) % 90 != 0){
@@ -40,7 +40,7 @@ namespace game{
       unsigned int endZ = (unsigned int)endingZ;
       if(endX >= (unsigned int)Board::s_GROUNDUNIT_NUMBER_WIDTH) endX = (unsigned int)Board::s_GROUNDUNIT_NUMBER_WIDTH - 1;
       if(endZ >= (unsigned int)Board::s_GROUNDUNIT_NUMBER_HEIGHT) endZ = (unsigned int)Board::s_GROUNDUNIT_NUMBER_HEIGHT - 1;
-      rayVector.push_back(Ray(x, z, endX, endZ));
+      rayVector.push_back(Ray(x, z, endX, endZ, position, angles));
     }
   }
   

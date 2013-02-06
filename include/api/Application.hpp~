@@ -35,6 +35,7 @@ private:
 	unsigned int m_WaveNumber;
 	unsigned int m_EnemiesToKill;
 	game::Board m_Board;
+	std::vector<game::Ray> m_Rays;
 	std::vector<renderer::Light> m_Lights;
 	std::list<game::EnemyUnit> m_Enemies;
 	std::vector<game::Turret> m_Turrets;

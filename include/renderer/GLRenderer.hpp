@@ -32,20 +32,22 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(bool pause, const std::vector<Light> & m_LightVector, const std::vector<game::Ray> & rays, const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
 	
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;
-    void renderBoard(bool pause, const game::Board & board, const api::Camera & camera);
-    void renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera)const;
-    void renderTurrets(bool pause, const std::vector<game::Turret> & turrets, const api::Camera & camera)const;
+    void renderBoard(bool pause, const game::Board & board);
+    void renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies)const;
+    void renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const;
+    void renderRays(bool pause, const std::vector<game::Ray> & rays, const game::Board & board)const;
 	
     //Attribute
     int m_Width;
     int m_Height;
     
     //Modele use to render
+    UniformObject * m_RayObject;
     UniformObject * m_TurretObject;
     UniformObject * m_EnemyObject;
     UniformObject * m_HouseObject;

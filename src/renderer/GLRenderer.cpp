@@ -45,6 +45,9 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //Creating reference objects
     UniformObjectBuilder objectBuilder;
     
+    //Ray Object
+    m_RayObject = objectBuilder.buildFromObj("obj/ray.obj", false);
+    
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
     
@@ -78,6 +81,7 @@ GLRenderer::~GLRenderer() {
     //Destroying the framebuffer
     destroy_framebuffer(m_GBuffer);
     //Deleting reference objects
+    delete(m_RayObject);
     delete(m_GroundUnitObject);
     delete(m_HouseObject);
     delete(m_EnemyObject);
@@ -88,7 +92,7 @@ GLRenderer::~GLRenderer() {
     delete(m_LaccumLightShaderManager);
 }
 
-void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
+void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, const std::vector<game::Ray> & rays, const game::Board & board, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -111,9 +115,10 @@ void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, co
     m_GBufferLightShaderManager->setCameraMatrixInShader(camera.getView(), camera.getProjection());
     m_GBufferLightShaderManager->setPauseInShader(pause);
     //Render the objects
-    renderBoard(pause, board, camera);
-    renderEnemies(pause, enemies, camera);
-    renderTurrets(pause, turrets, camera);
+    renderRays(pause, rays, board);
+    renderBoard(pause, board);
+    renderEnemies(pause, enemies);
+    renderTurrets(pause, turrets);
     //Unbinding the GBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Clearing the front buffer
@@ -170,7 +175,7 @@ int GLRenderer::renderBackground(const IplImage * webcamFrame)const{
 	return 0;
 }
 
-void GLRenderer::renderBoard(bool pause, const game::Board & board, const api::Camera & camera){
+void GLRenderer::renderBoard(bool pause, const game::Board & board){
 
       GLenum primitive = GL_TRIANGLES;
       if(pause) primitive = GL_LINE_LOOP;
@@ -191,7 +196,7 @@ void GLRenderer::renderBoard(bool pause, const game::Board & board, const api::C
 	  m_GBufferLightShaderManager->setColorInShader(Color::Blue());
 	  m_GBufferLightShaderManager->setModelMatrixInShader((*it)->getModel());
 	  m_GBufferLightShaderManager->setObjectTextureInShader(m_HouseObject);
-	  m_HouseObject->draw(primitive);
+	  m_HouseObject->draw(GL_TRIANGLES);
 	}
        
 	//Getting the type and setting the texture
@@ -209,7 +214,7 @@ void GLRenderer::renderBoard(bool pause, const game::Board & board, const api::C
      }
 }
 
-void GLRenderer::renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera)const{
+void GLRenderer::renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies)const{
   m_GBufferLightShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
     	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
@@ -218,13 +223,25 @@ void GLRenderer::renderEnemies(bool pause, const std::list<game::EnemyUnit> & en
   }
 }
 
-void GLRenderer::renderTurrets(bool pause, const std::vector<game::Turret> & turrets, const api::Camera & camera)const{
+void GLRenderer::renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const{
   m_GBufferLightShaderManager->setColorInShader(Color::Blue());
   for(std::vector<game::Turret>::const_iterator it = turrets.begin(); it != turrets.end(); ++it){
     	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_TurretObject);
 	m_TurretObject->draw(GL_TRIANGLES);
   }
+}
+
+void GLRenderer::renderRays(bool pause, const std::vector<game::Ray> & rays, const game::Board & board)const{
+  if(!pause){
+     m_GBufferLightShaderManager->setColorInShader(Color::Green());
+    for(std::vector<game::Ray>::const_iterator it = rays.begin(); it != rays.end(); ++it){
+	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject);
+	m_RayObject->draw(GL_TRIANGLES);
+    }
+  }
+  
 }
 
 }//namespace renderer
