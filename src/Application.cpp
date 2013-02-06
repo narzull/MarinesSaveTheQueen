@@ -37,7 +37,7 @@ namespace api{
 			}
 			
 			// Rendu
-			m_GLRenderer->render(m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			m_GLRenderer->render(m_Pause, m_Lights, m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
 			SDL_GL_SwapBuffers();
 
 			SDL_Event e;
@@ -76,7 +76,7 @@ namespace api{
 		m_MousePosX = 0;
 		m_MousePosY = 0;
 		m_Pause = true;
-		m_GLRenderer = new renderer::GLRenderer();
+		m_GLRenderer = new renderer::GLRenderer(m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
 		
 		//Init the Webcam
 		m_Webcam = NULL;
@@ -86,7 +86,7 @@ namespace api{
 		}
 		
 		//Init some GL options
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glEnable(GL_CULL_FACE); //Enable backface culling
 		glCullFace(GL_BACK);   //Cull front faces
 		glEnable(GL_DEPTH_TEST);
@@ -152,12 +152,6 @@ namespace api{
 					break;
 				case SDLK_p :
 					m_Pause = !m_Pause;
-					break;
-				case SDLK_n :
-					switchWireFrameMode();
-					break;
-				case SDLK_b :
-					switchCullMode();
 					break;
 				case SDLK_y:
 					bool save;
@@ -232,30 +226,6 @@ namespace api{
 		m_Camera.move(moveVector, angleVector);
 	}
 	
-	void Application::switchWireFrameMode()
-	{
-		GLint faceAndBackParam [2];
-		glGetIntegerv(GL_POLYGON_MODE, faceAndBackParam);
-		if(faceAndBackParam[0] == GL_FILL)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
-		else
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		} 
-	}
-	
-	void Application::switchCullMode()
-	{
-		if(glIsEnabled(GL_CULL_FACE)){
-			glDisable(GL_CULL_FACE);
-		}
-		else{
-			glEnable(GL_CULL_FACE);
-		}
-	}
-	
 	//Save Screen
 	bool Application::saveScreen(){
 		//This prevents the images getting padded 
@@ -297,6 +267,9 @@ namespace api{
 	void Application::initWave(unsigned int waveNumber){
 	    //Setting the camera
 	    m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
+	    
+	    m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
+	    m_Lights.push_back(renderer::Light(glm::vec4(-2.0,0.3,-2.0,1.0), glm::vec3(1.0,0.5,0.5), 5.0));
 	    
 	    //Computing the ground unit weight
 	    m_Board.computeGroundUnitsWeightFromCenter();

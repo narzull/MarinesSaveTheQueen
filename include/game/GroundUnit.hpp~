@@ -12,8 +12,8 @@ namespace game {
 class GroundUnit : public api::Entity{
 public:
     //Static attribute
-    const static float s_GROUNDUNIT_WIDTH = 0.5;
-    const static float s_GROUNDUNIT_HEIGHT = 0.5;
+    const static float s_GROUNDUNIT_WIDTH = 0.5 + 0.01;
+    const static float s_GROUNDUNIT_HEIGHT = 0.5 + 0.01;
   
     //Constructor
     GroundUnit(unsigned int X, unsigned int Y, unsigned int centralX, unsigned int centralY);

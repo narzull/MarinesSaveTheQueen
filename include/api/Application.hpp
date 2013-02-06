@@ -4,6 +4,7 @@
 #include "Camera.hpp"
 #include "Entity.hpp"
 #include "../renderer/GLRenderer.hpp"
+#include "../renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "../game/Board.hpp"
 #include "../game/EnemyUnit.hpp"
 #include "../game/Turret.hpp"
@@ -34,6 +35,7 @@ private:
 	unsigned int m_WaveNumber;
 	unsigned int m_EnemiesToKill;
 	game::Board m_Board;
+	std::vector<renderer::Light> m_Lights;
 	std::list<game::EnemyUnit> m_Enemies;
 	std::vector<game::Turret> m_Turrets;
 
@@ -68,9 +70,6 @@ private:
 	//Application private methods
 	void initApplication();
 	void initSDLFlags();
-	void switchWireFrameMode();
-	void switchCullMode();
-	void switchCameraLock();
 	bool saveScreen();
 	//Camera related functions
 	void moveCameraInApplication();

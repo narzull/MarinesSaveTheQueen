@@ -38,7 +38,6 @@ void Camera::move(const glm::vec3 & move, const glm::vec3 & angles){
 	m_View = glm::translate(m_View, translationVector);
 	
 	//Update the camera axis and the position 
-
 	m_XAxis.x = m_View[0][0];
 	m_YAxis.x = m_View[0][1];
 	m_ZAxis.x = m_View[0][2];
@@ -52,7 +51,6 @@ void Camera::move(const glm::vec3 & move, const glm::vec3 & angles){
 	m_ZAxis.z = m_View[2][2];
 	
 	m_Position = cameraNewPos;
-
 }
 
 //Setters
@@ -74,7 +72,6 @@ void Camera::setOrthoProjection(float left, float right, float bottom, float top
 
 void Camera::setPosition(const glm::vec3 &p) {
     m_Position = p;
-    updateView();
 }
 
 //Getters

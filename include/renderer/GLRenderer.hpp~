@@ -6,10 +6,12 @@
 #include "api/Entity.hpp"
 
 //renderer includes
+#include "renderer/Simple2DPanel.hpp"
 #include "renderer/UniformObject.hpp"
 #include "renderer/TextureManager.hpp"
-#include "renderer/ShaderManager/SimpleShaderManager.hpp"
-#include "renderer/ShaderManager/LightShaderManager.hpp"
+#include "renderer/ShaderManager/GBufferLightShaderManager.hpp"
+#include "renderer/ShaderManager/LaccumLightShaderManager.hpp"
+#include "renderer/FramebufferGL.hpp"
 
 //game includes
 #include "game/Board.hpp"
@@ -27,28 +29,37 @@ namespace renderer{
 class GLRenderer {
 public:
     //Constructor & Destructor
-    GLRenderer();
+    GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
 	
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;
-    void renderBoard(const game::Board & board, const api::Camera & camera);
-    void renderEnemies(const std::list<game::EnemyUnit> & enemies, const api::Camera & camera)const;
-    void renderTurrets(const std::vector<game::Turret> & turrets, const api::Camera & camera)const;
+    void renderBoard(bool pause, const game::Board & board, const api::Camera & camera);
+    void renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera)const;
+    void renderTurrets(bool pause, const std::vector<game::Turret> & turrets, const api::Camera & camera)const;
 	
+    //Attribute
+    int m_Width;
+    int m_Height;
+    
     //Modele use to render
     UniformObject * m_TurretObject;
     UniformObject * m_EnemyObject;
     UniformObject * m_HouseObject;
     UniformObject * m_GroundUnitObject;
+    Simple2DPanel * m_PanelObject;
     //Texture
     TextureManager m_TextureManager;
+    
+    //Framebuffer
+    FramebufferGL m_GBuffer;
+    
     //Shader
-    SimpleShaderManager * m_SimpleShaderManager;
-    LightShaderManager * m_LightShaderManager;
+    GBufferLightShaderManager * m_GBufferLightShaderManager;
+    LaccumLightShaderManager * m_LaccumLightShaderManager;
 };
 }//namespace api
 

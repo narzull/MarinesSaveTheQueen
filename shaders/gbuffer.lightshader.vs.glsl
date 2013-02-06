@@ -1,28 +1,9 @@
 #version 330
-
-struct Light
-{
-    vec4 position;
-    vec3 color;
-    float power;
-};
-
 // Uniforms : data shared by every shader
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec3 eye;
 uniform vec3 vertexColor;
-uniform Light light;
-
-//Texture
-uniform bool hasUvs;
-uniform bool hasTexture;
-uniform bool hasNormalMap;
-uniform bool hasSpecularMap;
-uniform sampler2D textureUnitDiffuse;
-uniform sampler2D normalUnitDiffuse;
-uniform sampler2D specularUnitDiffuse;
 
 // Attributes : per vertex data
 layout(location = 0)in vec4 vertexPosition;
