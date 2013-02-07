@@ -9,6 +9,11 @@ namespace game{
     return false;
   }
   
+  bool Turret::showRay()const{
+    if(m_TurnCounter <= s_SHOWRAY_FRAME_NUMBER) return true;
+    return false;
+  }
+  
   void Turret::update(){
     if(m_TurnCounter == m_Cadency) m_TurnCounter = 0;
     ++m_TurnCounter;

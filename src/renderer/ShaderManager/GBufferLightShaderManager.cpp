@@ -11,14 +11,14 @@ namespace renderer{
 GBufferLightShaderManager::GBufferLightShaderManager(const char* vertexShaderFile, const char* fragmentShaderFile):SimpleShaderManager(vertexShaderFile, fragmentShaderFile){
      
     m_PauseUniformLocation = glGetUniformLocation(m_ShaderProgram, "pause");
-    //if(m_PauseUniformLocation < 0) throw std::runtime_error("No uniform variable called pause in the shader");
+    if(m_PauseUniformLocation < 0) throw std::runtime_error("No uniform variable called pause in the shader");
   
     //Texture
     m_HasUvsUniformLocation = glGetUniformLocation(m_ShaderProgram, "hasUvs");
-    //if(m_HasUvsUniformLocation < 0) throw std::runtime_error("No uniform variable called hasUvs in the shader");
+    if(m_HasUvsUniformLocation < 0) throw std::runtime_error("No uniform variable called hasUvs in the shader");
     
     m_HasTextureUniformLocation = glGetUniformLocation(m_ShaderProgram, "hasTexture");
-    //if(m_HasTextureUniformLocation < 0) throw std::runtime_error("No uniform variable called hasTexture in the shader");
+    if(m_HasTextureUniformLocation < 0) throw std::runtime_error("No uniform variable called hasTexture in the shader");
 	
     m_HasNormalMapUniformLocation = glGetUniformLocation(m_ShaderProgram, "hasNormalMap");
     //if(m_HasNormalMapUniformLocation < 0) throw std::runtime_error("No uniform variable called hasNormalMap in the shader");
@@ -27,7 +27,7 @@ GBufferLightShaderManager::GBufferLightShaderManager(const char* vertexShaderFil
     //if(m_HasSpecularMapUniformLocation < 0) throw std::runtime_error("No uniform variable called hasSpecularMap in the shader");
     
     m_TextureDiffuseUniformLocation = glGetUniformLocation(m_ShaderProgram, "textureUnitDiffuse");
-    //if(m_TextureDiffuseUniformLocation < 0) throw std::runtime_error("No uniform variable called textureUnitDiffuse in the shader");
+    if(m_TextureDiffuseUniformLocation < 0) throw std::runtime_error("No uniform variable called textureUnitDiffuse in the shader");
 	    
     m_TextureNormalUniformLocation = glGetUniformLocation(m_ShaderProgram, "normalUnitDiffuse");
     //if(m_TextureNormalUniformLocation < 0) throw std::runtime_error("No uniform variable called normalUnitDiffuse in the shader");

@@ -13,6 +13,7 @@ public:
     const static float s_TURRET_Y_COORD = 0.0f;
     const static unsigned int s_TURRET_DEFAULT_CADENCY = 120;
     const static unsigned int s_TURRET_DEFAULT_RANGE = 3;
+    const static unsigned int s_SHOWRAY_FRAME_NUMBER = 10;
   
     //Constructor
     Turret(const glm::vec3 & rotation, GroundUnit * relatedGroundUnit):DefenseUnit(rotation, (float)s_TURRET_Y_COORD, relatedGroundUnit, -1), m_Cadency(s_TURRET_DEFAULT_CADENCY), m_TurnCounter(0), m_Range(s_TURRET_DEFAULT_RANGE){};
@@ -21,6 +22,7 @@ public:
     void getRayVector(std::vector<Ray> & rayVector)const;
     //Turret public functions
     bool isFiring()const;
+    bool showRay()const;
     void update();
     void initFromOtherDefenseUnit();
 

@@ -32,15 +32,15 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(bool pause, const std::vector<Light> & m_LightVector, const std::vector<game::Ray> & rays, const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board,const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
 	
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;
     void renderBoard(bool pause, const game::Board & board);
-    void renderEnemies(bool pause, const std::list<game::EnemyUnit> & enemies)const;
+    void renderEnemies(const std::list<game::EnemyUnit> & enemies)const;
     void renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const;
-    void renderRays(bool pause, const std::vector<game::Ray> & rays, const game::Board & board)const;
+    void renderRays(const std::vector<game::Ray> & rays)const;
 	
     //Attribute
     int m_Width;

@@ -36,11 +36,8 @@ namespace api{
 				updateGame();
 			}
 			// Rendu
-			m_GLRenderer->render(m_Pause, m_Lights, m_Rays, m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			m_GLRenderer->render(m_Pause, m_Lights, m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
 			SDL_GL_SwapBuffers();
-			
-			//End of the turn
-			m_Rays.clear();
 
 			SDL_Event e;
 			while(SDL_PollEvent(&e)) {
@@ -306,9 +303,16 @@ namespace api{
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
 	    }
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,10);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
+	    }
 	}
 	
 	void Application::updateGame(){
+	  
+	  std::vector<game::Ray> rayVector;
 	  
 	  //Updating the turret
 	  for(std::vector<game::Turret>::iterator turret = m_Turrets.begin(); turret != m_Turrets.end(); ++turret){
@@ -316,7 +320,7 @@ namespace api{
 	      (*turret).update();
 	      //Getting all rays
 	      if((*turret).isFiring()){
-		(*turret).getRayVector(m_Rays);
+		(*turret).getRayVector(rayVector);
 	      }
 	  }
 	  
@@ -330,7 +334,7 @@ namespace api{
 	    
 	      //Verifying if the enemy is destructed
 	      bool delelteEnemy = false;
-	      for(std::vector<game::Ray>::const_iterator ray = m_Rays.begin(); ray != m_Rays.end(); ++ray){
+	      for(std::vector<game::Ray>::const_iterator ray = rayVector.begin(); ray != rayVector.end(); ++ray){
 		std::pair<unsigned int, unsigned int> begin = (*ray).getBeginningCoord();
 		std::pair<unsigned int, unsigned int> end = (*ray).getEndingCoord();
 	      
@@ -352,7 +356,6 @@ namespace api{
 	      updateEnemy((*enemy));
 	      ++enemy;
 	  }
-	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
 	

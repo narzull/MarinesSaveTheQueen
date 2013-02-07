@@ -11,29 +11,29 @@ namespace renderer{
 LaccumLightShaderManager::LaccumLightShaderManager(const char* vertexShaderFile, const char* fragmentShaderFile):BaseShaderManager(vertexShaderFile, fragmentShaderFile){
     //Eye
     m_EyeUniformLocation = glGetUniformLocation(m_ShaderProgram, "eye");
-    //if(m_EyeUniformLocation < 0) throw std::runtime_error("No uniform variable called eye in the shader");
+    if(m_EyeUniformLocation < 0) throw std::runtime_error("No uniform variable called eye in the shader");
     
     //Light
     m_LightPosUniformLocation = glGetUniformLocation(m_ShaderProgram, "light.position");
-    //if(m_LightPosUniformLocation < 0) throw std::runtime_error("No uniform variable called light.position in the shader");
+    if(m_LightPosUniformLocation < 0) throw std::runtime_error("No uniform variable called light.position in the shader");
     
     m_LightColorUniformLocation = glGetUniformLocation(m_ShaderProgram, "light.color");
-    //if(m_LightColorUniformLocation < 0) throw std::runtime_error("No uniform variable called light.color in the shader");
+    if(m_LightColorUniformLocation < 0) throw std::runtime_error("No uniform variable called light.color in the shader");
 
     m_LightPowerUniformLocation = glGetUniformLocation(m_ShaderProgram, "light.power");
-    //if(m_LightPowerUniformLocation < 0) throw std::runtime_error("No uniform variable called light.power in the shader");
+    if(m_LightPowerUniformLocation < 0) throw std::runtime_error("No uniform variable called light.power in the shader");
     
     //Matrix
     m_InverseMatrixUniformLocation = glGetUniformLocation(m_ShaderProgram, "inverseViewProjection");
-    //if(m_InverseMatrixUniformLocation < 0) throw std::runtime_error("No uniform variable called inverseViewProjection in the shader");
+    if(m_InverseMatrixUniformLocation < 0) throw std::runtime_error("No uniform variable called inverseViewProjection in the shader");
     
     //Textures
     m_TextureDiffuseUniformLocation = glGetUniformLocation(m_ShaderProgram, "textureDiffuse");	
-    //if(m_TextureDiffuseUniformLocation < 0) throw std::runtime_error("No uniform variable called textureDiffuse in the shader");
+    if(m_TextureDiffuseUniformLocation < 0) throw std::runtime_error("No uniform variable called textureDiffuse in the shader");
     m_TextureNormalUniformLocation = glGetUniformLocation(m_ShaderProgram, "textureNormal");
-    //if(m_TextureNormalUniformLocation < 0) throw std::runtime_error("No uniform variable called textureNormal in the shader");
+    if(m_TextureNormalUniformLocation < 0) throw std::runtime_error("No uniform variable called textureNormal in the shader");
     m_TextureDepthUniformLocation = glGetUniformLocation(m_ShaderProgram, "textureDepth");
-    //if(m_TextureDepthUniformLocation < 0) throw std::runtime_error("No uniform variable called textureDepth in the shader");
+    if(m_TextureDepthUniformLocation < 0) throw std::runtime_error("No uniform variable called textureDepth in the shader");
 }
 
 void LaccumLightShaderManager::setEyeInShader(const glm::vec3 & eye)const{

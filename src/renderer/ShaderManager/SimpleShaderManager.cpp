@@ -12,7 +12,7 @@ SimpleShaderManager::SimpleShaderManager(const char* vertexShaderFile, const cha
   
     //Color
     m_ColorUniformLocation = glGetUniformLocation(m_ShaderProgram, "vertexColor");
-    //if(m_ColorUniformLocation < 0) throw std::runtime_error("No uniform variable called localColor in the shader");
+    if(m_ColorUniformLocation < 0) throw std::runtime_error("No uniform variable called localColor in the shader");
     
     //For 3D rendering
     m_ModelUniformLocation = glGetUniformLocation(m_ShaderProgram, "model");
