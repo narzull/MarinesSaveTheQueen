@@ -1,13 +1,14 @@
 #ifndef __TURRET_HPP__
 #define __TURRET_HPP__
 
+#include "../api/Entity.hpp"
 #include "DefenseUnit.hpp"
 #include "Ray.hpp"
 #include <vector>
 
 //GroundUnit class
 namespace game {
-class Turret : public DefenseUnit{
+class Turret: public api::Entity{
 public:
       //Static attribute
     const static float s_TURRET_Y_COORD = 0.0f;
@@ -16,15 +17,21 @@ public:
     const static unsigned int s_SHOWRAY_FRAME_NUMBER = 10;
   
     //Constructor
-    Turret(const glm::vec3 & rotation, GroundUnit * relatedGroundUnit):DefenseUnit(rotation, (float)s_TURRET_Y_COORD, relatedGroundUnit, -1), m_Cadency(s_TURRET_DEFAULT_CADENCY), m_TurnCounter(0), m_Range(s_TURRET_DEFAULT_RANGE){};
+    Turret(const glm::vec3 & rotation, GroundUnit * relatedGroundUnit): m_Cadency(s_TURRET_DEFAULT_CADENCY), m_TurnCounter(0), m_Range(s_TURRET_DEFAULT_RANGE), m_RelatedGroundUnit(relatedGroundUnit){
+      m_RelatedGroundUnit->setOccupied(true);
+      setRotation(rotation);
+      setPosition(relatedGroundUnit->getPosition() + glm::vec3(0.0, (float)s_TURRET_Y_COORD, 0.0));
+      updateModel();
+    };
     
     //Getters
     void getRayVector(std::vector<Ray> & rayVector)const;
+    GroundUnit * getRelatedGroundUnit()const{return m_RelatedGroundUnit;}
     //Turret public functions
     bool isFiring()const;
     bool showRay()const;
     void update();
-    void initFromOtherDefenseUnit();
+    void initFromOtherDefenseUnit(const std::vector<DefenseUnit> & otherDefenseUnit);
 
 private:
   
@@ -34,6 +41,7 @@ private:
     unsigned int m_Cadency;
     unsigned int m_TurnCounter;
     unsigned int m_Range;
+    GroundUnit * m_RelatedGroundUnit;
 };
 } // namespace game
 #endif // __DEFENSEUNIT_HPP__

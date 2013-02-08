@@ -25,9 +25,19 @@ namespace game{
     }
   }
   
-  void Turret::initFromOtherDefenseUnit(){
+  void Turret::initFromOtherDefenseUnit(const std::vector<DefenseUnit> & otherDefenseUnit){
     std::pair<unsigned int, unsigned int> coord = m_RelatedGroundUnit->getGroundUnitCoord();
     computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector, m_Position, m_Angles);
+    
+    //Checking for condensator
+    for(std::vector<DefenseUnit>::const_iterator it = otherDefenseUnit.begin(); it != otherDefenseUnit.end(); ++it){
+	std::pair<unsigned int, unsigned int> defenseUnitCoord = (*it).getRelatedGroundUnit()->getGroundUnitCoord();
+	int deltaX = abs(coord.first - defenseUnitCoord.first);
+	int deltaZ = abs(coord.second - defenseUnitCoord.second);
+	if(std::max(deltaX, deltaZ) == 1 && (*it).getType() == DEFENSEUNIT_CADENCOR){
+	  m_Cadency *= 0.70;
+	}
+    }
   }
   
   void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position, glm::vec3 angles){

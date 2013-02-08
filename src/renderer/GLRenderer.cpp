@@ -48,23 +48,28 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //Ray Object
     m_RayObject = objectBuilder.buildFromObj("obj/ray.obj", false);
     
+    //DefenseUnit objects
+    m_CadencorObject = objectBuilder.buildFromObj("obj/cadencor.obj", false);
+    
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
     
     //Ground Object
     m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
+    
     //Loading alternative texture for the dirt
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
     m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
-    m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
+    //m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
+    
     //Assign Default Texture for the ground
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-    m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+    //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
     
     //Enemy Object
     m_EnemyObject = objectBuilder.buildFromObj("obj/zombie.obj", false);
     m_EnemyObject->assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
-// 	m_EnemyObject->assignNormalMap(m_TextureManager.getTextureID("textures/zombieNormal.png"));
+    //m_EnemyObject->assignNormalMap(m_TextureManager.getTextureID("textures/zombieNormal.png"));
     
     //Turret Object
     m_TurretObject = objectBuilder.buildFromObj("obj/turret.obj", false);
@@ -73,7 +78,7 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //House Object
     m_HouseObject = objectBuilder.buildFromObj("obj/house.obj", false);
     m_HouseObject->assignTexture(m_TextureManager.getTextureID("textures/house.png"));
-    m_HouseObject->assignNormalMap(m_TextureManager.getTextureID("textures/houseNormal.png"));
+    //m_HouseObject->assignNormalMap(m_TextureManager.getTextureID("textures/houseNormal.png"));
 	
 }
 
@@ -86,13 +91,14 @@ GLRenderer::~GLRenderer() {
     delete(m_HouseObject);
     delete(m_EnemyObject);
     delete(m_TurretObject);
+    delete(m_CadencorObject);
     delete(m_PanelObject);
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
     delete(m_LaccumLightShaderManager);
 }
 
-void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
+void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -118,6 +124,7 @@ void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, co
     renderBoard(pause, board);
     renderEnemies(enemies);
     renderTurrets(pause, turrets);
+    renderDefenseUnits(defenseUnits);
     //Unbinding the GBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Clearing the front buffer
@@ -201,11 +208,11 @@ void GLRenderer::renderBoard(bool pause, const game::Board & board){
 	//Getting the type and setting the texture
 	if((*it)->getType() == ROCK_TYPE){
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
 	}
 	else{
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-	  m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
+	  //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
 	}
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it)->getModel());
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_GroundUnitObject);
@@ -243,6 +250,15 @@ void GLRenderer::renderRays(const std::vector<game::Ray> & rays)const{
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject);
 	m_RayObject->draw(GL_TRIANGLES);
     }  
+}
+
+void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const{
+    m_GBufferLightShaderManager->setColorInShader(Color::Blue());
+    for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
+	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	m_GBufferLightShaderManager->setObjectTextureInShader(m_CadencorObject);
+	m_CadencorObject->draw(GL_TRIANGLES);
+    } 
 }
 
 }//namespace renderer

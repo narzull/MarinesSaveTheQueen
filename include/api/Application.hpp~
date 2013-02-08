@@ -8,6 +8,7 @@
 #include "../game/Board.hpp"
 #include "../game/EnemyUnit.hpp"
 #include "../game/Turret.hpp"
+#include "../game/DefenseUnit.hpp"
 
 #include <string>
 #include <vector>
@@ -37,6 +38,7 @@ private:
 	game::Board m_Board;
 	std::vector<renderer::Light> m_Lights;
 	std::list<game::EnemyUnit> m_Enemies;
+	std::vector<game::DefenseUnit> m_DefenseUnit;
 	std::vector<game::Turret> m_Turrets;
 
 	//Renderer attribute

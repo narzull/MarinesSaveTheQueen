@@ -36,7 +36,7 @@ namespace api{
 				updateGame();
 			}
 			// Rendu
-			m_GLRenderer->render(m_Pause, m_Lights, m_Board, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			m_GLRenderer->render(m_Pause, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
 			SDL_GL_SwapBuffers();
 
 			SDL_Event e;
@@ -292,21 +292,31 @@ namespace api{
 	      }while(!isValid);
 	    }
 	    
+	    //Init the others defense unit
+	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(11,15);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	    }
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,15);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	    }
+	    
 	    //Init some turrets
-	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
 	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,15);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
 	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,10);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit();
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
 	}
 	

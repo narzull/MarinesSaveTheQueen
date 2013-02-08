@@ -14,6 +14,7 @@ public :
     m_BeginningCoord.second = beginningZ;
     m_EndingCoord.first = endingX;
     m_EndingCoord.second = endingZ;
+    autoComputeLenth();
     updateModel();
   };
   
@@ -21,9 +22,15 @@ public :
   std::pair<unsigned int, unsigned int> getBeginningCoord()const{return m_BeginningCoord;};
   std::pair<unsigned int, unsigned int> getEndingCoord()const{return m_EndingCoord;};
   
+  //Public methods
+  void changeRayEndingCoord(std::pair<unsigned int, unsigned int> newEndingCoord);
+  
 private:
+  void autoComputeLenth();
+  
   std::pair<unsigned int, unsigned int> m_BeginningCoord;
   std::pair<unsigned int, unsigned int> m_EndingCoord;
+  unsigned int m_Length;
 };
 } // namespace game
 #endif // __DEFENSEUNIT_HPP__
