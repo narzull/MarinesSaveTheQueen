@@ -25,22 +25,49 @@ namespace game{
     }
   }
   
-  void Turret::initFromOtherDefenseUnit(const std::vector<DefenseUnit> & otherDefenseUnit){
+  void Turret::initFromOtherDefenseUnit(std::vector<DefenseUnit> & otherDefenseUnit){
     std::pair<unsigned int, unsigned int> coord = m_RelatedGroundUnit->getGroundUnitCoord();
-    computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector, m_Position, m_Angles);
+    computeAndAddRay(coord.first, coord.second, m_Angles, m_RayVector, m_Position);
     
     //Checking for condensator
-    for(std::vector<DefenseUnit>::const_iterator it = otherDefenseUnit.begin(); it != otherDefenseUnit.end(); ++it){
+    for(std::vector<DefenseUnit>::iterator it = otherDefenseUnit.begin(); it != otherDefenseUnit.end(); ++it){
 	std::pair<unsigned int, unsigned int> defenseUnitCoord = (*it).getRelatedGroundUnit()->getGroundUnitCoord();
 	int deltaX = abs(coord.first - defenseUnitCoord.first);
 	int deltaZ = abs(coord.second - defenseUnitCoord.second);
 	if(std::max(deltaX, deltaZ) == 1 && (*it).getType() == DEFENSEUNIT_CADENCOR){
 	  m_Cadency *= 0.70;
+	  (*it).setUsed(true);
 	}
     }
+    
+    //Checking for mirrors
+    bool rayAdded;
+    unsigned int currentRayIndex = 0;
+    do{
+      rayAdded = false;
+      std::pair<unsigned int, unsigned int> begin = m_RayVector[currentRayIndex].getBeginningCoord();
+      std::pair<unsigned int, unsigned int> end = m_RayVector[currentRayIndex].getEndingCoord();
+      
+      //Checking all the defense unit
+      for(std::vector<DefenseUnit>::iterator it = otherDefenseUnit.begin(); it != otherDefenseUnit.end(); ++it){
+	if((*it).getType() == DEFENSEUNIT_MIRROR && !(*it).isUsed()){
+	    GroundUnit * localGroundUnit = (*it).getRelatedGroundUnit();
+	    std::pair<unsigned int, unsigned int> localCoord = localGroundUnit->getGroundUnitCoord();
+	    if((localCoord.first >= begin.first && localCoord.first <= end.first) ||(localCoord.first <= begin.first && localCoord.first >= end.first)){
+	      if((localCoord.second >= begin.second && localCoord.second <= end.second) ||(localCoord.second <= begin.second && localCoord.second >= end.second)){
+		     m_RayVector[currentRayIndex].changeRayEndingCoord(localCoord);
+		     computeAndAddRay(localCoord.first, localCoord.second, (*it).getRotation(), m_RayVector, localGroundUnit->getPosition());
+		     rayAdded = true; 
+		     (*it).setUsed(true);
+	      }
+	    }
+	}
+      }
+      ++currentRayIndex;
+    }while(rayAdded);
   }
   
-  void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position, glm::vec3 angles){
+  void Turret::computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position){
     int endingX = x;
     int endingZ = z;
     if(int(rotation.y) % 90 != 0){
@@ -55,7 +82,7 @@ namespace game{
       unsigned int endZ = (unsigned int)endingZ;
       if(endX >= (unsigned int)Board::s_GROUNDUNIT_NUMBER_WIDTH) endX = (unsigned int)Board::s_GROUNDUNIT_NUMBER_WIDTH - 1;
       if(endZ >= (unsigned int)Board::s_GROUNDUNIT_NUMBER_HEIGHT) endZ = (unsigned int)Board::s_GROUNDUNIT_NUMBER_HEIGHT - 1;
-      rayVector.push_back(Ray(x, z, endX, endZ, position, angles));
+      rayVector.push_back(Ray(x, z, endX, endZ, position, rotation));
     }
   }
   

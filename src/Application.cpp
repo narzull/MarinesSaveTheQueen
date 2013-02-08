@@ -293,13 +293,22 @@ namespace api{
 	    }
 	    
 	    //Init the others defense unit
-	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(11,15);
+	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(9,14);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,15);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,14);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	    }
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,11);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
+	    }
+	    
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(11,11);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
 	    }
 	    
 	    //Init some turrets
@@ -308,12 +317,12 @@ namespace api{
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,15);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,14);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,10);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);

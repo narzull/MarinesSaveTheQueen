@@ -46,10 +46,14 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     UniformObjectBuilder objectBuilder;
     
     //Ray Object
-    m_RayObject = objectBuilder.buildFromObj("obj/ray.obj", false);
+    m_RayObject3 = objectBuilder.buildFromObj("obj/ray3.obj", false);
+    m_RayObject2 = objectBuilder.buildFromObj("obj/ray2.obj", false);
+    m_RayObject1 = objectBuilder.buildFromObj("obj/ray1.obj", false);
     
     //DefenseUnit objects
     m_CadencorObject = objectBuilder.buildFromObj("obj/cadencor.obj", false);
+    m_MirrorObject = objectBuilder.buildFromObj("obj/mirror.obj", false);
+    m_MirrorObject->assignTexture(m_TextureManager.getTextureID("textures/mirror.png"));
     
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
@@ -86,12 +90,15 @@ GLRenderer::~GLRenderer() {
     //Destroying the framebuffer
     destroy_framebuffer(m_GBuffer);
     //Deleting reference objects
-    delete(m_RayObject);
+    delete(m_RayObject3);
+    delete(m_RayObject2);
+    delete(m_RayObject1);
     delete(m_GroundUnitObject);
     delete(m_HouseObject);
     delete(m_EnemyObject);
     delete(m_TurretObject);
     delete(m_CadencorObject);
+    delete(m_MirrorObject);
     delete(m_PanelObject);
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
@@ -247,8 +254,18 @@ void GLRenderer::renderRays(const std::vector<game::Ray> & rays)const{
     m_GBufferLightShaderManager->setColorInShader(Color::Green());
     for(std::vector<game::Ray>::const_iterator it = rays.begin(); it != rays.end(); ++it){
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject);
-	m_RayObject->draw(GL_TRIANGLES);
+	if((*it).getLength() == 3){
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject3);
+	  m_RayObject3->draw(GL_TRIANGLES);
+	}
+	else if((*it).getLength() == 2){
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject2);
+	  m_RayObject2->draw(GL_TRIANGLES);
+	}
+	else if((*it).getLength() == 1){
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_RayObject1);
+	  m_RayObject1->draw(GL_TRIANGLES);
+	}
     }  
 }
 
@@ -256,8 +273,14 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
     m_GBufferLightShaderManager->setColorInShader(Color::Blue());
     for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	m_GBufferLightShaderManager->setObjectTextureInShader(m_CadencorObject);
-	m_CadencorObject->draw(GL_TRIANGLES);
+	if((*it).getType() == DEFENSEUNIT_CADENCOR){
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_CadencorObject);
+	  m_CadencorObject->draw(GL_TRIANGLES);
+	}
+	else{
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_MirrorObject);
+	  m_MirrorObject->draw(GL_TRIANGLES);
+	}
     } 
 }
 

@@ -31,11 +31,11 @@ public:
     bool isFiring()const;
     bool showRay()const;
     void update();
-    void initFromOtherDefenseUnit(const std::vector<DefenseUnit> & otherDefenseUnit);
+    void initFromOtherDefenseUnit(std::vector<DefenseUnit> & otherDefenseUnit);
 
 private:
   
-    void computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position, glm::vec3 angles);
+    void computeAndAddRay(unsigned int x, unsigned int z, const glm::vec3 & rotation, std::vector<Ray> & rayVector, glm::vec3 position);
   
     std::vector<Ray> m_RayVector;
     unsigned int m_Cadency;

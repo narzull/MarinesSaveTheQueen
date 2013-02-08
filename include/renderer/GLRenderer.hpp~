@@ -49,12 +49,15 @@ private:
     int m_Height;
     
     //Modele use to render
-    UniformObject * m_RayObject;
+    UniformObject * m_RayObject1;
+    UniformObject * m_RayObject2;
+    UniformObject * m_RayObject3;
     UniformObject * m_TurretObject;
     UniformObject * m_EnemyObject;
     UniformObject * m_HouseObject;
     UniformObject * m_GroundUnitObject;
     UniformObject * m_CadencorObject;
+    UniformObject * m_MirrorObject;
     Simple2DPanel * m_PanelObject;
     //Texture
     TextureManager m_TextureManager;

@@ -21,6 +21,7 @@ public :
   //Getters
   std::pair<unsigned int, unsigned int> getBeginningCoord()const{return m_BeginningCoord;};
   std::pair<unsigned int, unsigned int> getEndingCoord()const{return m_EndingCoord;};
+  unsigned int getLength()const{return m_Length;};
   
   //Public methods
   void changeRayEndingCoord(std::pair<unsigned int, unsigned int> newEndingCoord);
