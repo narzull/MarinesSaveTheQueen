@@ -18,6 +18,7 @@
 #include "game/EnemyUnit.hpp"
 #include "game/Turret.hpp"
 #include "game/DefenseUnit.hpp"
+#include "game/LifeBar.hpp"
 
 #include <GL/glew.h>
 #include <vector>
@@ -33,7 +34,7 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
 	
 private:
     //Private methods
@@ -43,6 +44,7 @@ private:
     void renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const;
     void renderRays(const std::vector<game::Ray> & rays)const;
     void renderDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
+    void renderLifeBar(const game::LifeBar & lifebar)const;
 	
     //Attribute
     int m_Width;
@@ -58,6 +60,7 @@ private:
     UniformObject * m_GroundUnitObject;
     UniformObject * m_CadencorObject;
     UniformObject * m_MirrorObject;
+    UniformObject * m_LifeBarObject;
     Simple2DPanel * m_PanelObject;
     //Texture
     TextureManager m_TextureManager;

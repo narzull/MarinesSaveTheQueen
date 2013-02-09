@@ -36,7 +36,7 @@ namespace api{
 				updateGame();
 			}
 			// Rendu
-			m_GLRenderer->render(m_Pause, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
 			SDL_GL_SwapBuffers();
 
 			SDL_Event e;
@@ -375,6 +375,10 @@ namespace api{
 	      updateEnemy((*enemy));
 	      ++enemy;
 	  }
+	  
+	  //Updating the game info
+	  m_LifeBar.update();
+	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
 	
@@ -401,6 +405,9 @@ namespace api{
 		}
 	      }
 	    }
+	  }
+	  else if(action == ENEMY_FIRING){
+	    m_LifeBar.SubstractLife(1);
 	  }
 	}
 }//namespace api

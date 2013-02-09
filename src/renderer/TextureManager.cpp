@@ -44,7 +44,7 @@ namespace renderer{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->w, texture->h, 0, GL_RGB, GL_UNSIGNED_BYTE, texture->pixels);
 		 
 		//Free the memory
-		delete texture;
+		SDL_FreeSurface(texture);
 		std::cout << "Texture : " << textureFileName << " loaded " << std::endl;
 		return textureID;
 	}

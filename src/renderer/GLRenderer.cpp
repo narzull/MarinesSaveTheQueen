@@ -58,6 +58,9 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
     
+    //LifeBar Object
+    m_LifeBarObject = objectBuilder.buildFromObj("obj/lifebar.obj", false);
+    
     //Ground Object
     m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
     
@@ -90,6 +93,7 @@ GLRenderer::~GLRenderer() {
     //Destroying the framebuffer
     destroy_framebuffer(m_GBuffer);
     //Deleting reference objects
+    delete(m_LifeBarObject);
     delete(m_RayObject3);
     delete(m_RayObject2);
     delete(m_RayObject1);
@@ -105,7 +109,7 @@ GLRenderer::~GLRenderer() {
     delete(m_LaccumLightShaderManager);
 }
 
-void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
+void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -132,6 +136,7 @@ void GLRenderer::render(bool pause, const std::vector<Light> & m_LightVector, co
     renderEnemies(enemies);
     renderTurrets(pause, turrets);
     renderDefenseUnits(defenseUnits);
+    renderLifeBar(lifebar);
     //Unbinding the GBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Clearing the front buffer
@@ -283,5 +288,21 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
 	}
     } 
 }
+
+ void GLRenderer::renderLifeBar(const game::LifeBar & lifebar)const{
+  float ratio = lifebar.getLifeRatio();
+  if(ratio > 0.75){
+    m_GBufferLightShaderManager->setColorInShader(Color::Green());
+  }
+  else if(ratio > 0.25){
+     m_GBufferLightShaderManager->setColorInShader(Color::Orange());
+  }
+  else{
+    m_GBufferLightShaderManager->setColorInShader(Color::Red());
+  }
+  m_GBufferLightShaderManager->setModelMatrixInShader(lifebar.getModel());
+  m_GBufferLightShaderManager->setObjectTextureInShader(m_LifeBarObject);
+  m_LifeBarObject->draw(GL_TRIANGLES);
+ }
 
 }//namespace renderer

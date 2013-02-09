@@ -9,6 +9,7 @@
 #include "../game/EnemyUnit.hpp"
 #include "../game/Turret.hpp"
 #include "../game/DefenseUnit.hpp"
+#include "../game/LifeBar.hpp"
 
 #include <string>
 #include <vector>
@@ -31,6 +32,9 @@ private:
 	static const size_t m_WINDOW_HEIGHT = 720;
 	static const size_t m_BYTES_PER_PIXEL = 32;
 	const std::string m_WINDOW_TITLE;
+	
+	//Game attribute
+	game::LifeBar m_LifeBar;
 	
 	//Scene Entities
 	unsigned int m_WaveNumber;

@@ -13,6 +13,7 @@ struct Color{
 	static Color Pink(){return Color(255,0,255);};
 	static Color Cyan(){return Color(0,255,255);};
 	static Color Gray(){return Color(75,75,75);};
+	static Color Orange(){return Color(255,175,0);};
 	//Constructor
 	Color(float r, float g, float b):m_R(r), m_G(g), m_B(b){};
 	Color():m_R(255), m_G(255), m_B(255){};
