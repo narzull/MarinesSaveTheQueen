@@ -264,6 +264,9 @@ namespace api{
 	
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
+	  
+	    m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	    
 	    //Setting the camera
 	    m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
 	    
@@ -342,6 +345,8 @@ namespace api{
 		(*turret).getRayVector(rayVector);
 	      }
 	  }
+	  
+	  if(rayVector.size() != 0) m_SoundManager.playRandomLaserSound();
 	  
 	  //Updating the ennemies
 	  std::list<game::EnemyUnit>::iterator enemy = m_Enemies.begin();

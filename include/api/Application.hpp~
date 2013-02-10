@@ -3,6 +3,7 @@
 
 #include "Camera.hpp"
 #include "Entity.hpp"
+#include "SoundManager.hpp"
 #include "../renderer/GLRenderer.hpp"
 #include "../renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "../game/Board.hpp"
@@ -35,6 +36,7 @@ private:
 	
 	//Game attribute
 	game::LifeBar m_LifeBar;
+	api::SoundManager m_SoundManager;
 	
 	//Scene Entities
 	unsigned int m_WaveNumber;

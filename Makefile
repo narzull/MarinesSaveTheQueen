@@ -6,7 +6,7 @@ INCLUDE_PATH = include
 EXTERNAL_PATH = externals
 
 CFLAGS = -Wall -ansi -I $(INCLUDE_PATH) -I $(EXTERNAL_PATH)/include
-LDFLAGS = -lSDL -lSDL_image -lGL -lopencv_core -lopencv_highgui 
+LDFLAGS = -lSDL -lSDL_image -lSDL_mixer -lGL -lopencv_core -lopencv_highgui 
 
 EXEC = MarinesSaveTheQueen
 
