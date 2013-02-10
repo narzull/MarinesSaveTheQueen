@@ -28,8 +28,8 @@ private:
 	//Attribute
 	//********************************
 	//Const attribute
-	static const size_t m_WINDOW_WIDTH = 720;
-	static const size_t m_WINDOW_HEIGHT = 720;
+	static const size_t m_WINDOW_WIDTH = 1024;
+	static const size_t m_WINDOW_HEIGHT = 768;
 	static const size_t m_BYTES_PER_PIXEL = 32;
 	const std::string m_WINDOW_TITLE;
 	

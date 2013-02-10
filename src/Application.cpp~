@@ -293,38 +293,38 @@ namespace api{
 	    }
 	    
 	    //Init the others defense unit
-	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(9,14);
+	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,12);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,14);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,11);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,11);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,11);
 	    if(!turretGroundUnit->isOccupied()){
-	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
+	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
 	    }
 	    
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(11,11);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,8);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
 	    }
 	    
 	    //Init some turrets
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,11);
 	    if(!turretGroundUnit->isOccupied()){
-	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90, 0.0), turretGroundUnit));
+	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,14);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 90, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(6,5);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
+	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	    }
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,5);
+	    if(!turretGroundUnit->isOccupied()){
+	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
 	}
@@ -391,7 +391,7 @@ namespace api{
 	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();
 	    std::vector<game::GroundUnit *> neighbourGroundUnit;
 	    bool isBlocked = m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
-	    if(isBlocked && currentGroundUnit->getWeight() <= 3){
+	    if(isBlocked && currentGroundUnit->getWeight() <= 2){
 	      enemy.setAction(ENEMY_FIRING);
 	      enemy.autoRotateForFire();
 	    }

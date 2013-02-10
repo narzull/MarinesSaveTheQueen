@@ -25,7 +25,7 @@ namespace game{
     glm::vec3 direction = positionToReach - m_Position;
     direction = glm::normalize(direction);
     float angle = acosf(direction.x) * 360 / (2*M_PI);
-    float angleFinal = 90;
+    float angleFinal = 0;
     if(direction.z > 0){
 	angleFinal -= angle;
     }

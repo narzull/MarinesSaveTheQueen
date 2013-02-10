@@ -66,8 +66,8 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     
     //Loading alternative texture for the dirt
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-    m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
-    //m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
+    //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
+    m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
     
     //Assign Default Texture for the ground
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));

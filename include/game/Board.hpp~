@@ -11,8 +11,8 @@ namespace game {
 class Board{
 public:
     //Static attribute
-    const static unsigned int s_GROUNDUNIT_NUMBER_WIDTH = 21;
-    const static unsigned int s_GROUNDUNIT_NUMBER_HEIGHT = 21;
+    const static unsigned int s_GROUNDUNIT_NUMBER_WIDTH = 17;
+    const static unsigned int s_GROUNDUNIT_NUMBER_HEIGHT = 17;
   
     //Constructor
     Board();

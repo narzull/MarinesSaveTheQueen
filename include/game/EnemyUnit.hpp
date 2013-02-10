@@ -16,7 +16,7 @@ class EnemyUnit : public api::Entity{
 public:
   
     //Static attribute
-    const static float s_ENEMYUNIT_Y_COORD = 0.15f;
+    const static float s_ENEMYUNIT_Y_COORD = 0.0f;
     
     //Constructor
     EnemyUnit(GroundUnit * groundUnit, float speed);
