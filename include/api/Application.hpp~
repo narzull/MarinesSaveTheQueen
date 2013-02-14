@@ -21,6 +21,10 @@
 
 #define FRAMES_PER_SECOND 30
 
+#define GAME_STATUS_LAUNCH 1
+#define GAME_STATUS_RUNNING 2
+#define GAME_STATUS_END 3
+
 //Application class of our program that run the main loop
 namespace api{
 class Application{
@@ -35,6 +39,7 @@ private:
 	const std::string m_WINDOW_TITLE;
 	
 	//Game attribute
+	int m_GameStatus;
 	game::LifeBar m_LifeBar;
 	api::SoundManager m_SoundManager;
 	
@@ -88,6 +93,8 @@ private:
 	void initWave(unsigned int waveNumber);
 	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();
+	void restartGame();
+	
 public:
 	//Constructor & Destructor
 	Application(std::string windowTitle, const std::string & param);

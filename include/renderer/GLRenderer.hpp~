@@ -11,6 +11,7 @@
 #include "renderer/TextureManager.hpp"
 #include "renderer/ShaderManager/GBufferLightShaderManager.hpp"
 #include "renderer/ShaderManager/LaccumLightShaderManager.hpp"
+#include "renderer/ShaderManager/BlitShaderManager.hpp"
 #include "renderer/FramebufferGL.hpp"
 
 //game includes
@@ -35,7 +36,8 @@ public:
     ~GLRenderer();
     //Public methods
     void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
-	
+    void renderEndScreen();
+    void renderBeginScreen();	
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;
@@ -71,6 +73,7 @@ private:
     //Shader
     GBufferLightShaderManager * m_GBufferLightShaderManager;
     LaccumLightShaderManager * m_LaccumLightShaderManager;
+    BlitShaderManager * m_BlitShaderManager;
 };
 }//namespace api
 

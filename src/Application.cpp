@@ -8,12 +8,29 @@
 
 namespace api{
 	//Constructor
-	Application::Application(std::string windowTitle, const std::string & param): m_WINDOW_TITLE(windowTitle), m_Done(false){
+	Application::Application(std::string windowTitle, const std::string & param): m_WINDOW_TITLE(windowTitle), m_GameStatus(GAME_STATUS_LAUNCH), m_Done(false){
 		//Init the SDL Flags
 		initSDLFlags();
+		
+		//Init variables at the beginning
+		//Init the rand seed
+		srand(time(NULL));
+		//Creating the renderer
+		m_GLRenderer = new renderer::GLRenderer(m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
+		
 		//Init the application model
 		initApplication();
 		initWave(m_WaveNumber);
+		
+		//Init some GL options
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE); //Enable backface culling
+		glCullFace(GL_BACK);   //Cull front faces
+		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
+		glDepthFunc(GL_LEQUAL);
+		glDepthRange(0.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 	
 	//Destructor
@@ -28,30 +45,37 @@ namespace api{
 	void Application::loop(){
 		while(!m_Done) {
 			Uint32 start = SDL_GetTicks();
-
-			//Pause 
-			m_WebcamFrame = NULL;
-			if(!m_Pause){
-				//m_WebcamFrame = cvQueryFrame(m_Webcam);
-				updateGame();
+			
+			if(m_GameStatus == GAME_STATUS_LAUNCH){
+			  m_GLRenderer->renderBeginScreen();
 			}
-			// Rendu
-			m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			else if(m_GameStatus == GAME_STATUS_RUNNING){
+			  //Webcam code
+			  m_WebcamFrame = NULL;
+			  if(!m_Pause && m_GameStatus != GAME_STATUS_END){
+				  //m_WebcamFrame = cvQueryFrame(m_Webcam);
+				  updateGame();
+			  }
+			  // Rendu
+			  m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			  if(m_GameStatus == GAME_STATUS_END)m_GLRenderer->renderEndScreen();
+			}
+			
 			SDL_GL_SwapBuffers();
-
+			
+			//Events
 			SDL_Event e;
 			while(SDL_PollEvent(&e)) {
 				/*Event*/
 				handleEvent(e);
 			}
 			
-			moveCameraInApplication();
-			
-			m_FrameCount++;
+			if(m_GameStatus == GAME_STATUS_RUNNING)moveCameraInApplication();
 			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 			SDL_WarpMouse(m_WINDOW_WIDTH/2.0, m_WINDOW_HEIGHT/2.0);
 			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 			
+			m_FrameCount++;
 			Uint32 end = SDL_GetTicks();
 			int minLoopTime = 1000/FRAMES_PER_SECOND;
 			int ellapseTime = end - start;
@@ -61,8 +85,6 @@ namespace api{
 	}
 	
 	void Application::initApplication(){
-		//Init the rand seed
-		srand(time(NULL));  
 		//Init some game variables
 		m_WaveNumber = 1;		
 		//Init some variables
@@ -75,7 +97,6 @@ namespace api{
 		m_MousePosX = 0;
 		m_MousePosY = 0;
 		m_Pause = true;
-		m_GLRenderer = new renderer::GLRenderer(m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
 		
 		//Init the Webcam
 		m_Webcam = NULL;
@@ -83,16 +104,6 @@ namespace api{
 		if(m_Webcam == NULL){
 			std::cout << "No webcam found" << std::endl;
 		}
-		
-		//Init some GL options
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		glEnable(GL_CULL_FACE); //Enable backface culling
-		glCullFace(GL_BACK);   //Cull front faces
-		glEnable(GL_DEPTH_TEST);
-		glDepthMask(GL_TRUE);
-		glDepthFunc(GL_LEQUAL);
-		glDepthRange(0.0f, 1.0f);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	}
 	
 	//Init all the required SDL Flags
@@ -151,6 +162,10 @@ namespace api{
 					break;
 				case SDLK_p :
 					m_Pause = !m_Pause;
+					break;
+				case SDLK_r :
+					if(m_GameStatus == GAME_STATUS_END) restartGame();
+					if(m_GameStatus == GAME_STATUS_LAUNCH) m_GameStatus = GAME_STATUS_RUNNING;
 					break;
 				case SDLK_y:
 					bool save;
@@ -265,7 +280,7 @@ namespace api{
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
 	  
-	    m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	    //m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	    
 	    //Setting the camera
 	    m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
@@ -383,6 +398,7 @@ namespace api{
 	  
 	  //Updating the game info
 	  m_LifeBar.update();
+	  if(!m_LifeBar.isAlive())m_GameStatus = GAME_STATUS_END;
 	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
@@ -414,5 +430,24 @@ namespace api{
 	  else if(action == ENEMY_FIRING){
 	    m_LifeBar.SubstractLife(1);
 	  }
+	}
+	
+	void Application::restartGame(){
+	  std::cout << "Restarting the game" << std::endl;
+	  //Set the camera
+	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
+	  //Destroying the game variables
+	  m_Lights.clear();
+	  m_Enemies.clear();
+	  m_Turrets.clear();
+	  m_DefenseUnit.clear();
+	  //Restarting some elements
+	  m_LifeBar.restart();
+	  m_Board.restart();
+	  //Init a new application
+	  initApplication();
+	  initWave(m_WaveNumber);
+	  //Changing game status
+	  m_GameStatus = GAME_STATUS_LAUNCH;
 	}
 }//namespace api

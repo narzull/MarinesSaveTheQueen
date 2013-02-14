@@ -142,4 +142,10 @@ namespace game{
 	if(currentGroundUnit->getWeight() == minWeight) isBlocked = true;
 	return isBlocked;
     }
+    
+    void Board::restart(){
+      for(unsigned int i = 0; i < m_GridBoard.size(); ++i){
+	m_GridBoard[i]->setOccupied(false);
+      }
+    }
 }//namespace game

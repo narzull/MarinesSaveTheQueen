@@ -37,10 +37,14 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     
     static const char *LACCUM_VERTEX_SHADER = "shaders/laccum.lightshader.vs.glsl";
     static const char *LACCUM_FRAGMENT_SHADER = "shaders/laccum.lightshader.fs.glsl";
+    
+    static const char *BLIT_VERTEX_SHADER = "shaders/blit.shader.vs.glsl";
+    static const char *BLIT_FRAGMENT_SHADER = "shaders/blit.shader.fs.glsl";
 
     //Creating shaders
     m_GBufferLightShaderManager = new GBufferLightShaderManager(GBUFFER_VERTEX_SHADER, GBUFFER_FRAGMENT_SHADER);
     m_LaccumLightShaderManager = new LaccumLightShaderManager(LACCUM_VERTEX_SHADER, LACCUM_FRAGMENT_SHADER);
+    m_BlitShaderManager = new BlitShaderManager(BLIT_VERTEX_SHADER, BLIT_FRAGMENT_SHADER);
     
     //Creating reference objects
     UniformObjectBuilder objectBuilder;
@@ -55,6 +59,9 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     m_MirrorObject = objectBuilder.buildFromObj("obj/mirror.obj", false);
     m_MirrorObject->assignTexture(m_TextureManager.getTextureID("textures/mirror.png"));
     
+    //Loading screen textures
+    m_TextureManager.getTextureID("textures/screen/endScreen.png");
+    
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
     
@@ -67,7 +74,7 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //Loading alternative texture for the dirt
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
     //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
-    m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
+    //m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
     
     //Assign Default Texture for the ground
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
@@ -107,6 +114,7 @@ GLRenderer::~GLRenderer() {
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
     delete(m_LaccumLightShaderManager);
+    delete(m_BlitShaderManager);
 }
 
 void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
@@ -304,5 +312,26 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
   m_GBufferLightShaderManager->setObjectTextureInShader(m_LifeBarObject);
   m_LifeBarObject->draw(GL_TRIANGLES);
  }
+ 
+  void GLRenderer::renderEndScreen(){
+    glViewport(m_Width/4.0, m_Height/4.0, m_Width/2.0, m_Height/2.0);
+    glUseProgram(m_BlitShaderManager->getShaderID());
+    glDisable(GL_DEPTH_TEST);
+    //Update light uniforms
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    // Draw quad
+    m_PanelObject->draw(GL_TRIANGLES);
+    glEnable(GL_DEPTH_TEST);
+  }
 
+  void GLRenderer::renderBeginScreen(){
+    glViewport(0, 0, m_Width, m_Height);
+    glUseProgram(m_BlitShaderManager->getShaderID());
+    glDisable(GL_DEPTH_TEST);
+    //Update light uniforms
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    // Draw quad
+    m_PanelObject->draw(GL_TRIANGLES);
+    glEnable(GL_DEPTH_TEST);
+  }
 }//namespace renderer

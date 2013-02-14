@@ -37,6 +37,7 @@ public:
     void computeGroundUnitsWeightFromCenter();
     void printGroundUnitsWeight();
     void printGroundUnitsOccupation();
+    void restart();
    
 private:
     //Attribute

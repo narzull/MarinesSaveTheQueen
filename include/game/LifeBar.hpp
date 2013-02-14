@@ -43,6 +43,10 @@ public:
 	setScale(glm::vec3(m_Life/(float)s_INITIAL_LIFE, 1.0, 1.0));
 	updateModel();
     }
+    
+    void restart(){
+	m_Life = s_INITIAL_LIFE;
+    }
 
 private:
     unsigned int m_Life;
