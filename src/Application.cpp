@@ -17,10 +17,12 @@ namespace api{
 		srand(time(NULL));
 		//Creating the renderer
 		m_GLRenderer = new renderer::GLRenderer(m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
-		
-		//Init the application model
-		initApplication();
-		
+		//Init the Webcam
+		m_Webcam = NULL;
+		m_Webcam = cvCaptureFromCAM(CV_CAP_ANY);
+		if(m_Webcam == NULL){
+			std::cout << "No webcam found" << std::endl;
+		}
 		//Init some GL options
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glEnable(GL_CULL_FACE); //Enable backface culling
@@ -30,6 +32,8 @@ namespace api{
 		glDepthFunc(GL_LEQUAL);
 		glDepthRange(0.0f, 1.0f);
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//Init the application model
+		initApplication();
 	}
 	
 	//Destructor
@@ -97,13 +101,6 @@ namespace api{
 		m_MousePosX = 0;
 		m_MousePosY = 0;
 		m_Pause = true;
-		
-		//Init the Webcam
-		m_Webcam = NULL;
-		m_Webcam = cvCaptureFromCAM(CV_CAP_ANY);
-		if(m_Webcam == NULL){
-			std::cout << "No webcam found" << std::endl;
-		}
 	}
 	
 	//Init all the required SDL Flags
@@ -280,8 +277,8 @@ namespace api{
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
 	    //Setting the wave informations
-	    m_EnemiesToKill = rand()%(50*waveNumber) + 20*waveNumber;
-	    float enemiesSpeed = 0.01*(waveNumber);
+	    m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
+	    float enemiesSpeed = 0.02*(waveNumber/4.0);
 	    std::cout << "Init wave number : " << m_WaveNumber << " Ennemies to kill : " << m_EnemiesToKill << std::endl;    
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
@@ -418,9 +415,7 @@ namespace api{
 	  m_Board.restart();
 	  //Init a new application
 	  initApplication();
-	  initWave(m_WaveNumber);
-	  //Changing game status
-	  m_GameStatus = GAME_STATUS_LAUNCH;
+	  startGame();
 	}
 	
 	void Application::startGame(){
