@@ -93,6 +93,7 @@ private:
 	void initWave(unsigned int waveNumber);
 	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();
+	void startGame();
 	void restartGame();
 	
 public:

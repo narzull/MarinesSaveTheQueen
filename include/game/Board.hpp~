@@ -13,6 +13,7 @@ public:
     //Static attribute
     const static unsigned int s_GROUNDUNIT_NUMBER_WIDTH = 17;
     const static unsigned int s_GROUNDUNIT_NUMBER_HEIGHT = 17;
+    const static unsigned int s_BOARD_DISTANCE_AROUND_CENTER = 1;
   
     //Constructor
     Board();

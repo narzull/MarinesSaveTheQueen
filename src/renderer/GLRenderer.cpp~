@@ -118,6 +118,7 @@ GLRenderer::~GLRenderer() {
 }
 
 void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
+    
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -176,9 +177,8 @@ void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::ve
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
     
-    /*  
     if(webcamFrame != NULL) renderBackground(webcamFrame);
-    */
+    
 }
 
 int GLRenderer::renderBackground(const IplImage * webcamFrame)const{

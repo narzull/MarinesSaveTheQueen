@@ -20,7 +20,6 @@ namespace api{
 		
 		//Init the application model
 		initApplication();
-		initWave(m_WaveNumber);
 		
 		//Init some GL options
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -50,10 +49,12 @@ namespace api{
 			  m_GLRenderer->renderBeginScreen();
 			}
 			else if(m_GameStatus == GAME_STATUS_RUNNING){
+			  //Update the frame count 
+			  m_FrameCount++;
 			  //Webcam code
 			  m_WebcamFrame = NULL;
 			  if(!m_Pause && m_GameStatus != GAME_STATUS_END){
-				  //m_WebcamFrame = cvQueryFrame(m_Webcam);
+				  m_WebcamFrame = cvQueryFrame(m_Webcam);
 				  updateGame();
 			  }
 			  // Rendu
@@ -75,7 +76,6 @@ namespace api{
 			SDL_WarpMouse(m_WINDOW_WIDTH/2.0, m_WINDOW_HEIGHT/2.0);
 			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 			
-			m_FrameCount++;
 			Uint32 end = SDL_GetTicks();
 			int minLoopTime = 1000/FRAMES_PER_SECOND;
 			int ellapseTime = end - start;
@@ -165,7 +165,7 @@ namespace api{
 					break;
 				case SDLK_r :
 					if(m_GameStatus == GAME_STATUS_END) restartGame();
-					if(m_GameStatus == GAME_STATUS_LAUNCH) m_GameStatus = GAME_STATUS_RUNNING;
+					if(m_GameStatus == GAME_STATUS_LAUNCH) startGame();
 					break;
 				case SDLK_y:
 					bool save;
@@ -280,7 +280,7 @@ namespace api{
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
 	  
-	    //m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	    m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	    
 	    //Setting the camera
 	    m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
@@ -296,18 +296,38 @@ namespace api{
 	    m_EnemiesToKill = rand()%(50*waveNumber) + 20*waveNumber;
 	    float enemiesSpeed = 0.01;
 	    
+	    std::cout << "INIT " << m_EnemiesToKill << std::endl;
+	    
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
-	    for(unsigned int i = 0; i < m_EnemiesToKill; ++i){
+	    std::pair<unsigned int, unsigned int> centralCoord = centralGroudUnit->getGroundUnitCoord();
+	    unsigned int enemyCpt = 0;
+	    while(enemyCpt < m_EnemiesToKill){
 	      bool isValid = false;
+	      int tryCpt = 0;
 	      //Getting random positions to place the enemy unit
 	      do{
 		game::GroundUnit * randomGroundUnit = m_Board.getRandomGroundUnit();
-		if(randomGroundUnit != centralGroudUnit && !randomGroundUnit->isOccupied()){
-		  isValid = true;
-		  m_Enemies.push_front(game::EnemyUnit(randomGroundUnit, enemiesSpeed));
+		if(!randomGroundUnit->isOccupied()){
+		  std::pair<unsigned int, unsigned int> coord = randomGroundUnit->getGroundUnitCoord();
+		  if(coord.first < centralCoord.first - game::Board::s_BOARD_DISTANCE_AROUND_CENTER || coord.first > centralCoord.first + game::Board::s_BOARD_DISTANCE_AROUND_CENTER){
+		    if(coord.second < centralCoord.second - game::Board::s_BOARD_DISTANCE_AROUND_CENTER || coord.second > centralCoord.second + game::Board::s_BOARD_DISTANCE_AROUND_CENTER){
+		      isValid = true;
+		      m_Enemies.push_front(game::EnemyUnit(randomGroundUnit, enemiesSpeed));
+		    }
+		  }
 		}
-	      }while(!isValid);
+		++tryCpt;
+	      }while(!isValid && tryCpt < 3);
+	      if(!isValid){
+		std::cout << "jhbjhbjh" << std::endl;
+		--m_EnemiesToKill;
+		//std::cout << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
+	      }
+	      else{
+		++enemyCpt;
+	      }
+	      std::cout << enemyCpt << " " << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
 	    }
 	    
 	    //Init the others defense unit
@@ -315,32 +335,24 @@ namespace api{
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,11);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
-	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,11);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
-	    }
 	    
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(5,8);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
 	    }
 	    
 	    //Init some turrets
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(8,11);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(6,5);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,5);
+	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
 	    if(!turretGroundUnit->isOccupied()){
 	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
 	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
@@ -386,6 +398,7 @@ namespace api{
 	      }
 	      //If the enemy must be deleted
 	      if(delelteEnemy){
+		--m_EnemiesToKill;
 		localGroundUnit->setOccupied(false);
 		enemy = m_Enemies.erase(enemy);
 		continue;
@@ -400,6 +413,9 @@ namespace api{
 	  m_LifeBar.update();
 	  if(!m_LifeBar.isAlive())m_GameStatus = GAME_STATUS_END;
 	  
+	  if(m_EnemiesToKill == 0) std::cout << "VAGUE TERMINEE" << std::endl;
+	  std::cout << m_EnemiesToKill << std::endl;
+	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
 	
@@ -412,7 +428,7 @@ namespace api{
 	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();
 	    std::vector<game::GroundUnit *> neighbourGroundUnit;
 	    bool isBlocked = m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
-	    if(isBlocked && currentGroundUnit->getWeight() <= 2){
+	    if(isBlocked && currentGroundUnit->getWeight() <= (int)game::Board::s_BOARD_DISTANCE_AROUND_CENTER){
 	      enemy.setAction(ENEMY_FIRING);
 	      enemy.autoRotateForFire();
 	    }
@@ -449,5 +465,14 @@ namespace api{
 	  initWave(m_WaveNumber);
 	  //Changing game status
 	  m_GameStatus = GAME_STATUS_LAUNCH;
+	}
+	
+	void Application::startGame(){
+	  std::cout << "Starting the game" << std::endl;
+	  //Set the camera
+	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
+	  initWave(m_WaveNumber);
+	  //Changing game status
+	  m_GameStatus = GAME_STATUS_RUNNING;
 	}
 }//namespace api
