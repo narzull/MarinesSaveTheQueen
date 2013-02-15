@@ -279,25 +279,10 @@ namespace api{
 	
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
-	  
-	    m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
-	    
-	    //Setting the camera
-	    m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
-	    
-	    m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
-	    m_Lights.push_back(renderer::Light(glm::vec4(-2.0,0.3,-2.0,1.0), glm::vec3(1.0,0.5,0.5), 5.0));
-	    
-	    //Computing the ground unit weight
-	    m_Board.computeGroundUnitsWeightFromCenter();
-	    //m_Board.printGroundUnitsWeight();
-	    
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(50*waveNumber) + 20*waveNumber;
-	    float enemiesSpeed = 0.01;
-	    
-	    std::cout << "INIT " << m_EnemiesToKill << std::endl;
-	    
+	    float enemiesSpeed = 0.01*(waveNumber);
+	    std::cout << "Init wave number : " << m_WaveNumber << " Ennemies to kill : " << m_EnemiesToKill << std::endl;    
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
 	    std::pair<unsigned int, unsigned int> centralCoord = centralGroudUnit->getGroundUnitCoord();
@@ -320,47 +305,16 @@ namespace api{
 		++tryCpt;
 	      }while(!isValid && tryCpt < 3);
 	      if(!isValid){
-		std::cout << "jhbjhbjh" << std::endl;
 		--m_EnemiesToKill;
-		//std::cout << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
 	      }
 	      else{
 		++enemyCpt;
 	      }
-	      std::cout << enemyCpt << " " << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
-	    }
-	    
-	    //Init the others defense unit
-	    game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,12);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
-	    }
-	    
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
-	    }
-	    
-	    //Init some turrets
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	    }
-	    turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
-	    if(!turretGroundUnit->isOccupied()){
-	      m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
-	      m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	      //std::cout << enemyCpt << " " << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
 	    }
 	}
 	
 	void Application::updateGame(){
-	  
 	  std::vector<game::Ray> rayVector;
 	  
 	  //Updating the turret
@@ -403,7 +357,6 @@ namespace api{
 		enemy = m_Enemies.erase(enemy);
 		continue;
 	      }
-	    
 	      //Updating the enemy
 	      updateEnemy((*enemy));
 	      ++enemy;
@@ -413,8 +366,11 @@ namespace api{
 	  m_LifeBar.update();
 	  if(!m_LifeBar.isAlive())m_GameStatus = GAME_STATUS_END;
 	  
-	  if(m_EnemiesToKill == 0) std::cout << "VAGUE TERMINEE" << std::endl;
-	  std::cout << m_EnemiesToKill << std::endl;
+	  if(m_EnemiesToKill == 0){
+	    std::cout << "VAGUE TERMINEE" << std::endl;
+	    ++m_WaveNumber;
+	    initWave(m_WaveNumber);
+	  }
 	  
 	  //m_Board.printGroundUnitsOccupation();
 	}
@@ -424,7 +380,7 @@ namespace api{
 	  if(action == ENEMY_WALKING){
 	    enemy.walk();
 	  }
-	  else if(action == ENEMY_WAITING){
+	  else if(action == ENEMY_WAITING){;
 	    game::GroundUnit * currentGroundUnit = enemy.getGroundUnitToReach();
 	    std::vector<game::GroundUnit *> neighbourGroundUnit;
 	    bool isBlocked = m_Board.getNextGroundUnit(currentGroundUnit, neighbourGroundUnit);
@@ -469,8 +425,42 @@ namespace api{
 	
 	void Application::startGame(){
 	  std::cout << "Starting the game" << std::endl;
+	  //Launching the music
+	  m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	  //Set the camera
 	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
+	  //Set some game unity
+	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
+	  m_Lights.push_back(renderer::Light(glm::vec4(-2.0,0.3,-2.0,1.0), glm::vec3(1.0,0.5,0.5), 5.0));
+	  //Init some defense units
+	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,12);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	  }   
+	  turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
+	  }
+	  turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
+	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	  }
+	  turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
+	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	  }
+	  turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
+	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	  }
+	  //Computing the ground unit weight
+	  m_Board.computeGroundUnitsWeightFromCenter();
+	  //m_Board.printGroundUnitsWeight();
+	  //m_Board.printGroundUnitsOccupation();
+	  //Initialize the current wave
 	  initWave(m_WaveNumber);
 	  //Changing game status
 	  m_GameStatus = GAME_STATUS_RUNNING;
