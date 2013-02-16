@@ -49,21 +49,39 @@ namespace api{
 		while(!m_Done) {
 			Uint32 start = SDL_GetTicks();
 			
+			//GAME LAUNCHING CODE
 			if(m_GameStatus == GAME_STATUS_LAUNCH){
 			  m_GLRenderer->renderBeginScreen();
 			}
-			else if(m_GameStatus == GAME_STATUS_RUNNING){
+			else{
 			  //Update the frame count 
 			  m_FrameCount++;
+			  
+			  //GAME RUNNING CODE
 			  //Webcam code
 			  m_WebcamFrame = NULL;
-			  if(!m_Pause && m_GameStatus != GAME_STATUS_END){
-				  m_WebcamFrame = cvQueryFrame(m_Webcam);
+			  if(!m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
+				  //m_WebcamFrame = cvQueryFrame(m_Webcam);
 				  updateGame();
 			  }
-			  // Rendu
+			  
+			  //RENDERING
 			  m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
-			  if(m_GameStatus == GAME_STATUS_END)m_GLRenderer->renderEndScreen();
+			  
+			  //GAME WAVE TRANSITION CODE
+			  if(m_GameStatus == GAME_STATUS_WAVE_TRANSITION){
+			    if(m_WaveTransitionCounter < (unsigned int)60){
+			      m_GLRenderer->renderWaveScreen();
+			    }else{
+			      m_GLRenderer->renderGoScreen();
+			    }
+			    updateWaveTransition();
+			  }
+			  
+			  //GAME ENDING CODE
+			  if(m_GameStatus == GAME_STATUS_END){
+			    m_GLRenderer->renderEndScreen();
+			  }
 			}
 			
 			SDL_GL_SwapBuffers();
@@ -75,6 +93,7 @@ namespace api{
 				handleEvent(e);
 			}
 			
+			//CAMERA MOVEMENT CODE
 			if(m_GameStatus == GAME_STATUS_RUNNING)moveCameraInApplication();
 			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 			SDL_WarpMouse(m_WINDOW_WIDTH/2.0, m_WINDOW_HEIGHT/2.0);
@@ -158,7 +177,7 @@ namespace api{
 					m_MoveFlagZ = -1;
 					break;
 				case SDLK_p :
-					m_Pause = !m_Pause;
+					if(m_GameStatus == GAME_STATUS_RUNNING) m_Pause = !m_Pause;
 					break;
 				case SDLK_r :
 					if(m_GameStatus == GAME_STATUS_END) restartGame();
@@ -279,7 +298,6 @@ namespace api{
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
 	    float enemiesSpeed = 0.02*(waveNumber/4.0);
-	    std::cout << "Init wave number : " << m_WaveNumber << " Ennemies to kill : " << m_EnemiesToKill << std::endl;    
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
 	    std::pair<unsigned int, unsigned int> centralCoord = centralGroudUnit->getGroundUnitCoord();
@@ -306,9 +324,9 @@ namespace api{
 	      }
 	      else{
 		++enemyCpt;
-	      }
-	      //std::cout << enemyCpt << " " << m_EnemiesToKill << " " << m_Enemies.size() <<  std::endl;
+	      }  
 	    }
+	    std::cout << "Init wave number : " << m_WaveNumber << " Ennemies to kill : " << m_EnemiesToKill << " Enemies number : " << m_Enemies.size() << std::endl;  
 	}
 	
 	void Application::updateGame(){
@@ -364,9 +382,7 @@ namespace api{
 	  if(!m_LifeBar.isAlive())m_GameStatus = GAME_STATUS_END;
 	  
 	  if(m_EnemiesToKill == 0){
-	    std::cout << "VAGUE TERMINEE" << std::endl;
-	    ++m_WaveNumber;
-	    initWave(m_WaveNumber);
+	    launchNextWaveTransition();
 	  }
 	  
 	  //m_Board.printGroundUnitsOccupation();
@@ -459,5 +475,22 @@ namespace api{
 	  initWave(m_WaveNumber);
 	  //Changing game status
 	  m_GameStatus = GAME_STATUS_RUNNING;
+	}
+	
+	void Application::launchNextWaveTransition(){
+	    std::cout << "VAGUE TERMINEE" << std::endl;
+	    ++m_WaveNumber;
+	    initWave(m_WaveNumber);
+	    m_GameStatus = GAME_STATUS_WAVE_TRANSITION;
+	    m_WaveTransitionCounter = 0;
+	    m_Pause = false;
+	}
+	
+	void Application::updateWaveTransition(){
+	    ++m_WaveTransitionCounter;
+	    if(m_WaveTransitionCounter == m_WAVE_TRANSITION_FRAME_DURATION){
+	      m_GameStatus = GAME_STATUS_RUNNING;
+	      m_Pause = true;
+	    }
 	}
 }//namespace api

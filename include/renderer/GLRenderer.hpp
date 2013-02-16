@@ -37,7 +37,10 @@ public:
     //Public methods
     void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
     void renderEndScreen();
-    void renderBeginScreen();	
+    void renderBeginScreen();
+    void renderWaveScreen();
+    void renderGoScreen();
+    
 private:
     //Private methods
     int renderBackground(const IplImage * webcamFrame)const;

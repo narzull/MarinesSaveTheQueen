@@ -23,7 +23,8 @@
 
 #define GAME_STATUS_LAUNCH 1
 #define GAME_STATUS_RUNNING 2
-#define GAME_STATUS_END 3
+#define GAME_STATUS_WAVE_TRANSITION 3
+#define GAME_STATUS_END 4
 
 //Application class of our program that run the main loop
 namespace api{
@@ -36,12 +37,16 @@ private:
 	static const size_t m_WINDOW_WIDTH = 1024;
 	static const size_t m_WINDOW_HEIGHT = 768;
 	static const size_t m_BYTES_PER_PIXEL = 32;
+	static const size_t m_WAVE_TRANSITION_FRAME_DURATION = 100;
 	const std::string m_WINDOW_TITLE;
 	
 	//Game attribute
 	int m_GameStatus;
 	game::LifeBar m_LifeBar;
 	api::SoundManager m_SoundManager;
+	
+	//Wave transition
+	unsigned int m_WaveTransitionCounter;
 	
 	//Scene Entities
 	unsigned int m_WaveNumber;
@@ -90,6 +95,8 @@ private:
 	//*****************************
 	//Private game methods
 	//*****************************
+	void launchNextWaveTransition();
+	void updateWaveTransition();
 	void initWave(unsigned int waveNumber);
 	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();

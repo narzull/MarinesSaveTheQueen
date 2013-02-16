@@ -334,4 +334,26 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
   }
+  
+  void GLRenderer::renderWaveScreen(){
+    glViewport(m_Width/4.0, m_Height/4.0, m_Width/2.0, m_Height/2.0);
+    glUseProgram(m_BlitShaderManager->getShaderID());
+    glDisable(GL_DEPTH_TEST);
+    //Update light uniforms
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/waveScreen.png"));
+    // Draw quad
+    m_PanelObject->draw(GL_TRIANGLES);
+    glEnable(GL_DEPTH_TEST);
+  }
+  
+  void GLRenderer::renderGoScreen(){
+    glViewport(m_Width/4.0, m_Height/4.0, m_Width/2.0, m_Height/2.0);
+    glUseProgram(m_BlitShaderManager->getShaderID());
+    glDisable(GL_DEPTH_TEST);
+    //Update light uniforms
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/goScreen.png"));
+    // Draw quad
+    m_PanelObject->draw(GL_TRIANGLES);
+    glEnable(GL_DEPTH_TEST);
+  }
 }//namespace renderer
