@@ -8,21 +8,21 @@
 
 namespace api{
 	//Constructor
-	Application::Application(std::string windowTitle, const std::string & param): m_WINDOW_TITLE(windowTitle), m_GameStatus(GAME_STATUS_LAUNCH), m_Done(false){
+	Application::Application(std::string windowTitle, int argc, char** argv): m_WINDOW_TITLE(windowTitle), m_GameStatus(GAME_STATUS_LAUNCH), m_Done(false){
+		
+		//Init the webcam manager
+		bool initWebcam = m_WebcamManager.initWebcamManager(argc, argv);
+		if(!initWebcam){
+		  exit(1);
+		}
+		
 		//Init the SDL Flags
 		initSDLFlags();
-		
 		//Init variables at the beginning
 		//Init the rand seed
 		srand(time(NULL));
 		//Creating the renderer
 		m_GLRenderer = new renderer::GLRenderer(m_WINDOW_WIDTH, m_WINDOW_HEIGHT);
-		//Init the Webcam
-		m_Webcam = NULL;
-		m_Webcam = cvCaptureFromCAM(CV_CAP_ANY);
-		if(m_Webcam == NULL){
-			std::cout << "No webcam found" << std::endl;
-		}
 		//Init some GL options
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glEnable(GL_CULL_FACE); //Enable backface culling
@@ -40,8 +40,6 @@ namespace api{
 	Application::~Application(){
 		//Delete dynamic attributes
 		delete m_GLRenderer;
-		//Delete the Webcam
-		cvReleaseCapture(&m_Webcam);
 	}
 	
 	//Main Looping function
@@ -57,16 +55,18 @@ namespace api{
 			  //Update the frame count 
 			  m_FrameCount++;
 			  
+			  cv::Mat * webcamImage = NULL;
+			  
 			  //GAME RUNNING CODE
-			  //Webcam code
-			  m_WebcamFrame = NULL;
 			  if(!m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
-				  //m_WebcamFrame = cvQueryFrame(m_Webcam);
 				  updateGame();
+			  }
+			  else if(m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
+			    webcamImage = m_WebcamManager.grabCurrentImage();
 			  }
 			  
 			  //RENDERING
-			  m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_WebcamFrame, m_Camera);
+			  m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  
 			  //GAME WAVE TRANSITION CODE
 			  if(m_GameStatus == GAME_STATUS_WAVE_TRANSITION){

@@ -6,7 +6,7 @@ INCLUDE_PATH = include
 EXTERNAL_PATH = externals
 
 CFLAGS = -Wall -ansi -I $(INCLUDE_PATH) -I $(EXTERNAL_PATH)/include
-LDFLAGS = -lSDL -lSDL_image -lSDL_mixer -lGL -lopencv_core -lopencv_highgui 
+LDFLAGS = -lSDL -lSDL_image -lSDL_mixer -lGL -lopencv_core -lopencv_highgui -lopencv_imgproc -laruco
 
 EXEC = MarinesSaveTheQueen
 
@@ -19,7 +19,7 @@ $(BIN_PATH)/$(EXEC): $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(EXTERNAL_PATH)/src/glew-1.9/glew.o: $(EXTERNAL_PATH)/src/glew-1.9/glew.c
-	$(CC) -c -o $@ $(CFLAGS) $^ 
+	$(CC) -c -o $@ $(CFLAGS) $^
 
 $(SRC_PATH)/%.o: $(SRC_PATH)/%.cpp
 	$(CC) -c -o $@ $(CFLAGS) $^ 

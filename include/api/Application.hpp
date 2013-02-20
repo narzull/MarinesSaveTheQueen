@@ -4,6 +4,7 @@
 #include "Camera.hpp"
 #include "Entity.hpp"
 #include "SoundManager.hpp"
+#include "WebcamManager.hpp"
 #include "../renderer/GLRenderer.hpp"
 #include "../renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "../game/Board.hpp"
@@ -34,8 +35,6 @@ private:
 	//Attribute
 	//********************************
 	//Const attribute
-	static const size_t m_WINDOW_WIDTH = 1024;
-	static const size_t m_WINDOW_HEIGHT = 768;
 	static const size_t m_BYTES_PER_PIXEL = 32;
 	static const size_t m_WAVE_TRANSITION_FRAME_DURATION = 100;
 	const std::string m_WINDOW_TITLE;
@@ -43,7 +42,8 @@ private:
 	//Game attribute
 	int m_GameStatus;
 	game::LifeBar m_LifeBar;
-	api::SoundManager m_SoundManager;
+	SoundManager m_SoundManager;
+	WebcamManager m_WebcamManager;
 	
 	//Wave transition
 	unsigned int m_WaveTransitionCounter;
@@ -75,10 +75,6 @@ private:
 	GLfloat m_AngleLat;
 	GLuint m_FrameCount;
 	
-	//Webcam attribute
-	CvCapture * m_Webcam;
-	IplImage * m_WebcamFrame;
-	
 	//*****************************
 	//Private methods
 	//*****************************
@@ -104,8 +100,12 @@ private:
 	void restartGame();
 	
 public:
+	//Public attribute
+  	static const size_t m_WINDOW_WIDTH = 1024;
+	static const size_t m_WINDOW_HEIGHT = 768;
+	
 	//Constructor & Destructor
-	Application(std::string windowTitle, const std::string & param);
+	Application(std::string windowTitle, int argc, char ** argv);
 	~Application();
 	
 	//Applciation public methods

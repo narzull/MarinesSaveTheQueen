@@ -9,6 +9,7 @@
 #include "renderer/Simple2DPanel.hpp"
 #include "renderer/UniformObject.hpp"
 #include "renderer/TextureManager.hpp"
+#include "renderer/ChangingTexture.hpp"
 #include "renderer/ShaderManager/GBufferLightShaderManager.hpp"
 #include "renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "renderer/ShaderManager/BlitShaderManager.hpp"
@@ -35,7 +36,7 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera);
+    void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera);
     void renderEndScreen();
     void renderBeginScreen();
     void renderWaveScreen();
@@ -43,7 +44,7 @@ public:
     
 private:
     //Private methods
-    int renderBackground(const IplImage * webcamFrame)const;
+    void renderBackground(const cv::Mat * webcamImage);
     void renderBoard(bool pause, const game::Board & board);
     void renderEnemies(const std::list<game::EnemyUnit> & enemies)const;
     void renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const;
@@ -69,6 +70,7 @@ private:
     Simple2DPanel * m_PanelObject;
     //Texture
     TextureManager m_TextureManager;
+    ChangingTexture m_ChangingTexture;
     
     //Framebuffer
     FramebufferGL m_GBuffer;

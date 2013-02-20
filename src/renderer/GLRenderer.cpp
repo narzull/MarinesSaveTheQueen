@@ -117,8 +117,8 @@ GLRenderer::~GLRenderer() {
     delete(m_BlitShaderManager);
 }
 
-void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const IplImage * webcamFrame, const api::Camera & camera) {
-    
+void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamFrame, const api::Camera & camera) {
+  
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -150,7 +150,9 @@ void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::ve
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Clearing the front buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   
+    
+        if(webcamFrame != NULL) renderBackground(webcamFrame);
+    
      //*****************************
     //LACCUM SHADER PART OF THE DEFFERED
     //*****************************
@@ -176,29 +178,20 @@ void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::ve
     }
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    
-    if(webcamFrame != NULL) renderBackground(webcamFrame);
-    
 }
 
-int GLRenderer::renderBackground(const IplImage * webcamFrame)const{
-	GLenum format;
-        switch(webcamFrame->nChannels) {
-            case 1:
-                format = GL_LUMINANCE;
-                break;
-            case 2:
-                format = GL_LUMINANCE_ALPHA;
-                break;
-            case 3:
-                format = GL_BGR;
-                break;
-	    default:
-		    return 1;
-        }
-        glPixelZoom(0.5,0.5);
-        glDrawPixels(webcamFrame->width, webcamFrame->height, format, GL_UNSIGNED_BYTE, webcamFrame->imageData);
-	return 0;
+void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
+	//Updating the background texture
+	m_ChangingTexture.updateTexture(webcamFrame->cols, webcamFrame->rows, (unsigned int*)webcamFrame->ptr(0));
+	//Drawing the background
+	glViewport(0, 0, m_Width, m_Height);
+	glUseProgram(m_BlitShaderManager->getShaderID());
+	glDepthMask(GL_FALSE);
+	//Update light uniforms
+	m_BlitShaderManager->setTextureInShader(m_ChangingTexture.getID());
+	// Draw quad
+	m_PanelObject->draw(GL_TRIANGLES);
+	glDepthMask(GL_TRUE);
 }
 
 void GLRenderer::renderBoard(bool pause, const game::Board & board){
