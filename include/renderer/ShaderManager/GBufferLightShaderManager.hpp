@@ -15,11 +15,9 @@ public:
 	virtual ~GBufferLightShaderManager(){};
 	//Setters
 	void setObjectTextureInShader(TexturedObject * object);
-	void setPauseInShader(bool pause);
 	
 private:
 	//Private Attribute
-	GLint m_PauseUniformLocation;
 	//Texture
 	GLint m_HasUvsUniformLocation;
 	GLint m_HasTextureUniformLocation;

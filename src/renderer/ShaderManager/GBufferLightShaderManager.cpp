@@ -9,10 +9,6 @@
 namespace renderer{
 //Constructor
 GBufferLightShaderManager::GBufferLightShaderManager(const char* vertexShaderFile, const char* fragmentShaderFile):SimpleShaderManager(vertexShaderFile, fragmentShaderFile){
-     
-    m_PauseUniformLocation = glGetUniformLocation(m_ShaderProgram, "pause");
-    if(m_PauseUniformLocation < 0) throw std::runtime_error("No uniform variable called pause in the shader");
-  
     //Texture
     m_HasUvsUniformLocation = glGetUniformLocation(m_ShaderProgram, "hasUvs");
     if(m_HasUvsUniformLocation < 0) throw std::runtime_error("No uniform variable called hasUvs in the shader");
@@ -56,10 +52,6 @@ void GBufferLightShaderManager::setObjectTextureInShader(TexturedObject * object
 		glUniform1i(m_TextureSpecularUniformLocation, 2);
 		glBindTexture(GL_TEXTURE_2D, object->getSpecularMapID());
 	}
-}
-
-void GBufferLightShaderManager::setPauseInShader(bool pause){
-	glUniform1i(m_PauseUniformLocation, pause);
 }
 
 }

@@ -55,18 +55,15 @@ namespace api{
 			  //Update the frame count 
 			  m_FrameCount++;
 			  
-			  cv::Mat * webcamImage = NULL;
-			  
 			  //GAME RUNNING CODE
 			  if(!m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
-				  updateGame();
+			    updateGame();
+			    m_GLRenderer->renderGame(m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_Camera);
 			  }
 			  else if(m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
-			    webcamImage = m_WebcamManager.grabCurrentImage();
+			     const cv::Mat * webcamImage = m_WebcamManager.grabCurrentImage();
+			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
-			  
-			  //RENDERING
-			  m_GLRenderer->render(m_Pause, m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  
 			  //GAME WAVE TRANSITION CODE
 			  if(m_GameStatus == GAME_STATUS_WAVE_TRANSITION){

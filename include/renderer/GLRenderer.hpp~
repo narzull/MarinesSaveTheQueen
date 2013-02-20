@@ -13,6 +13,7 @@
 #include "renderer/ShaderManager/GBufferLightShaderManager.hpp"
 #include "renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "renderer/ShaderManager/BlitShaderManager.hpp"
+#include "renderer/ShaderManager/SimpleShaderManager.hpp"
 #include "renderer/FramebufferGL.hpp"
 
 //game includes
@@ -36,21 +37,26 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera);
+    void renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera);
+    void renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera);
+    //Public methods for screen rendering
     void renderEndScreen();
     void renderBeginScreen();
     void renderWaveScreen();
     void renderGoScreen();
     
 private:
-    //Private methods
+    //Private methods for game rendering
+    void renderGameBoard(const game::Board & board);
+    void renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const;
+    void renderGameTurrets(const std::vector<game::Turret> & turrets)const;
+    void renderGameRays(const std::vector<game::Ray> & rays)const;
+    void renderGameDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
+    void renderGameLifeBar(const game::LifeBar & lifebar)const;
+    
+    //Private methods for pause rendering
     void renderBackground(const cv::Mat * webcamImage);
-    void renderBoard(bool pause, const game::Board & board);
-    void renderEnemies(const std::list<game::EnemyUnit> & enemies)const;
-    void renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const;
-    void renderRays(const std::vector<game::Ray> & rays)const;
-    void renderDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
-    void renderLifeBar(const game::LifeBar & lifebar)const;
+ 
 	
     //Attribute
     int m_Width;
@@ -79,6 +85,7 @@ private:
     GBufferLightShaderManager * m_GBufferLightShaderManager;
     LaccumLightShaderManager * m_LaccumLightShaderManager;
     BlitShaderManager * m_BlitShaderManager;
+    SimpleShaderManager * m_SimpleShaderManager;
 };
 }//namespace api
 

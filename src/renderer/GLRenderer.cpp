@@ -40,11 +40,15 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     
     static const char *BLIT_VERTEX_SHADER = "shaders/blit.shader.vs.glsl";
     static const char *BLIT_FRAGMENT_SHADER = "shaders/blit.shader.fs.glsl";
+    
+    static const char *SIMPLE_VERTEX_SHADER = "shaders/simple.shader.vs.glsl";
+    static const char *SIMPLE_FRAGMENT_SHADER = "shaders/simple.shader.fs.glsl";
 
     //Creating shaders
     m_GBufferLightShaderManager = new GBufferLightShaderManager(GBUFFER_VERTEX_SHADER, GBUFFER_FRAGMENT_SHADER);
     m_LaccumLightShaderManager = new LaccumLightShaderManager(LACCUM_VERTEX_SHADER, LACCUM_FRAGMENT_SHADER);
     m_BlitShaderManager = new BlitShaderManager(BLIT_VERTEX_SHADER, BLIT_FRAGMENT_SHADER);
+    m_SimpleShaderManager = new SimpleShaderManager(SIMPLE_VERTEX_SHADER, SIMPLE_FRAGMENT_SHADER);
     
     //Creating reference objects
     UniformObjectBuilder objectBuilder;
@@ -115,10 +119,10 @@ GLRenderer::~GLRenderer() {
     delete(m_GBufferLightShaderManager);
     delete(m_LaccumLightShaderManager);
     delete(m_BlitShaderManager);
+    delete(m_SimpleShaderManager);
 }
 
-void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamFrame, const api::Camera & camera) {
-  
+void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera) {
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -139,21 +143,18 @@ void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::ve
     glUseProgram(m_GBufferLightShaderManager->getShaderID());
     //Upload uniforms
     m_GBufferLightShaderManager->setCameraMatrixInShader(camera.getView(), camera.getProjection());
-    m_GBufferLightShaderManager->setPauseInShader(pause);
     //Render the objects
-    renderBoard(pause, board);
-    renderEnemies(enemies);
-    renderTurrets(pause, turrets);
-    renderDefenseUnits(defenseUnits);
-    renderLifeBar(lifebar);
+    renderGameBoard(board);
+    renderGameEnemies(enemies);
+    renderGameTurrets(turrets);
+    renderGameDefenseUnits(defenseUnits);
+    renderGameLifeBar(lifebar);
     //Unbinding the GBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Clearing the front buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-        if(webcamFrame != NULL) renderBackground(webcamFrame);
-    
-     //*****************************
+    //*****************************
     //LACCUM SHADER PART OF THE DEFFERED
     //*****************************
     // Viewport 
@@ -180,44 +181,37 @@ void GLRenderer::render(bool pause, const game::LifeBar & lifebar, const std::ve
     glEnable(GL_DEPTH_TEST);
 }
 
+void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera){
+  renderBackground(webcamImage);
+}
+
 void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
 	//Updating the background texture
 	m_ChangingTexture.updateTexture(webcamFrame->cols, webcamFrame->rows, (unsigned int*)webcamFrame->ptr(0));
 	//Drawing the background
 	glViewport(0, 0, m_Width, m_Height);
 	glUseProgram(m_BlitShaderManager->getShaderID());
-	glDepthMask(GL_FALSE);
+	glDisable(GL_DEPTH_TEST);
 	//Update light uniforms
 	m_BlitShaderManager->setTextureInShader(m_ChangingTexture.getID());
 	// Draw quad
 	m_PanelObject->draw(GL_TRIANGLES);
-	glDepthMask(GL_TRUE);
+	glEnable(GL_DEPTH_TEST);
 }
 
-void GLRenderer::renderBoard(bool pause, const game::Board & board){
-
-      GLenum primitive = GL_TRIANGLES;
-      if(pause) primitive = GL_LINE_LOOP;
-  
+//***************************
+//Private game rendering
+//***************************
+void GLRenderer::renderGameBoard(const game::Board & board){
      const std::vector<game::GroundUnit*> grid = board.getGridBoard();
      const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
      for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
-       
-	if((*it)->isOccupied()){
-	  m_GBufferLightShaderManager->setColorInShader(Color::Red());
-	}
-	else{
-	  m_GBufferLightShaderManager->setColorInShader(Color::Green());
-	}
-	
 	//Drawing the house if it's the central unit
 	if((*it) == centralGroundUnit){
-	  m_GBufferLightShaderManager->setColorInShader(Color::Blue());
 	  m_GBufferLightShaderManager->setModelMatrixInShader((*it)->getModel());
 	  m_GBufferLightShaderManager->setObjectTextureInShader(m_HouseObject);
 	  m_HouseObject->draw(GL_TRIANGLES);
 	}
-       
 	//Getting the type and setting the texture
 	if((*it)->getType() == ROCK_TYPE){
 	  m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
@@ -229,11 +223,11 @@ void GLRenderer::renderBoard(bool pause, const game::Board & board){
 	}
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it)->getModel());
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_GroundUnitObject);
-	m_GroundUnitObject->draw(primitive);
+	m_GroundUnitObject->draw(GL_TRIANGLES);
      }
 }
 
-void GLRenderer::renderEnemies(const std::list<game::EnemyUnit> & enemies)const{
+void GLRenderer::renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const{
   m_GBufferLightShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
     	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
@@ -242,13 +236,12 @@ void GLRenderer::renderEnemies(const std::list<game::EnemyUnit> & enemies)const{
   }
 }
 
-void GLRenderer::renderTurrets(bool pause, const std::vector<game::Turret> & turrets)const{
-  m_GBufferLightShaderManager->setColorInShader(Color::Blue());
+void GLRenderer::renderGameTurrets(const std::vector<game::Turret> & turrets)const{
   for(std::vector<game::Turret>::const_iterator it = turrets.begin(); it != turrets.end(); ++it){
-	if(!pause && (*it).showRay()){
+	if((*it).showRay()){
 	  std::vector<game::Ray> rayVector;
 	  (*it).getRayVector(rayVector);
-	  renderRays(rayVector);
+	  renderGameRays(rayVector);
 	}
     	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_TurretObject);
@@ -256,7 +249,7 @@ void GLRenderer::renderTurrets(bool pause, const std::vector<game::Turret> & tur
   }
 }
 
-void GLRenderer::renderRays(const std::vector<game::Ray> & rays)const{
+void GLRenderer::renderGameRays(const std::vector<game::Ray> & rays)const{
     m_GBufferLightShaderManager->setColorInShader(Color::Green());
     for(std::vector<game::Ray>::const_iterator it = rays.begin(); it != rays.end(); ++it){
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
@@ -275,8 +268,7 @@ void GLRenderer::renderRays(const std::vector<game::Ray> & rays)const{
     }  
 }
 
-void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const{
-    m_GBufferLightShaderManager->setColorInShader(Color::Blue());
+void GLRenderer::renderGameDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const{
     for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
 	if((*it).getType() == DEFENSEUNIT_CADENCOR){
@@ -290,7 +282,7 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
     } 
 }
 
- void GLRenderer::renderLifeBar(const game::LifeBar & lifebar)const{
+ void GLRenderer::renderGameLifeBar(const game::LifeBar & lifebar)const{
   float ratio = lifebar.getLifeRatio();
   if(ratio > 0.75){
     m_GBufferLightShaderManager->setColorInShader(Color::Green());
@@ -306,6 +298,9 @@ void GLRenderer::renderDefenseUnits(const std::vector<game::DefenseUnit> & defen
   m_LifeBarObject->draw(GL_TRIANGLES);
  }
  
+ //**********************************
+ //Public screen rendering
+ //********************************** 
   void GLRenderer::renderEndScreen(){
     glViewport(m_Width/4.0, m_Height/4.0, m_Width/2.0, m_Height/2.0);
     glUseProgram(m_BlitShaderManager->getShaderID());

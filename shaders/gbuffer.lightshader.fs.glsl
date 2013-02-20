@@ -7,7 +7,6 @@ uniform mat4 projection;
 uniform vec3 vertexColor;
 
 //Texture
-uniform bool pause;
 uniform bool hasUvs;
 uniform bool hasTexture;
 uniform bool hasNormalMap;
@@ -33,7 +32,7 @@ void main()
   vec3 fDiffuse = localColor;
   float fSpec = 0;
   vec3 fNormal = normalize(normal);
-  if(hasUvs && !pause){
+  if(hasUvs){
 	  if(hasTexture){
 	    fDiffuse = texture2D(textureUnitDiffuse, uvs).rgb;
 	  }
