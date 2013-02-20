@@ -183,20 +183,8 @@ void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Lig
 
 void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera){
   renderBackground(webcamImage);
-}
-
-void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
-	//Updating the background texture
-	m_ChangingTexture.updateTexture(webcamFrame->cols, webcamFrame->rows, (unsigned int*)webcamFrame->ptr(0));
-	//Drawing the background
-	glViewport(0, 0, m_Width, m_Height);
-	glUseProgram(m_BlitShaderManager->getShaderID());
-	glDisable(GL_DEPTH_TEST);
-	//Update light uniforms
-	m_BlitShaderManager->setTextureInShader(m_ChangingTexture.getID());
-	// Draw quad
-	m_PanelObject->draw(GL_TRIANGLES);
-	glEnable(GL_DEPTH_TEST);
+  glUseProgram(m_SimpleShaderManager->getShaderID());
+  renderPauseBoard(board);
 }
 
 //***************************
@@ -228,7 +216,6 @@ void GLRenderer::renderGameBoard(const game::Board & board){
 }
 
 void GLRenderer::renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const{
-  m_GBufferLightShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
     	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
 	m_GBufferLightShaderManager->setObjectTextureInShader(m_EnemyObject);
@@ -297,6 +284,38 @@ void GLRenderer::renderGameDefenseUnits(const std::vector<game::DefenseUnit> & d
   m_GBufferLightShaderManager->setObjectTextureInShader(m_LifeBarObject);
   m_LifeBarObject->draw(GL_TRIANGLES);
  }
+ 
+//***************************
+//Private pause rendering
+//***************************
+void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
+	//Updating the background texture
+	m_ChangingTexture.updateTexture(webcamFrame->cols, webcamFrame->rows, (unsigned int*)webcamFrame->ptr(0));
+	//Drawing the background
+	glViewport(0, 0, m_Width, m_Height);
+	glUseProgram(m_BlitShaderManager->getShaderID());
+	glDisable(GL_DEPTH_TEST);
+	//Update light uniforms
+	m_BlitShaderManager->setTextureInShader(m_ChangingTexture.getID());
+	// Draw quad
+	m_PanelObject->draw(GL_TRIANGLES);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void GLRenderer::renderPauseBoard(const game::Board & board){
+     const std::vector<game::GroundUnit*> grid = board.getGridBoard();
+     const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
+     m_SimpleShaderManager->setColorInShader(Color::Red());
+     for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
+	//Drawing the house if it's the central unit
+	if((*it) == centralGroundUnit){
+	  m_SimpleShaderManager->setModelMatrixInShader((*it)->getModel());
+	  m_HouseObject->draw(GL_TRIANGLES);
+	}
+	m_SimpleShaderManager->setModelMatrixInShader((*it)->getModel());
+	m_GroundUnitObject->draw(GL_TRIANGLES);
+     }
+}
  
  //**********************************
  //Public screen rendering

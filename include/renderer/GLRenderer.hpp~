@@ -53,6 +53,8 @@ private:
     void renderGameRays(const std::vector<game::Ray> & rays)const;
     void renderGameDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
     void renderGameLifeBar(const game::LifeBar & lifebar)const;
+    //Private methods for pause rendering
+    void renderPauseBoard(const game::Board & board);
     
     //Private methods for pause rendering
     void renderBackground(const cv::Mat * webcamImage);
