@@ -55,11 +55,13 @@ private:
     void renderGameLifeBar(const game::LifeBar & lifebar)const;
     //Private methods for pause rendering
     void renderPauseBoard(const game::Board & board);
+    void renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const;
+    void renderPauseTurrets(const std::vector<game::Turret> & turrets)const;
+    void renderPauseDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
     
     //Private methods for pause rendering
     void renderBackground(const cv::Mat * webcamImage);
  
-	
     //Attribute
     int m_Width;
     int m_Height;

@@ -97,7 +97,6 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     m_HouseObject = objectBuilder.buildFromObj("obj/house.obj", false);
     m_HouseObject->assignTexture(m_TextureManager.getTextureID("textures/house.png"));
     //m_HouseObject->assignNormalMap(m_TextureManager.getTextureID("textures/houseNormal.png"));
-	
 }
 
 GLRenderer::~GLRenderer() {
@@ -182,9 +181,21 @@ void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Lig
 }
 
 void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera){
+   // Viewport 
+  glViewport(0, 0, m_Width, m_Height);
+  // Default states
+  glEnable(GL_DEPTH_TEST);
+  // Clear the front buffer
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
   renderBackground(webcamImage);
+  
   glUseProgram(m_SimpleShaderManager->getShaderID());
+  m_SimpleShaderManager->setCameraMatrixInShader(camera.getView(), camera.getProjection());
   renderPauseBoard(board);
+  renderPauseEnemies(enemies);
+  renderPauseTurrets(turrets);
+  renderPauseDefenseUnits(defenseUnits);
 }
 
 //***************************
@@ -305,10 +316,16 @@ void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
 void GLRenderer::renderPauseBoard(const game::Board & board){
      const std::vector<game::GroundUnit*> grid = board.getGridBoard();
      const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
-     m_SimpleShaderManager->setColorInShader(Color::Red());
      for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
+        if((*it)->isOccupied()){
+	  m_SimpleShaderManager->setColorInShader(Color::Red());
+	}
+	else{
+	  m_SimpleShaderManager->setColorInShader(Color::Green());
+	}
 	//Drawing the house if it's the central unit
 	if((*it) == centralGroundUnit){
+	  m_SimpleShaderManager->setColorInShader(Color::Blue());
 	  m_SimpleShaderManager->setModelMatrixInShader((*it)->getModel());
 	  m_HouseObject->draw(GL_TRIANGLES);
 	}
@@ -316,6 +333,37 @@ void GLRenderer::renderPauseBoard(const game::Board & board){
 	m_GroundUnitObject->draw(GL_TRIANGLES);
      }
 }
+
+void GLRenderer::renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const{
+  m_SimpleShaderManager->setColorInShader(Color::Blue());
+  for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
+    	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	m_EnemyObject->draw(GL_TRIANGLES);
+  }
+}
+
+void GLRenderer::renderPauseTurrets(const std::vector<game::Turret> & turrets)const{
+  m_SimpleShaderManager->setColorInShader(Color::Blue());
+  for(std::vector<game::Turret>::const_iterator it = turrets.begin(); it != turrets.end(); ++it){
+    	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	m_TurretObject->draw(GL_TRIANGLES);
+  }
+}
+
+void GLRenderer::renderPauseDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const{
+    m_SimpleShaderManager->setColorInShader(Color::Blue());
+    for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
+	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	if((*it).getType() == DEFENSEUNIT_CADENCOR){
+	  m_CadencorObject->draw(GL_TRIANGLES);
+	}
+	else{
+	  m_MirrorObject->draw(GL_TRIANGLES);
+	}
+    } 
+}
+
+
  
  //**********************************
  //Public screen rendering
