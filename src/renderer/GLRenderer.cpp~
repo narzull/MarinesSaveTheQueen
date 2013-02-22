@@ -162,7 +162,7 @@ void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Lig
     glUseProgram(m_LaccumLightShaderManager->getShaderID());
     // Upload uniforms
     m_LaccumLightShaderManager->setEyeInShader(camera.getPosition());  
-    glm::mat4 invMatrix =  glm::inverse(camera.getProjection());
+    glm::mat4 invMatrix =  glm::inverse(camera.getProjection() * camera.getView());
     m_LaccumLightShaderManager->setInvMatrixInShader(invMatrix);
     m_LaccumLightShaderManager->setTextureInShaderFromGBuffer(m_GBuffer);
     // Blit above the rest

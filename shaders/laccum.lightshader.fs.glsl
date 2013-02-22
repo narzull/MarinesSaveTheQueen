@@ -57,7 +57,7 @@ void main()
   float depth = texture(textureDepth, uvs).r;
   
   vec2  xy = uvs * 2.0 -1.0;
-  vec4  wPosition =  vec4(xy, depth * 2.0 -1.0, 1.0) * inverseViewProjection;
+  vec4  wPosition =  inverseViewProjection * vec4(xy, depth * 2.0 -1.0, 1.0);
   vec3  position = vec3(wPosition/wPosition.w);
   
   vec3 fDiffuse = material.rgb;

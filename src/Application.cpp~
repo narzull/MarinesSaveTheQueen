@@ -439,7 +439,7 @@ namespace api{
 	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
-	  m_Lights.push_back(renderer::Light(glm::vec4(-2.0,0.3,-2.0,1.0), glm::vec3(1.0,0.5,0.5), 5.0));
+	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));
 	  //Init some defense units
 	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,12);
 	  if(!turretGroundUnit->isOccupied()){
