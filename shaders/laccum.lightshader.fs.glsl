@@ -58,14 +58,14 @@ void main()
   
   vec2  xy = uvs * 2.0 -1.0;
   vec4  wPosition =  inverseViewProjection * vec4(xy, depth * 2.0 -1.0, 1.0);
-  vec3  position = vec3(wPosition/wPosition.w);
+  vec3  position = vec3(wPosition/wPosition.w)/2.0;
   
   vec3 fDiffuse = material.rgb;
   float fSpec = material.a;
   vec3 fNormal = normalize(normal);
   
   if(light.position.w == 1.0){
-    Color = vec4(computePointLightLighting(light.position.xyz, light.color, light.power, 0.5, position, fDiffuse, fNormal, fSpec), 1.0);
+    Color = vec4(computePointLightLighting(light.position.xyz, light.color, light.power, 2.0, position, fDiffuse, fNormal, fSpec), 1.0);
   }
   else{
     Color = vec4(computeDirectionnalLightLighting(light.position.xyz, light.color, light.power, 0.5, position, fDiffuse, fNormal, fSpec), 1.0);

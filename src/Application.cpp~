@@ -441,7 +441,11 @@ namespace api{
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));
 	  //Init some defense units
-	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(8,12);
+	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(10,10);
+	  if(!turretGroundUnit->isOccupied()){
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	  }   
+	  turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
 	  if(!turretGroundUnit->isOccupied()){
 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
 	  }   
@@ -463,6 +467,14 @@ namespace api{
 	  if(!turretGroundUnit->isOccupied()){
 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+	  }
+	  
+	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
+	    if((*unit).getType() == DEFENSEUNIT_CADENCOR){
+	      glm::vec3 pos = (*unit).getPosition();
+	      std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
+	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
+	    }
 	  }
 	  //Computing the ground unit weight
 	  m_Board.computeGroundUnitsWeightFromCenter();
