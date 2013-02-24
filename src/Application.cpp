@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "../include/api/Application.hpp"
-
+#include "../include/api/Tools.hpp"
 
 namespace api{
 	//Constructor
@@ -15,6 +15,7 @@ namespace api{
 		if(!initWebcam){
 		  exit(1);
 		}
+		m_Camera.setProjection(m_WebcamManager.getProjectionMatrix(m_WINDOW_WIDTH, m_WINDOW_HEIGHT));
 		
 		//Init the SDL Flags
 		initSDLFlags();
@@ -52,16 +53,26 @@ namespace api{
 			  m_GLRenderer->renderBeginScreen();
 			}
 			else{
-			  //Update the frame count 
-			  m_FrameCount++;
 			  
 			  //GAME RUNNING CODE
 			  if(!m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
+			    //Update the frame count 
+			    m_FrameCount++;
 			    updateGame();
 			    m_GLRenderer->renderGame(m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_Camera);
 			  }
 			  else if(m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
 			     const cv::Mat * webcamImage = m_WebcamManager.grabCurrentImage();
+			     std::vector<aruco::Marker> markers;
+			     m_WebcamManager.grabMarkersInCurrentImage(markers);
+			     //Tests
+			     if(markers.size() > 0){
+			       double modelview[16];
+			       markers[0].glGetModelViewMatrix(modelview);
+			       glm::mat4 modelViewMatrix;
+			       tools::transformToMatrix(modelview, modelViewMatrix);
+			       m_Camera.setView(modelViewMatrix);
+			     }
 			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
 			  
@@ -91,7 +102,7 @@ namespace api{
 			}
 			
 			//CAMERA MOVEMENT CODE
-			if(m_GameStatus == GAME_STATUS_RUNNING)moveCameraInApplication();
+			//if(m_GameStatus == GAME_STATUS_RUNNING && !m_Pause)moveCameraInApplication();
 			SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 			SDL_WarpMouse(m_WINDOW_WIDTH/2.0, m_WINDOW_HEIGHT/2.0);
 			SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
@@ -101,6 +112,8 @@ namespace api{
 			int ellapseTime = end - start;
 			if(ellapseTime < minLoopTime)SDL_Delay(minLoopTime-ellapseTime);
 		}
+		std::cout << "---------------------------------" << std::endl;
+		std::cout << "GAME STOP" << std::endl;
 		SDL_Quit();
 	}
 	
@@ -292,6 +305,8 @@ namespace api{
 	
 	//Scene methods
 	void Application::initWave(unsigned int waveNumber){
+	    std::cout << "---------------------------------" << std::endl;
+	    std::cout << "LAUNCHING WAVE " << waveNumber << std::endl;
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
 	    float enemiesSpeed = 0.02*(waveNumber/4.0);
@@ -323,7 +338,8 @@ namespace api{
 		++enemyCpt;
 	      }  
 	    }
-	    std::cout << "Init wave number : " << m_WaveNumber << " Ennemies to kill : " << m_EnemiesToKill << " Enemies number : " << m_Enemies.size() << std::endl;  
+	    std::cout << "Ennemies to kill : " << m_EnemiesToKill << std::endl;
+	    std::cout << "Enemies number : " << m_Enemies.size() << std::endl;  
 	}
 	
 	void Application::updateGame(){
@@ -415,9 +431,6 @@ namespace api{
 	}
 	
 	void Application::restartGame(){
-	  std::cout << "Restarting the game" << std::endl;
-	  //Set the camera
-	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
 	  //Destroying the game variables
 	  m_Lights.clear();
 	  m_Enemies.clear();
@@ -432,11 +445,10 @@ namespace api{
 	}
 	
 	void Application::startGame(){
-	  std::cout << "Starting the game" << std::endl;
+	  std::cout << "---------------------------------" << std::endl;
+	  std::cout << "GAME START" << std::endl;
 	  //Launching the music
 	  m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
-	  //Set the camera
-	  m_Camera.setPosition(glm::vec3(0.0, 1.0, 3.0));
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));
@@ -472,7 +484,6 @@ namespace api{
 	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
 	    if((*unit).getType() == DEFENSEUNIT_CADENCOR){
 	      glm::vec3 pos = (*unit).getPosition();
-	      std::cout << pos.x << " " << pos.y << " " << pos.z << std::endl;
 	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
 	    }
 	  }
@@ -487,7 +498,8 @@ namespace api{
 	}
 	
 	void Application::launchNextWaveTransition(){
-	    std::cout << "VAGUE TERMINEE" << std::endl;
+	    std::cout << "---------------------------------" << std::endl;
+	    std::cout << "WAVE " << m_WaveNumber << " FINISHED" << std::endl;
 	    ++m_WaveNumber;
 	    initWave(m_WaveNumber);
 	    m_GameStatus = GAME_STATUS_WAVE_TRANSITION;

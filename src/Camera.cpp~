@@ -8,7 +8,7 @@ namespace api {
 
 // Default constructor
 Camera::Camera() :
-    m_XAxis(1, 0, 0), m_YAxis(0, 1, 0), m_ZAxis(0, 0, 1), m_Position(0, 0, 0.2){
+    m_XAxis(1, 0, 0), m_YAxis(0, 1, 0), m_ZAxis(0, 0, 1), m_Position(0, 0, 0){
     updateView();
     setPerspectiveProjection(-0.1, 0.1, -0.1, 0.1, .1, 100);
 }
@@ -53,6 +53,14 @@ void Camera::move(const glm::vec3 & move, const glm::vec3 & angles){
 	m_Position = cameraNewPos;
 }
 
+void Camera::reset(){
+  m_Position = glm::vec3(0,0,0);
+  m_XAxis = glm::vec3(1,0,0);
+  m_YAxis = glm::vec3(0,1,0);
+  m_ZAxis = glm::vec3(0,0,1);
+  updateView();
+}
+
 //Setters
 void Camera::setPerspectiveProjection(float left, float right, float bottom, float top, float near, float far) {
     m_Projection = glm::mat4( //
@@ -72,6 +80,7 @@ void Camera::setOrthoProjection(float left, float right, float bottom, float top
 
 void Camera::setPosition(const glm::vec3 &p) {
     m_Position = p;
+    updateView();
 }
 
 //Getters

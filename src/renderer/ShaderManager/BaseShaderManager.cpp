@@ -34,15 +34,17 @@ const char* BaseShaderManager::readFile(const char* filePath) {
 }
 
 GLuint BaseShaderManager::loadProgram(const char* vertexShaderFile, const char* fragmentShaderFile) {
+    std::cout << "---------------------------------" << std::endl;
+    std::cout << " SHADER LOADING : Loading the shader vs = " << vertexShaderFile << " fs = " << fragmentShaderFile << std::endl;
     const char* vertexShaderSource = readFile(vertexShaderFile);
     if(!vertexShaderSource) {
-        std::cerr << "Unable to load " << vertexShaderFile << std::endl;
+        std::cerr << "FAILURE : Unable to load " << vertexShaderFile << std::endl;
         return 0;
     }
 
     const char* fragmentShaderSource = readFile(fragmentShaderFile);
     if(!fragmentShaderSource) {
-        std::cerr << "Unable to load " << fragmentShaderFile << std::endl;
+        std::cerr << "FAILURE : Unable to load " << fragmentShaderFile << std::endl;
         return 0;
     }
 
@@ -69,7 +71,7 @@ GLuint BaseShaderManager::loadProgram(const char* vertexShaderFile, const char* 
         char* log = new char[logLength];
 
         glGetShaderInfoLog(vertexShader, logLength, 0, log);
-        std::cerr << "Vertex Shader error:" << log << std::endl;
+        std::cerr << "FAILURE : Vertex Shader error:" << log << std::endl;
         std::cerr << vertexShaderSource << std::endl;
 
         delete [] log;
@@ -98,7 +100,7 @@ GLuint BaseShaderManager::loadProgram(const char* vertexShaderFile, const char* 
         char* log = new char[logLength];
 
         glGetShaderInfoLog(fragmentShader, logLength, 0, log);
-        std::cerr << "Fragment Shader error:" << log << std::endl;
+        std::cerr << "FAILURE : Fragment Shader error:" << log << std::endl;
         std::cerr << fragmentShaderSource << std::endl;
 
         delete [] log;
@@ -133,7 +135,7 @@ GLuint BaseShaderManager::loadProgram(const char* vertexShaderFile, const char* 
         char* log = new char[logLength];
 
         glGetProgramInfoLog(program, logLength, 0, log);
-        std::cerr << "Program link error:" << log << std::endl;
+        std::cerr << "FAILURE : Program link error:" << log << std::endl;
 
         delete [] log;
         return 0;
@@ -141,8 +143,8 @@ GLuint BaseShaderManager::loadProgram(const char* vertexShaderFile, const char* 
 
     delete [] vertexShaderSource;
     delete [] fragmentShaderSource;
-
-	std::cout << "Loaded " << vertexShaderFile << " and " << fragmentShaderFile << " Program ID = " << program << std::endl;
+    
+    std::cout << "SUCCES : Loaded " << vertexShaderFile << " and " << fragmentShaderFile << " Program ID = " << program << std::endl;
     return program;
 }
 

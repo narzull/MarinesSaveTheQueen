@@ -48,6 +48,12 @@ namespace tools{
 		}
 	}
 	
+	void transformToMatrix(double * tab, glm::mat4 & matrix){
+		for(size_t i = 0; i < 16; ++i){
+		     matrix[i/4][i%4] = tab[i];
+		}
+	}
+	
 	//Reading in file
 	void readVec3(std::istringstream& line, glm::vec3 & readVec)
 	{

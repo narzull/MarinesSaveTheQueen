@@ -249,6 +249,8 @@ namespace renderer{
 	}
 	
 	UniformObject * UniformObjectBuilder::buildFromObj(const std::string & objFile, bool smooth){
+	      std::cout << "---------------------------------" << std::endl;
+	      std::cout << "OBJ BUILD : Building object from obj file = " << objFile << std::endl;
 		UniformObject * newObject = new UniformObject();
 
 		//Setting some variables
@@ -278,7 +280,7 @@ namespace renderer{
 										   hasVt);
 		
 		if(load){
-			std::cout << "Impossible to read the file " << objFile << std::endl;
+			std::cout << "FAILURE : Impossible to read the file " << objFile << std::endl;
 			delete newObject;
 			return NULL;
 		}
@@ -293,7 +295,7 @@ namespace renderer{
 		//Filling our final vector
 		if (!hasVn) 
 		{
-			std::cout << "Error : No normals for " << objFile << std::endl;
+			std::cout << "FAILURE : No normals for " << objFile << std::endl;
 			delete newObject;
 			return NULL;
 		}
@@ -301,7 +303,7 @@ namespace renderer{
 		if (hasVt){ 
 			newObject->setUvs(finalUvs);
 		}
-		std::cout << "Object " << objFile << " loaded " << std::endl;
+		std::cout << "SUCCESS" << std::endl;
 		return newObject;
 	}
 }

@@ -192,7 +192,11 @@ void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & 
   
   glUseProgram(m_SimpleShaderManager->getShaderID());
   m_SimpleShaderManager->setCameraMatrixInShader(camera.getView(), camera.getProjection());
+  
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE);
   renderPauseBoard(board);
+  glDisable(GL_BLEND);
   renderPauseEnemies(enemies);
   renderPauseTurrets(turrets);
   renderPauseDefenseUnits(defenseUnits);
@@ -335,7 +339,7 @@ void GLRenderer::renderPauseBoard(const game::Board & board){
 }
 
 void GLRenderer::renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const{
-  m_SimpleShaderManager->setColorInShader(Color::Blue());
+  m_SimpleShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
     	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
 	m_EnemyObject->draw(GL_TRIANGLES);

@@ -20,12 +20,14 @@ namespace renderer{
 	}
 	
 	GLuint TextureManager::loadTexture(const std::string & textureFileName){
+		std::cout << "---------------------------------" << std::endl;
+		std::cout << "TEXTURE LOADING : Loading the texture = " << textureFileName << std::endl;
 		//Loading the image
 		SDL_Surface * texture;
 		texture = IMG_Load(textureFileName.c_str());
 		
 		if(!texture){
-			std::cout << "Impossible to load the texture named :  " << textureFileName << std::endl;
+			std::cout << "FAILURE : Impossible to load the texture"<< std::endl;
 			return 0;
 		}
 
@@ -45,7 +47,7 @@ namespace renderer{
 		 
 		//Free the memory
 		SDL_FreeSurface(texture);
-		std::cout << "Texture : " << textureFileName << " loaded " << std::endl;
+		std::cout << "SUCCESS" << std::endl;
 		return textureID;
 	}
 	

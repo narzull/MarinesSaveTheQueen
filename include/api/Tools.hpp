@@ -18,6 +18,7 @@ namespace tools {
 	bool isDoubleEquals(double v1, double v2);
 	//Transformation functions
 	void transformToTable(GLfloat * tab, glm::mat4 matrix);
+	void transformToMatrix(double * tab, glm::mat4 & matrix);
 	//Reading in file
 	void readVec3(std::istringstream& line, glm::vec3 & readVec);
 	void readVec2(std::istringstream& line, glm::vec2 & readVec);

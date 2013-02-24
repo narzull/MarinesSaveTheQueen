@@ -1,4 +1,5 @@
 #include "../include/api/WebcamManager.hpp"
+#include "../include/api/Tools.hpp"
 #include "../include/api/Application.hpp"
 #include <string>
 #include <iostream>
@@ -9,9 +10,11 @@ namespace api{
   }
   
   bool WebcamManager::initWebcamManager(int argc, char **argv){
+    std::cout << "---------------------------------" << std::endl;
+    std::cout << "WEBCAM INIT : Opening the webcam" << std::endl;
     //First checking
     if (argc != 4) {
-        cerr<<"Invalid number of arguments"<<endl;
+        cerr<<"FAILURE : Invalid number of arguments"<<endl;
         cerr<<"Usage: cam_id  intrinsics.yml   marker_size "<<endl;
         return false;
     }
@@ -23,7 +26,7 @@ namespace api{
     
     //Second checking
     if(inputVideo < 0 || markerSize < 0){
-        cerr<<"Invalid arguments"<<endl;
+        cerr<<"FAILURE : Invalid arguments"<<endl;
         cerr<<"Usage: cam_id and marker_size must be > 0 "<<endl;
         return false;
     }
@@ -36,7 +39,7 @@ namespace api{
     m_Capturer.open(m_CameraID);
     if (!m_Capturer.isOpened())
     {
-        cerr<<"Invalid arguments"<<endl;
+        cerr<<"FAILURE : Invalid arguments"<<endl;
         cerr<<"Usage: cam_id => couldn't open the camera "<<endl;
 	return false;
     }
@@ -45,7 +48,7 @@ namespace api{
     m_Parameters.readFromXMLFile(intrinsicFile);
     m_Capturer >> m_CurrentImage;
     m_Parameters.resize(m_CurrentImage.size());
-    std::cout << "Webcam manager initialized" << std::endl;
+    std::cout << "SUCCESS : Webcam manager initialized" << std::endl;
     return true;
   }
   
@@ -62,5 +65,24 @@ namespace api{
         //cv::resize(m_CurrentTransformedImage,m_ResizedImage,cv::Size(Application::m_WINDOW_WIDTH, Application::m_WINDOW_HEIGHT));
 	cv::resize(m_CurrentImage,m_ResizedImage,cv::Size(Application::m_WINDOW_WIDTH, Application::m_WINDOW_HEIGHT));
 	return & m_ResizedImage;
+  }
+  
+  void WebcamManager::grabMarkersInCurrentImage(std::vector<aruco::Marker> & markers){
+    //Undistort the images
+    cv::undistort(m_CurrentImage,m_CurrentTransformedImage, m_Parameters.CameraMatrix, m_Parameters.Distorsion);
+    //Detect the markers
+    m_Detector.detect(m_CurrentTransformedImage, markers, m_Parameters.CameraMatrix, cv::Mat(), m_MarkerSize);
+  }
+  
+  glm::mat4 WebcamManager::getProjectionMatrix(unsigned int appliWidth, unsigned int appliHeight){
+    double projection[16];
+    glm::mat4 projectionMatrix;
+    std::cout << "---------------------------------" << std::endl;
+    std::cout << "WEBCAM PROJECTION : Building the webcam projection matrix" << std::endl;
+    std::cout << "Image size : " << m_CurrentImage.size().width << " " << m_CurrentImage.size().height << std::endl;
+    std::cout << "Application size : " << appliWidth << " " << appliHeight << std::endl;
+    m_Parameters.glGetProjectionMatrix(m_CurrentImage.size(), cv::Size(appliWidth, appliHeight), projection, 0.05, 100, false);
+    tools::transformToMatrix(projection, projectionMatrix);
+    return projectionMatrix;
   }
 }//namespace api
