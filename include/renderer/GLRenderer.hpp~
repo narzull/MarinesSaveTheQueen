@@ -67,6 +67,7 @@ private:
     int m_Height;
     
     //Modele use to render
+    UniformObject * m_SkyboxObject;
     UniformObject * m_RayObject1;
     UniformObject * m_RayObject2;
     UniformObject * m_RayObject3;

@@ -72,6 +72,10 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //LifeBar Object
     m_LifeBarObject = objectBuilder.buildFromObj("obj/lifebar.obj", false);
     
+    //Skybox Object
+    m_SkyboxObject = objectBuilder.buildFromObj("obj/sky.obj", false);
+    m_SkyboxObject->assignTexture(m_TextureManager.getTextureID("textures/sky.png"));
+    
     //Ground Object
     m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
     
@@ -113,6 +117,7 @@ GLRenderer::~GLRenderer() {
     delete(m_TurretObject);
     delete(m_CadencorObject);
     delete(m_MirrorObject);
+    delete(m_SkyboxObject);
     delete(m_PanelObject);
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
@@ -206,6 +211,11 @@ void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & 
 //Private game rendering
 //***************************
 void GLRenderer::renderGameBoard(const game::Board & board){
+    //Draw the skybox
+    m_GBufferLightShaderManager->setModelMatrixInShader(glm::mat4());
+    m_GBufferLightShaderManager->setObjectTextureInShader(m_SkyboxObject);
+    m_SkyboxObject->draw(GL_TRIANGLES);
+	
      const std::vector<game::GroundUnit*> grid = board.getGridBoard();
      const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
      for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
