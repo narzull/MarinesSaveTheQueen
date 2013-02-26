@@ -340,6 +340,7 @@ namespace api{
 	    }
 	    std::cout << "Ennemies to kill : " << m_EnemiesToKill << std::endl;
 	    std::cout << "Enemies number : " << m_Enemies.size() << std::endl;  
+	    //std::cout << m_Enemies.begin()->getWalkAnimationFrameID() << std::endl;
 	}
 	
 	void Application::updateGame(){
@@ -402,6 +403,7 @@ namespace api{
 	}
 	
 	void Application::updateEnemy(game::EnemyUnit & enemy){
+	  enemy.updateCounter();
 	  int action = enemy.getAction();
 	  if(action == ENEMY_WALKING){
 	    enemy.walk();
@@ -448,7 +450,7 @@ namespace api{
 	  std::cout << "---------------------------------" << std::endl;
 	  std::cout << "GAME START" << std::endl;
 	  //Launching the music
-	  m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	  //m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));

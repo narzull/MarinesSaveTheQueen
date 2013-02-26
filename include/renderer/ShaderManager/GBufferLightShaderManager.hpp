@@ -14,7 +14,7 @@ public:
 	GBufferLightShaderManager(const char* vertexShaderFile, const char* fragmentShaderFile);
 	virtual ~GBufferLightShaderManager(){};
 	//Setters
-	void setObjectTextureInShader(TexturedObject * object);
+	void setObjectTextureInShader(const TexturedObject * object);
 	
 private:
 	//Private Attribute

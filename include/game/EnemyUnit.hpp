@@ -16,7 +16,8 @@ class EnemyUnit : public api::Entity{
 public:
   
     //Static attribute
-    const static float s_ENEMYUNIT_Y_COORD = 0.0f;
+    const static float s_ENEMYUNIT_Y_COORD = 0.1f;
+    const static unsigned int s_ENEMYUNIT_WALK_ANIM_SPEED = 5;
     
     //Constructor
     EnemyUnit(GroundUnit * groundUnit, float speed);
@@ -26,6 +27,7 @@ public:
     unsigned int getAction()const{ return m_Action;};
     float getSpeed()const{ return m_Speed;};
     GroundUnit * getGroundUnitToReach()const{return m_GroundUnitToReach;};
+    unsigned int getWalkAnimationFrameID()const{return m_WalkFrameAnimationCounter;}
     
     //Setters
     void setSpeed(float speed){m_Speed = speed;};
@@ -36,11 +38,14 @@ public:
     void walk();
     void autoRotateFromDirection(glm::vec3 destinationPosition);
     void autoRotateForFire();
+    void updateCounter();
     
 private:
     GroundUnit * m_GroundUnitToReach;
     float m_Speed;
     unsigned int m_Action;
+    unsigned int m_WalkFrameAnimationCounter;
+    unsigned int m_LoopCounter;
 };
 } // namespace game
 #endif // __ENEMYUNIT_HPP__

@@ -10,6 +10,7 @@
 #include "renderer/UniformObject.hpp"
 #include "renderer/TextureManager.hpp"
 #include "renderer/ChangingTexture.hpp"
+#include "renderer/Animation.hpp"
 #include "renderer/ShaderManager/GBufferLightShaderManager.hpp"
 #include "renderer/ShaderManager/LaccumLightShaderManager.hpp"
 #include "renderer/ShaderManager/BlitShaderManager.hpp"
@@ -66,19 +67,22 @@ private:
     int m_Width;
     int m_Height;
     
+    //Animation
+    Animation m_EnemyWalkAnimation;
+    
     //Modele use to render
     UniformObject * m_SkyboxObject;
     UniformObject * m_RayObject1;
     UniformObject * m_RayObject2;
     UniformObject * m_RayObject3;
     UniformObject * m_TurretObject;
-    UniformObject * m_EnemyObject;
     UniformObject * m_HouseObject;
     UniformObject * m_GroundUnitObject;
     UniformObject * m_CadencorObject;
     UniformObject * m_MirrorObject;
     UniformObject * m_LifeBarObject;
     Simple2DPanel * m_PanelObject;
+    
     //Texture
     TextureManager m_TextureManager;
     ChangingTexture m_ChangingTexture;

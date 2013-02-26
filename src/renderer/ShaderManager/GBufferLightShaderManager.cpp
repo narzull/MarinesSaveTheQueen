@@ -32,7 +32,7 @@ GBufferLightShaderManager::GBufferLightShaderManager(const char* vertexShaderFil
     //if(m_TextureSpecularUniformLocation < 0) throw std::runtime_error("No uniform variable called specularUnitDiffuse in the shader");
 }
 	
-void GBufferLightShaderManager::setObjectTextureInShader(TexturedObject * object){
+void GBufferLightShaderManager::setObjectTextureInShader(const TexturedObject * object){
 	glUniform1i(m_HasUvsUniformLocation, object->hasUvs());
 	glUniform1i(m_HasTextureUniformLocation, object->hasTexture());
 	glUniform1i(m_HasNormalMapUniformLocation, object->hasNormalMap());
