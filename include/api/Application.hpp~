@@ -87,6 +87,8 @@ private:
 	bool saveScreen();
 	//Camera related functions
 	void moveCameraInApplication();
+	//Compute correct position of markers
+	void Application::computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark)	;
 	
 	//*****************************
 	//Private game methods

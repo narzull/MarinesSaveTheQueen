@@ -65,13 +65,55 @@ namespace api{
 			     const cv::Mat * webcamImage = m_WebcamManager.grabCurrentImage();
 			     std::vector<aruco::Marker> markers;
 			     m_WebcamManager.grabMarkersInCurrentImage(markers);
+			     m_Board.restart();
 			     //Tests
 			     if(markers.size() > 0){
+			       
 			       double modelview[16];
-			       markers[0].glGetModelViewMatrix(modelview);
+			       
+			       //find the main marker
+			       aruco::Marker* mainMarker = NULL;
+			       unsigned int indexMainMarker;
 			       glm::mat4 modelViewMatrix;
-			       tools::transformToMatrix(modelview, modelViewMatrix);
-			       m_Camera.setView(modelViewMatrix);
+			       
+			       for(unsigned int i = 0 ; i < markers.size() ; ++i){
+				 if(markers[i].id == 600){
+				   
+				   std::cout << "Main marker found " << std::endl;
+				   mainMarker = &markers[i];
+				   indexMainMarker = i;
+				   
+				   mainMarker->glGetModelViewMatrix(modelview);
+				   tools::transformToMatrix(modelview, modelViewMatrix);
+				   m_Camera.setView(modelViewMatrix);
+				 }
+				 else
+				    std::cout << "Another marker " << std::endl;
+			       }
+				
+				//if the main marker has been found
+				if(mainMarker != NULL){
+				  
+				    for(unsigned int j = 0 ; j < markers.size() ; ++j){
+					  if( indexMainMarker != j){
+					    
+					    glm::vec3 posMark = glm::vec3();
+					    
+					    computePosOfMarker(markers[j],posMark);
+					    
+					    int x = posMark.x * 2.5 ;
+					    int z = posMark.z * 2.5;
+					    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
+					    
+					    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - y = " << z+coordCenter.second << std::endl;
+					    
+					    m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->setOccupied(true);
+					  }
+				      
+				      
+				    }
+				}
+	 
 			     }
 			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
@@ -115,6 +157,26 @@ namespace api{
 		std::cout << "---------------------------------" << std::endl;
 		std::cout << "GAME STOP" << std::endl;
 		SDL_Quit();
+	}
+	
+	
+	void Application::computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark){
+	  
+	   double modelviewCurrentMarker[16];
+	   glm::mat4 modelViewMatrixCurrentMarker;
+	   glm::mat4 ViewCamera = m_Camera.getView();
+	   
+	   currentMarker.glGetModelViewMatrix(modelviewCurrentMarker);
+	   
+	   tools::transformToMatrix(modelviewCurrentMarker, modelViewMatrixCurrentMarker);
+	   
+	   glm::mat4 modelMarker = glm::inverse(ViewCamera) * modelViewMatrixCurrentMarker;
+	   posMark = glm::vec3(modelMarker[3][0],modelMarker[3][1],modelMarker[3][2]);
+	   
+	   //std::cout << "Main marker position : " << mmarkTvec.x << " " << mmarkTvec.y << " " << mmarkTvec.z << std::endl;
+	   //std::cout << "Current marker position : " << cmarkTvec.x << " " << cmarkTvec.y << " " << cmarkTvec.z << std::endl;
+
+	   
 	}
 	
 	void Application::initApplication(){
