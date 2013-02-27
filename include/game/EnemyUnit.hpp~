@@ -18,6 +18,9 @@ public:
     //Static attribute
     const static float s_ENEMYUNIT_Y_COORD = 0.1f;
     const static unsigned int s_ENEMYUNIT_WALK_ANIM_SPEED = 5;
+    const static unsigned int s_ENEMYUNIT_WALK_ANIM_TOTAL_FRAME = 10;
+    const static unsigned int s_ENEMYUNIT_ATTACK_ANIM_SPEED = 5;
+    const static unsigned int s_ENEMYUNIT_ATTACK_ANIM_TOTAL_FRAME = 10;
     
     //Constructor
     EnemyUnit(GroundUnit * groundUnit, float speed);
@@ -28,6 +31,7 @@ public:
     float getSpeed()const{ return m_Speed;};
     GroundUnit * getGroundUnitToReach()const{return m_GroundUnitToReach;};
     unsigned int getWalkAnimationFrameID()const{return m_WalkFrameAnimationCounter;}
+    unsigned int getAttackAnimationFrameID()const{return m_AttackFrameAnimationCounter;}
     
     //Setters
     void setSpeed(float speed){m_Speed = speed;};
@@ -44,6 +48,7 @@ private:
     GroundUnit * m_GroundUnitToReach;
     float m_Speed;
     unsigned int m_Action;
+    unsigned int m_AttackFrameAnimationCounter;
     unsigned int m_WalkFrameAnimationCounter;
     unsigned int m_LoopCounter;
 };

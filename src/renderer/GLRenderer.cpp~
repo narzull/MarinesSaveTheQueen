@@ -98,6 +98,19 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_8.obj", false);
     m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_9.obj", false);
     m_EnemyWalkAnimation.assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
+    
+    //Zombie attack animation
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_0.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_1.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_2.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_3.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_4.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_5.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_6.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_7.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_8.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_9.obj", false);
+    m_EnemyAttackAnimation.assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
 }
 
 GLRenderer::~GLRenderer() {
@@ -238,10 +251,18 @@ void GLRenderer::renderGameBoard(const game::Board & board){
 
 void GLRenderer::renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const{
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
-	const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
-    	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	m_GBufferLightShaderManager->setObjectTextureInShader(object);
-	object->draw(GL_TRIANGLES);
+	if((*it).getAction() == ENEMY_FIRING){
+	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
+	  object->draw(GL_TRIANGLES);
+	}
+	else{
+	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
+	  object->draw(GL_TRIANGLES);
+	}
   }
 }
 
@@ -348,9 +369,16 @@ void GLRenderer::renderPauseBoard(const game::Board & board){
 void GLRenderer::renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const{
   m_SimpleShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
-	const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
-    	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
-	object->draw(GL_TRIANGLES);
+	if((*it).getAction() == ENEMY_FIRING){
+	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	  object->draw(GL_TRIANGLES);
+	}
+	else{
+	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	  object->draw(GL_TRIANGLES);
+	}
   }
 }
 

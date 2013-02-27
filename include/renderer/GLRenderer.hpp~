@@ -68,6 +68,7 @@ private:
     int m_Height;
     
     //Animation
+    Animation m_EnemyAttackAnimation;
     Animation m_EnemyWalkAnimation;
     
     //Modele use to render
