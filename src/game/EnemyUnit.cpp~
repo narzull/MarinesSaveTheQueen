@@ -4,9 +4,11 @@
 #include <iostream>
 
 namespace game{
-  EnemyUnit::EnemyUnit(GroundUnit * groundUnit, float speed):Entity(groundUnit->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitToReach(groundUnit), m_Speed(speed), m_Action(ENEMY_WAITING){
+  EnemyUnit::EnemyUnit(GroundUnit * groundUnit, float speed):Entity(groundUnit->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitToReach(groundUnit), m_Speed(speed), m_Action(ENEMY_WAITING), m_LoopCounter(0){
     m_GroundUnitToReach->setOccupied(true);
     updateModel();
+    m_WalkFrameAnimationCounter = rand() % s_ENEMYUNIT_WALK_ANIM_TOTAL_FRAME;
+    m_AttackFrameAnimationCounter = rand() % s_ENEMYUNIT_ATTACK_ANIM_TOTAL_FRAME;
   }
   
   bool EnemyUnit::setGroundUnitToReach(GroundUnit* groundUnitToReach){
@@ -42,6 +44,7 @@ namespace game{
   
    void EnemyUnit::walk(){
     if(m_Action == ENEMY_WALKING){
+      //Updating the position
       glm::vec3 positionToReach = m_GroundUnitToReach->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
       glm::vec3 direction = positionToReach - m_Position;
       float norm = tools::getNorm(direction);
@@ -53,6 +56,24 @@ namespace game{
       }
       m_Position += step*direction;
       updateModel();
+    }
+  }
+  
+  void EnemyUnit::updateCounter(){
+    ++m_LoopCounter;
+    if(m_LoopCounter%1000 == 0)m_LoopCounter = 0;
+    //Updating walking anim
+    if(m_Action == ENEMY_WALKING){
+      if(m_LoopCounter % s_ENEMYUNIT_WALK_ANIM_SPEED == 0){
+	++m_WalkFrameAnimationCounter;
+	m_WalkFrameAnimationCounter = m_WalkFrameAnimationCounter%s_ENEMYUNIT_WALK_ANIM_TOTAL_FRAME;
+      }
+    }
+    else if(m_Action == ENEMY_FIRING){
+      if(m_LoopCounter % s_ENEMYUNIT_ATTACK_ANIM_SPEED == 0){
+	++m_AttackFrameAnimationCounter;
+	m_AttackFrameAnimationCounter = m_AttackFrameAnimationCounter%s_ENEMYUNIT_ATTACK_ANIM_TOTAL_FRAME;
+      }
     }
   }
 }//namespace game

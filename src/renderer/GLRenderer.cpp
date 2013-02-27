@@ -62,9 +62,10 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     m_CadencorObject = objectBuilder.buildFromObj("obj/cadencor.obj", false);
     m_MirrorObject = objectBuilder.buildFromObj("obj/mirror.obj", false);
     m_MirrorObject->assignTexture(m_TextureManager.getTextureID("textures/mirror.png"));
-    
-    //Loading screen textures
-    m_TextureManager.getTextureID("textures/screen/endScreen.png");
+       
+    //Turret Object
+    m_TurretObject = objectBuilder.buildFromObj("obj/turret.obj", false);
+    m_TurretObject->assignTexture(m_TextureManager.getTextureID("textures/turret.png"));
     
     //Creating the panel for deffered
     m_PanelObject = new Simple2DPanel();
@@ -72,31 +73,44 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //LifeBar Object
     m_LifeBarObject = objectBuilder.buildFromObj("obj/lifebar.obj", false);
     
+    //Skybox Object
+    m_SkyboxObject = objectBuilder.buildFromObj("obj/sky.obj", false);
+    m_SkyboxObject->assignTexture(m_TextureManager.getTextureID("textures/sky.png"));
+    
     //Ground Object
     m_GroundUnitObject = objectBuilder.buildFromObj("obj/ground.obj", false);
-    
-    //Loading alternative texture for the dirt
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/ground.png"));
-    //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/groundNormal.png"));
-    //m_GroundUnitObject->assignSpecularMap(m_TextureManager.getTextureID("textures/groundSpecular.png"));
-    
-    //Assign Default Texture for the ground
     m_GroundUnitObject->assignTexture(m_TextureManager.getTextureID("textures/full_grass.png"));
-    //m_GroundUnitObject->assignNormalMap(m_TextureManager.getTextureID("textures/grassNormal.png"));
-    
-    //Enemy Object
-    m_EnemyObject = objectBuilder.buildFromObj("obj/zombie.obj", false);
-    m_EnemyObject->assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
-    //m_EnemyObject->assignNormalMap(m_TextureManager.getTextureID("textures/zombieNormal.png"));
-    
-    //Turret Object
-    m_TurretObject = objectBuilder.buildFromObj("obj/turret.obj", false);
-    m_TurretObject->assignTexture(m_TextureManager.getTextureID("textures/turret.png"));
     
     //House Object
     m_HouseObject = objectBuilder.buildFromObj("obj/house.obj", false);
     m_HouseObject->assignTexture(m_TextureManager.getTextureID("textures/house.png"));
-    //m_HouseObject->assignNormalMap(m_TextureManager.getTextureID("textures/houseNormal.png"));
+    
+    //Zombie walk animation
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_0.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_1.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_2.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_3.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_4.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_5.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_6.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_7.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_8.obj", false);
+    m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_9.obj", false);
+    m_EnemyWalkAnimation.assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
+    
+    //Zombie attack animation
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_0.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_1.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_2.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_3.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_4.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_5.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_6.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_7.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_8.obj", false);
+    m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_9.obj", false);
+    m_EnemyAttackAnimation.assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
 }
 
 GLRenderer::~GLRenderer() {
@@ -109,10 +123,10 @@ GLRenderer::~GLRenderer() {
     delete(m_RayObject1);
     delete(m_GroundUnitObject);
     delete(m_HouseObject);
-    delete(m_EnemyObject);
     delete(m_TurretObject);
     delete(m_CadencorObject);
     delete(m_MirrorObject);
+    delete(m_SkyboxObject);
     delete(m_PanelObject);
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
@@ -206,6 +220,11 @@ void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & 
 //Private game rendering
 //***************************
 void GLRenderer::renderGameBoard(const game::Board & board){
+    //Draw the skybox
+    m_GBufferLightShaderManager->setModelMatrixInShader(glm::mat4());
+    m_GBufferLightShaderManager->setObjectTextureInShader(m_SkyboxObject);
+    m_SkyboxObject->draw(GL_TRIANGLES);
+	
      const std::vector<game::GroundUnit*> grid = board.getGridBoard();
      const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
      for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
@@ -232,9 +251,18 @@ void GLRenderer::renderGameBoard(const game::Board & board){
 
 void GLRenderer::renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const{
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
-    	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	m_GBufferLightShaderManager->setObjectTextureInShader(m_EnemyObject);
-	m_EnemyObject->draw(GL_TRIANGLES);
+	if((*it).getAction() == ENEMY_FIRING){
+	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
+	  object->draw(GL_TRIANGLES);
+	}
+	else{
+	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
+	  object->draw(GL_TRIANGLES);
+	}
   }
 }
 
@@ -341,8 +369,16 @@ void GLRenderer::renderPauseBoard(const game::Board & board){
 void GLRenderer::renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const{
   m_SimpleShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
-    	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
-	m_EnemyObject->draw(GL_TRIANGLES);
+	if((*it).getAction() == ENEMY_FIRING){
+	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	  object->draw(GL_TRIANGLES);
+	}
+	else{
+	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	  object->draw(GL_TRIANGLES);
+	}
   }
 }
 

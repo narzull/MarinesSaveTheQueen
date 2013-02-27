@@ -19,13 +19,13 @@ public:
 	void assignNormalMap(GLuint normalMapID);
 	void assignSpecularMap(GLuint normalMapID);
 	//Getters
-	bool hasUvs(){return m_HasUvs;};
-	bool hasTexture(){return m_HasTexture;};
-	bool hasNormalMap(){return m_HasNormalMap;};
-	bool hasSpecularMap(){return m_HasSpecularMap;};
-	GLuint getTextureID(){return m_TextureID;};
-	GLuint getNormalMapID(){return m_NormalMapID;};
-	GLuint getSpecularMapID(){return m_SpecularMapID;};
+	bool hasUvs()const{return m_HasUvs;};
+	bool hasTexture()const{return m_HasTexture;};
+	bool hasNormalMap()const{return m_HasNormalMap;};
+	bool hasSpecularMap()const{return m_HasSpecularMap;};
+	GLuint getTextureID()const{return m_TextureID;};
+	GLuint getNormalMapID()const{return m_NormalMapID;};
+	GLuint getSpecularMapID()const{return m_SpecularMapID;};
 protected:
 	//Attribute
 	static const GLuint m_NORMAL_ATTRIB_LOCATION = 1;
