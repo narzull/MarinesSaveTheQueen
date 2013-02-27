@@ -88,7 +88,7 @@ private:
 	//Camera related functions
 	void moveCameraInApplication();
 	//Compute correct position of markers
-	void computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark)	;
+	void computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark, glm::vec3& rotMark, double& thetaY)	;
 	
 	//*****************************
 	//Private game methods

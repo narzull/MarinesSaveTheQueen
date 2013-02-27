@@ -71,6 +71,9 @@ namespace api{
 			       
 			       double modelview[16];
 			       
+			       //clear the turrets
+			       m_Turrets.clear();
+			       
 			       //find the main marker
 			       aruco::Marker* mainMarker = NULL;
 			       unsigned int indexMainMarker;
@@ -94,20 +97,36 @@ namespace api{
 				//if the main marker has been found
 				if(mainMarker != NULL){
 				  
+				    //ground unit coord
+				    int x,z;
+				    
 				    for(unsigned int j = 0 ; j < markers.size() ; ++j){
 					  if( indexMainMarker != j){
 					    
+					    //init vecs
 					    glm::vec3 posMark = glm::vec3();
+					    glm::vec3 rotMark = glm::vec3();
 					    
-					    computePosOfMarker(markers[j],posMark);
+					    //angle of rotation of the turret
+					    double thetaY;
 					    
-					    int x = posMark.x * 2.5 ;
-					    int z = posMark.z * 2.5;
+					    //get transformation datas
+					    computePosOfMarker(markers[j],posMark,rotMark,thetaY);
+					    
+					    //adapt the scale and units
+					    x = posMark.x * 2.5 ;
+					    z = posMark.z * 2.5 ;
+					    glm::vec3 rotation(0,thetaY*180/M_PI,0);
+					    
+					    //find the correct ground unit
 					    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
+					    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
+					   
+					    //create the correct turret with good transformation
+					    game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
 					    
-					    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - y = " << z+coordCenter.second << std::endl;
-					    
-					    m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->setOccupied(true);
+					    //add the turret to the vector of turrets
+					    m_Turrets.push_back(newTurret);
 					  }
 				      
 				      
@@ -159,23 +178,54 @@ namespace api{
 		SDL_Quit();
 	}
 	
-	
-	void Application::computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark){
+	// find correct datas from marker detection to use them in opengl world
+	void Application::computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark, glm::vec3& rotMark, double& thetaY){
 	  
 	   double modelviewCurrentMarker[16];
 	   glm::mat4 modelViewMatrixCurrentMarker;
 	   glm::mat4 ViewCamera = m_Camera.getView();
 	   
+	   //get the modelview matrix of the current marker
 	   currentMarker.glGetModelViewMatrix(modelviewCurrentMarker);
-	   
 	   tools::transformToMatrix(modelviewCurrentMarker, modelViewMatrixCurrentMarker);
 	   
+	   //model matrix of the current marker by mult inverse matrix View of the camera 
+	   //and model view matrix of the current marker
 	   glm::mat4 modelMarker = glm::inverse(ViewCamera) * modelViewMatrixCurrentMarker;
+	   
+	   // translation vector = last row of the model matrix
 	   posMark = glm::vec3(modelMarker[3][0],modelMarker[3][1],modelMarker[3][2]);
 	   
-	   //std::cout << "Main marker position : " << mmarkTvec.x << " " << mmarkTvec.y << " " << mmarkTvec.z << std::endl;
-	   //std::cout << "Current marker position : " << cmarkTvec.x << " " << cmarkTvec.y << " " << cmarkTvec.z << std::endl;
-
+	   // sin Y = r02 in model matrix
+	   double sinY = modelMarker[0][2];
+	   thetaY = asin(sinY);
+	   
+	   //to find in which part of the trigonometric circle we are (left or right) 
+	   double thetaX = atan2(-modelMarker[1][2],modelMarker[2][2]);
+	   double cosX = cos(thetaX);
+	   
+	   //magic
+	   double signeCosY = -cosX;
+	   
+	   //find the correct angle according to the sign of the cosinus
+	   if(signeCosY < 0){
+	     if(sinY > 0){
+		thetaY = M_PI - abs(asin(sinY));
+	     }
+	     else
+	        thetaY = - M_PI + abs(asin(sinY));
+	   }
+	   
+	   //tronc the angle
+	   if(thetaY > -3*M_PI/4 && thetaY < -M_PI/4)
+	      thetaY = -M_PI/2;
+	   else if(thetaY < M_PI/4 && thetaY > -M_PI/4)
+	      thetaY = 0;
+	   else if(thetaY < 3*M_PI/4 && thetaY > M_PI/4)
+	      thetaY = M_PI/2;
+	   else if(thetaY > 3*M_PI/4 || thetaY < -3*M_PI/4)
+	      thetaY = M_PI;
+	   else;	//keep thetaY like it is
 	   
 	}
 	
