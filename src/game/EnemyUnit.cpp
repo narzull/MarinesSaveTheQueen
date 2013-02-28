@@ -47,14 +47,19 @@ namespace game{
       //Updating the position
       glm::vec3 positionToReach = m_GroundUnitToReach->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0);
       glm::vec3 direction = positionToReach - m_Position;
-      float norm = tools::getNorm(direction);
-      direction = glm::normalize(direction);
-      float step = m_Speed;
-      if(step > norm){
-	step = norm;
+      if(positionToReach == m_Position){
 	m_Action = ENEMY_WAITING;
       }
-      m_Position += step*direction;
+      else{
+	float norm = tools::getNorm(direction);
+	direction = glm::normalize(direction);
+	float step = m_Speed;
+	if(step > norm){
+	  step = norm;
+	  m_Action = ENEMY_WAITING;
+	}
+	m_Position += step*direction;
+      }
       updateModel();
     }
   }
