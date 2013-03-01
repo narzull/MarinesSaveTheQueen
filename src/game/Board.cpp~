@@ -143,9 +143,29 @@ namespace game{
 	return isBlocked;
     }
     
-    void Board::restart(){
+    void Board::restartAllBoard(){
       for(unsigned int i = 0; i < m_GridBoard.size(); ++i){
-	m_GridBoard[i]->setOccupied(false);
+	if(i%s_GROUNDUNIT_NUMBER_WIDTH == m_CentralCoord.first && i/s_GROUNDUNIT_NUMBER_HEIGHT == m_CentralCoord.second){
+	  m_GridBoard[i]->setWeight(0);
+	  m_GridBoard[i]->setOccupied(false);
+	}
+	else{
+	  m_GridBoard[i]->setWeight(5000);
+	  m_GridBoard[i]->setOccupied(false);
+	}
+      }
+    }
+    
+    void Board::resartAllBoardExceptObstacle(){
+      for(unsigned int i = 0; i < m_GridBoard.size(); ++i){
+	if(m_GridBoard[i]->getWeight() == 0){
+	  m_GridBoard[i]->setWeight(0);
+	  m_GridBoard[i]->setOccupied(false);
+	}
+	else if(m_GridBoard[i]->getWeight() != -1){
+	  m_GridBoard[i]->setWeight(5000);
+	  m_GridBoard[i]->setOccupied(false);
+	}
       }
     }
 }//namespace game

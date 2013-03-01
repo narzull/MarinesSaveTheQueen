@@ -11,6 +11,7 @@
 #include "../game/EnemyUnit.hpp"
 #include "../game/Turret.hpp"
 #include "../game/DefenseUnit.hpp"
+#include "../game/Barrier.hpp"
 #include "../game/LifeBar.hpp"
 
 #include <string>
@@ -37,6 +38,7 @@ private:
 	//Const attribute
 	static const size_t m_BYTES_PER_PIXEL = 32;
 	static const size_t m_WAVE_TRANSITION_FRAME_DURATION = 100;
+	static const unsigned int m_INITIAL_NUMBER_OF_DOWN_BARRIER = 4;
 	const std::string m_WINDOW_TITLE;
 	
 	//Game attribute
@@ -51,10 +53,12 @@ private:
 	//Scene Entities
 	unsigned int m_WaveNumber;
 	unsigned int m_EnemiesToKill;
+	unsigned int m_MaxMarker;
 	game::Board m_Board;
 	std::vector<renderer::Light> m_Lights;
 	std::list<game::EnemyUnit> m_Enemies;
 	std::vector<game::DefenseUnit> m_DefenseUnit;
+	std::vector<game::Barrier> m_Barriers;
 	std::vector<game::Turret> m_Turrets;
 
 	//Renderer attribute
@@ -88,18 +92,24 @@ private:
 	//Camera related functions
 	void moveCameraInApplication();
 	//Compute correct position of markers
-	void computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark, glm::vec3& rotMark)	;
+	void computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark, glm::vec3& rotMark, double& thetaY)	;
 	
 	//*****************************
 	//Private game methods
 	//*****************************
+	
+	//Wave methods
 	void launchNextWaveTransition();
 	void updateWaveTransition();
+	//Global game methods
 	void initWave(unsigned int waveNumber);
 	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();
 	void startGame();
 	void restartGame();
+	//Barrier Methods
+	void initBarrier();
+	void removeRandomBarrier();
 	
 public:
 	//Public attribute

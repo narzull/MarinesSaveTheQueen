@@ -60,6 +60,7 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     
     //DefenseUnit objects
     m_CadencorObject = objectBuilder.buildFromObj("obj/cadencor.obj", false);
+    m_CadencorObject->assignTexture(m_TextureManager.getTextureID("textures/cadencor.png"));
     m_MirrorObject = objectBuilder.buildFromObj("obj/mirror.obj", false);
     m_MirrorObject->assignTexture(m_TextureManager.getTextureID("textures/mirror.png"));
        
@@ -85,6 +86,10 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     //House Object
     m_HouseObject = objectBuilder.buildFromObj("obj/house.obj", false);
     m_HouseObject->assignTexture(m_TextureManager.getTextureID("textures/house.png"));
+    
+    //Barrier Object
+    m_BarrierObject = objectBuilder.buildFromObj("obj/barrier.obj", false);
+    m_BarrierObject->assignTexture(m_TextureManager.getTextureID("textures/barrier.png"));
     
     //Zombie walk animation
     m_EnemyWalkAnimation.addObjToAnimation("obj/ZombieWalkAnim/zombie_walk_0.obj", false);
@@ -128,6 +133,7 @@ GLRenderer::~GLRenderer() {
     delete(m_MirrorObject);
     delete(m_SkyboxObject);
     delete(m_PanelObject);
+    delete(m_BarrierObject);
     //Deleting Shaders
     delete(m_GBufferLightShaderManager);
     delete(m_LaccumLightShaderManager);
@@ -135,7 +141,7 @@ GLRenderer::~GLRenderer() {
     delete(m_SimpleShaderManager);
 }
 
-void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera) {
+void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::Barrier> & barriers, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera) {
     //*****************************
     //INIT OF THE DEFFERED
     //*****************************
@@ -161,6 +167,7 @@ void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Lig
     renderGameEnemies(enemies);
     renderGameTurrets(turrets);
     renderGameDefenseUnits(defenseUnits);
+    renderGameBarriers(barriers);
     renderGameLifeBar(lifebar);
     //Unbinding the GBuffer
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -194,7 +201,7 @@ void GLRenderer::renderGame(const game::LifeBar & lifebar, const std::vector<Lig
     glEnable(GL_DEPTH_TEST);
 }
 
-void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera){
+void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::Barrier> & barriers, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera){
    // Viewport 
   glViewport(0, 0, m_Width, m_Height);
   // Default states
@@ -214,6 +221,7 @@ void GLRenderer::renderPause(const game::LifeBar & lifebar, const game::Board & 
   renderPauseEnemies(enemies);
   renderPauseTurrets(turrets);
   renderPauseDefenseUnits(defenseUnits);
+  renderPauseBarriers(barriers);
 }
 
 //***************************
@@ -312,6 +320,14 @@ void GLRenderer::renderGameDefenseUnits(const std::vector<game::DefenseUnit> & d
     } 
 }
 
+void GLRenderer::renderGameBarriers(const std::vector<game::Barrier> & barriers)const{
+    for(std::vector<game::Barrier>::const_iterator it = barriers.begin(); it != barriers.end(); ++it){
+	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	  m_GBufferLightShaderManager->setObjectTextureInShader(m_BarrierObject);
+	  m_BarrierObject->draw(GL_TRIANGLES);
+    }
+}
+
  void GLRenderer::renderGameLifeBar(const game::LifeBar & lifebar)const{
   float ratio = lifebar.getLifeRatio();
   if(ratio > 0.75){
@@ -400,6 +416,14 @@ void GLRenderer::renderPauseDefenseUnits(const std::vector<game::DefenseUnit> & 
 	else{
 	  m_MirrorObject->draw(GL_TRIANGLES);
 	}
+    } 
+}
+
+void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers)const{
+    m_SimpleShaderManager->setColorInShader(Color::Blue());
+    for(std::vector<game::Barrier>::const_iterator it = barriers.begin(); it != barriers.end(); ++it){
+	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	m_BarrierObject->draw(GL_TRIANGLES);
     } 
 }
 

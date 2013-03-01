@@ -23,6 +23,7 @@
 #include "game/Turret.hpp"
 #include "game/DefenseUnit.hpp"
 #include "game/LifeBar.hpp"
+#include "game/Barrier.hpp"
 
 #include <GL/glew.h>
 #include <vector>
@@ -38,8 +39,8 @@ public:
     GLRenderer(int width, int height);
     ~GLRenderer();
     //Public methods
-    void renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera);
-    void renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera);
+    void renderGame(const game::LifeBar & lifebar, const std::vector<Light> & m_LightVector, const game::Board & board, const std::vector<game::Barrier> & barriers, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const api::Camera & camera);
+    void renderPause(const game::LifeBar & lifebar, const game::Board & board, const std::vector<game::Barrier> & barriers, const std::vector<game::DefenseUnit> & defenseUnits, const std::vector<game::Turret> & turrets, const std::list<game::EnemyUnit> & enemies, const cv::Mat * webcamImage, const api::Camera & camera);
     //Public methods for screen rendering
     void renderEndScreen();
     void renderBeginScreen();
@@ -53,12 +54,14 @@ private:
     void renderGameTurrets(const std::vector<game::Turret> & turrets)const;
     void renderGameRays(const std::vector<game::Ray> & rays)const;
     void renderGameDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
+    void renderGameBarriers(const std::vector<game::Barrier> & barriers)const;
     void renderGameLifeBar(const game::LifeBar & lifebar)const;
     //Private methods for pause rendering
     void renderPauseBoard(const game::Board & board);
     void renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const;
     void renderPauseTurrets(const std::vector<game::Turret> & turrets)const;
     void renderPauseDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const;
+    void renderPauseBarriers(const std::vector<game::Barrier> & barriers)const;
     
     //Private methods for pause rendering
     void renderBackground(const cv::Mat * webcamImage);
@@ -82,6 +85,7 @@ private:
     UniformObject * m_CadencorObject;
     UniformObject * m_MirrorObject;
     UniformObject * m_LifeBarObject;
+    UniformObject * m_BarrierObject;
     Simple2DPanel * m_PanelObject;
     
     //Texture

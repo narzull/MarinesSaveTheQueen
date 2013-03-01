@@ -38,7 +38,8 @@ public:
     void computeGroundUnitsWeightFromCenter();
     void printGroundUnitsWeight();
     void printGroundUnitsOccupation();
-    void restart();
+    void restartAllBoard();
+    void resartAllBoardExceptObstacle();
    
 private:
     //Attribute

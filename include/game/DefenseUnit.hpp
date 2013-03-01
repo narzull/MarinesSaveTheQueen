@@ -17,6 +17,7 @@ public:
     //Constructor
     DefenseUnit(glm::vec3 rotation, GroundUnit * relatedGroundUnit, int type):m_RelatedGroundUnit(relatedGroundUnit), m_Type(type), m_Used(false){
       m_RelatedGroundUnit->setOccupied(true);
+      m_RelatedGroundUnit->setWeight(-1);
       setRotation(rotation);
       float yOffset = 0.0;
       switch(type){
@@ -30,6 +31,11 @@ public:
       setPosition(relatedGroundUnit->getPosition() + glm::vec3(0.0, yOffset, 0.0));
       updateModel();
     };
+    
+    ~DefenseUnit(){
+      //m_RelatedGroundUnit->setOccupied(false);
+      //m_RelatedGroundUnit->setWeight(0);
+    }
     
     //Setters
     void setUsed(bool used){ m_Used = used;};

@@ -59,20 +59,20 @@ namespace api{
 			    //Update the frame count 
 			    m_FrameCount++;
 			    updateGame();
-			    m_GLRenderer->renderGame(m_LifeBar, m_Lights, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, m_Camera);
+			    m_GLRenderer->renderGame(m_LifeBar, m_Lights, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, m_Camera);
 			  }
 			  else if(m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
 			     const cv::Mat * webcamImage = m_WebcamManager.grabCurrentImage();
 			     std::vector<aruco::Marker> markers;
 			     m_WebcamManager.grabMarkersInCurrentImage(markers);
-			     m_Board.restart();
+			     //m_Board.restart();
 			     //Tests
 			     if(markers.size() > 0){
 			       
 			       double modelview[16];
 			       
 			       //clear the turrets
-			       m_Turrets.clear();
+			       //m_Turrets.clear();
 			       
 			       //find the main marker
 			       aruco::Marker* mainMarker = NULL;
@@ -123,11 +123,10 @@ namespace api{
 					    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
 					   
 					    //create the correct turret with good transformation
-					    game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
+					   //game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
 					    
 					    //add the turret to the vector of turrets
-					    m_Turrets.push_back(newTurret);
-					    //m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->setOccupied(true);
+					    //m_Turrets.push_back(newTurret);
 					  }
 				      
 				      
@@ -135,7 +134,7 @@ namespace api{
 				}
 	 
 			     }
-			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
+			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
 			  
 			  //GAME WAVE TRANSITION CODE
@@ -243,6 +242,7 @@ namespace api{
 		m_MousePosX = 0;
 		m_MousePosY = 0;
 		m_Pause = true;
+		m_MaxMarker = 3;
 	}
 	
 	//Init all the required SDL Flags
@@ -551,9 +551,10 @@ namespace api{
 	  m_Enemies.clear();
 	  m_Turrets.clear();
 	  m_DefenseUnit.clear();
+	  m_Barriers.clear();
 	  //Restarting some elements
 	  m_LifeBar.restart();
-	  m_Board.restart();
+	  m_Board.restartAllBoard();
 	  //Init a new application
 	  initApplication();
 	  startGame();
@@ -562,6 +563,8 @@ namespace api{
 	void Application::startGame(){
 	  std::cout << "---------------------------------" << std::endl;
 	  std::cout << "GAME START" << std::endl;
+	  
+	  
 	  //Launching the music
 	  //m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	  //Set some game unity
@@ -602,19 +605,63 @@ namespace api{
 	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
 	    }
 	  }
+	  
+	  //Init the barrier in the game
+	  initBarrier();
 	  //Computing the ground unit weight
 	  m_Board.computeGroundUnitsWeightFromCenter();
-	  //m_Board.printGroundUnitsWeight();
-	  //m_Board.printGroundUnitsOccupation();
 	  //Initialize the current wave
 	  initWave(m_WaveNumber);
 	  //Changing game status
 	  m_GameStatus = GAME_STATUS_RUNNING;
 	}
 	
+	void Application::initBarrier(){
+	  unsigned int xBegin = 4;
+	  unsigned int xEnd = 13;
+	  unsigned int zBegin = 4;
+	  unsigned int zEnd = 13;
+	  std::cout << xBegin << " " << xEnd << std::endl;
+	  for(unsigned int i = zBegin; i != zEnd; ++i){
+	    //For first and last line
+	    if(i == zBegin || i == zEnd-1){
+	      for(unsigned int j = xBegin; j != xEnd; ++j){
+		float angle;
+		if(i == zBegin) angle = 0;
+		if(i == zEnd - 1) angle = 180;
+		game::GroundUnit * localGroundUnit = m_Board.getGroundUnitFromBoard(j,i);
+		m_Barriers.push_back(game::Barrier(glm::vec3(0,angle,0), localGroundUnit));
+	      }
+	    }//For the other lines
+	    else{
+	      game::GroundUnit * localGroundUnit = m_Board.getGroundUnitFromBoard(xBegin,i);
+	      m_Barriers.push_back(game::Barrier(glm::vec3(0,90,0), localGroundUnit));
+	      localGroundUnit = m_Board.getGroundUnitFromBoard(xEnd-1,i);
+	      m_Barriers.push_back(game::Barrier(glm::vec3(0,-90,0), localGroundUnit));
+	    }
+	  }
+	  std::random_shuffle(m_Barriers.begin(), m_Barriers.end());
+	  for(unsigned int i = 0; i < m_INITIAL_NUMBER_OF_DOWN_BARRIER; ++i){
+	    removeRandomBarrier();
+	  }
+	}
+	
+	void Application::removeRandomBarrier(){
+	  game::GroundUnit * localGroundUnit = m_Barriers[m_Barriers.size()-1].getRelatedGroundUnit();
+	  localGroundUnit->setOccupied(false);
+	  localGroundUnit->setWeight(5000);
+	  m_Barriers.pop_back();
+	}
+	
 	void Application::launchNextWaveTransition(){
 	    std::cout << "---------------------------------" << std::endl;
 	    std::cout << "WAVE " << m_WaveNumber << " FINISHED" << std::endl;
+	    //Delete a barrier
+	    removeRandomBarrier();
+	    m_Board.resartAllBoardExceptObstacle();
+	    m_Board.computeGroundUnitsWeightFromCenter();
+	    //m_Board.printGroundUnitsWeight();
+	    //Load the next wave
 	    ++m_WaveNumber;
 	    initWave(m_WaveNumber);
 	    m_GameStatus = GAME_STATUS_WAVE_TRANSITION;
