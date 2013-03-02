@@ -16,7 +16,7 @@ class EnemyUnit : public api::Entity{
 public:
   
     //Static attribute
-    const static float s_ENEMYUNIT_Y_COORD = 0.1f;
+    const static float s_ENEMYUNIT_Y_COORD = 0.02f;
     const static unsigned int s_ENEMYUNIT_WALK_ANIM_SPEED = 5;
     const static unsigned int s_ENEMYUNIT_WALK_ANIM_TOTAL_FRAME = 10;
     const static unsigned int s_ENEMYUNIT_ATTACK_ANIM_SPEED = 5;
