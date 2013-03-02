@@ -3,7 +3,7 @@
 #include <iostream>
 namespace api{
   
-  SoundManager::SoundManager():m_BackgroundMusic(NULL), m_LaserSound1(NULL){
+  SoundManager::SoundManager():m_BackgroundMusic(NULL), m_LaserSound(NULL), m_ZombieSound(NULL){
     //Init the sound librairy
     std::cout << "---------------------------------" << std::endl;
     std::cout << "SOUND MANAGER : Initialisation" << std::endl;
@@ -13,8 +13,9 @@ namespace api{
     }else{
 	std::cout << "SUCCES" << std::endl;
     }
-    Mix_AllocateChannels(2);
-    loadSound(&m_LaserSound1, "./audio/laser_1.ogg");
+    Mix_AllocateChannels(3);
+    loadSound(&m_LaserSound, "./audio/laser_1.ogg");
+    loadSound(&m_ZombieSound, "./audio/zombie.ogg");
   }
   
   SoundManager::~SoundManager(){
@@ -22,7 +23,8 @@ namespace api{
      Mix_HaltChannel(-1);
      //Destroying the background music
      destroySound(&m_BackgroundMusic);
-     destroySound(&m_LaserSound1);
+     destroySound(&m_LaserSound);
+     destroySound(&m_ZombieSound);
      Mix_CloseAudio();
   };
   
@@ -41,9 +43,17 @@ namespace api{
   }
   
   void SoundManager::playRandomLaserSound()const{
-    if(m_LaserSound1 != NULL){
-      	if(Mix_PlayChannel(1, m_LaserSound1, 0) == -1){
+    if(m_LaserSound != NULL){
+      	if(Mix_PlayChannel(1, m_LaserSound, 0) == -1){
 	  std::cout << "SOUNDMANAGER : Impossible to play : the laser sound" << std::endl;
+	}
+    } 
+  }
+  
+  void SoundManager::playRandomZombieSound()const{
+    if(m_ZombieSound != NULL){
+      	if(Mix_PlayChannel(2, m_ZombieSound, 0) == -1){
+	  std::cout << "SOUNDMANAGER : Impossible to play : the zombie sound" << std::endl;
 	}
     } 
   }

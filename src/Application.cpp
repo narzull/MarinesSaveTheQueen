@@ -477,6 +477,7 @@ namespace api{
 	  }
 	  
 	  if(rayVector.size() != 0) m_SoundManager.playRandomLaserSound();
+	  if(m_Enemies.size() != 0 && rand()%250==0) m_SoundManager.playRandomZombieSound();
 	  
 	  //Updating the ennemies
 	  std::list<game::EnemyUnit>::iterator enemy = m_Enemies.begin();

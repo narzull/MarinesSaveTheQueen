@@ -19,6 +19,7 @@ public:
     //Public methods
     void launchBackGroundMusic(const std::string & filename);
     void playRandomLaserSound()const;
+    void playRandomZombieSound()const;
 protected:
     //Private methods
     void loadSound(Mix_Chunk ** musicRessource, const std::string & filename);
@@ -28,7 +29,8 @@ protected:
     Mix_Chunk * m_BackgroundMusic;
     
     //Laser sound
-    Mix_Chunk * m_LaserSound1;
+    Mix_Chunk * m_LaserSound;
+    Mix_Chunk * m_ZombieSound;
 };
 } // namespace api
 #endif // __SOUNDMANAGER_HPP__
