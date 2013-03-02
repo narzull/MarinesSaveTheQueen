@@ -242,7 +242,7 @@ namespace api{
 		m_MousePosX = 0;
 		m_MousePosY = 0;
 		m_Pause = true;
-		m_MaxMarker = 3;
+		m_MaxMarker = m_INITIAL_MAX_MARKER;
 	}
 	
 	//Init all the required SDL Flags
@@ -420,9 +420,15 @@ namespace api{
 	void Application::initWave(unsigned int waveNumber){
 	    std::cout << "---------------------------------" << std::endl;
 	    std::cout << "LAUNCHING WAVE " << waveNumber << std::endl;
+	    
+	    //Launching the music
+	    if(waveNumber == 1)m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	    if(waveNumber == 3)m_SoundManager.launchBackGroundMusic("./audio/Lords-Of-The-Sky.ogg");
+	    if(waveNumber == 6)m_SoundManager.launchBackGroundMusic("./audio/Surrounded.ogg");
 	    //Setting the wave informations
 	    m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
 	    float enemiesSpeed = 0.02*(waveNumber/4.0);
+	    m_MaxMarker = m_INITIAL_MAX_MARKER + (waveNumber - 1);
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
 	    std::pair<unsigned int, unsigned int> centralCoord = centralGroudUnit->getGroundUnitCoord();
@@ -452,7 +458,8 @@ namespace api{
 	      }  
 	    }
 	    std::cout << "Ennemies to kill : " << m_EnemiesToKill << std::endl;
-	    std::cout << "Enemies number : " << m_Enemies.size() << std::endl;  
+	    std::cout << "Enemies number : " << m_Enemies.size() << std::endl;
+	    std::cout << "Available Marker : " << m_MaxMarker << std::endl;  
 	    //std::cout << m_Enemies.begin()->getWalkAnimationFrameID() << std::endl;
 	}
 	
@@ -564,9 +571,6 @@ namespace api{
 	  std::cout << "---------------------------------" << std::endl;
 	  std::cout << "GAME START" << std::endl;
 	  
-	  
-	  //Launching the music
-	  //m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));

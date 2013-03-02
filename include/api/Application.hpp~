@@ -39,6 +39,7 @@ private:
 	static const size_t m_BYTES_PER_PIXEL = 32;
 	static const size_t m_WAVE_TRANSITION_FRAME_DURATION = 100;
 	static const unsigned int m_INITIAL_NUMBER_OF_DOWN_BARRIER = 4;
+	static const unsigned int m_INITIAL_MAX_MARKER = 3;
 	const std::string m_WINDOW_TITLE;
 	
 	//Game attribute

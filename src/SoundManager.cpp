@@ -27,10 +27,14 @@ namespace api{
   };
   
   void SoundManager::launchBackGroundMusic(const std::string & filename){
+    //If a background music is running
+    if(m_BackgroundMusic != NULL){
+      Mix_FadeOutChannel(0, 1000);
+    }
     destroySound(&m_BackgroundMusic);
     loadSound(&m_BackgroundMusic, filename);
     if(m_BackgroundMusic != NULL){
-      	if(Mix_PlayChannel(0 ,m_BackgroundMusic, -1) == -1){
+      	if(Mix_FadeInChannel(0, m_BackgroundMusic, -1, 1000) == -1){
 	  std::cout << "SOUNDMANAGER : Impossible to play : " << filename << std::endl;
 	} 
     } 
@@ -40,15 +44,20 @@ namespace api{
     if(m_LaserSound1 != NULL){
       	if(Mix_PlayChannel(1, m_LaserSound1, 0) == -1){
 	  std::cout << "SOUNDMANAGER : Impossible to play : the laser sound" << std::endl;
-	} 
+	}
     } 
   }
   
   void SoundManager::loadSound(Mix_Chunk ** musicRessource, const std::string & filename){
+    std::cout << "---------------------------------" << std::endl;
+    std::cout << "SOUND MANAGER : Loading Sound : " << filename << std::endl;
     if(*musicRessource == NULL){
       *musicRessource = Mix_LoadWAV(filename.c_str());
       if(*musicRessource == NULL){
 	  std::cout << "SOUNDMANAGER : Impossible to load : " << filename << std::endl;
+      }
+      else{
+	std::cout << "SUCCESS" << std::endl;
       }
     }
     else{
