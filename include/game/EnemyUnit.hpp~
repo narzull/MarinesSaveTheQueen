@@ -6,6 +6,9 @@
 
 #include <glm/glm.hpp>
 
+#define ENEMY_CLASSIC 1
+#define ENEMY_BOSS 2
+
 #define ENEMY_WAITING 1
 #define ENEMY_WALKING 2
 #define ENEMY_FIRING 3
@@ -23,7 +26,7 @@ public:
     const static unsigned int s_ENEMYUNIT_ATTACK_ANIM_TOTAL_FRAME = 10;
     
     //Constructor
-    EnemyUnit(GroundUnit * groundUnit, float speed);
+    EnemyUnit(unsigned int type, GroundUnit * groundUnit, float speed);
     virtual ~EnemyUnit(){};
     
     //Getters
@@ -32,6 +35,9 @@ public:
     GroundUnit * getGroundUnitToReach()const{return m_GroundUnitToReach;};
     unsigned int getWalkAnimationFrameID()const{return m_WalkFrameAnimationCounter;}
     unsigned int getAttackAnimationFrameID()const{return m_AttackFrameAnimationCounter;}
+    unsigned int getType()const{return m_Type;};
+    unsigned int getForce()const{return m_Force;};
+    bool shoot(){--m_Life; return m_Life <= 0;};
     
     //Setters
     void setSpeed(float speed){m_Speed = speed;};
@@ -47,6 +53,9 @@ public:
 private:
     GroundUnit * m_GroundUnitToReach;
     float m_Speed;
+    unsigned int m_Type;
+    unsigned int m_Force;
+    unsigned int m_Life;
     unsigned int m_Action;
     unsigned int m_AttackFrameAnimationCounter;
     unsigned int m_WalkFrameAnimationCounter;

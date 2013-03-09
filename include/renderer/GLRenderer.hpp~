@@ -73,6 +73,8 @@ private:
     //Animation
     Animation m_EnemyAttackAnimation;
     Animation m_EnemyWalkAnimation;
+    Animation m_BossWalkAnimation;
+    Animation m_BossAttackAnimation;
     
     //Modele use to render
     UniformObject * m_SkyboxObject;

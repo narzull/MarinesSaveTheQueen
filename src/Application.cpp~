@@ -231,7 +231,9 @@ namespace api{
 	
 	void Application::initApplication(){
 		//Init some game variables
-		m_WaveNumber = 1;		
+		m_WaveNumber = 1;
+		m_BossWaveNumber = 1;	
+		m_BossWaveFlag = false;
 		//Init some variables
 		m_Step = 0.1;
 		m_MoveFlagX = 0;
@@ -417,18 +419,30 @@ namespace api{
 	}
 	
 	//Scene methods
-	void Application::initWave(unsigned int waveNumber){
-	    std::cout << "---------------------------------" << std::endl;
-	    std::cout << "LAUNCHING WAVE " << waveNumber << std::endl;
+	void Application::initWave(unsigned int waveNumber, bool bossWave){
+	    float enemiesSpeed;
+	    unsigned int enemiesType;
 	    
-	    //Launching the music
-	    if(waveNumber == 1)m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
-	    if(waveNumber == 3)m_SoundManager.launchBackGroundMusic("./audio/Lords-Of-The-Sky.ogg");
-	    if(waveNumber == 6)m_SoundManager.launchBackGroundMusic("./audio/Surrounded.ogg");
-	    //Setting the wave informations
-	    m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
-	    float enemiesSpeed = 0.02*(waveNumber/4.0);
-	    m_MaxMarker = m_INITIAL_MAX_MARKER + (waveNumber - 1);
+	    if(!bossWave){
+	      std::cout << "---------------------------------" << std::endl;
+	      std::cout << "LAUNCHING WAVE " << waveNumber << std::endl;
+	      //Launching the music
+	      if(waveNumber == 1)m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	      if(waveNumber == 3)m_SoundManager.launchBackGroundMusic("./audio/Lords-Of-The-Sky.ogg");
+	      if(waveNumber == 6)m_SoundManager.launchBackGroundMusic("./audio/Surrounded.ogg");
+	      //Setting the wave informations
+	      m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
+	      enemiesSpeed = 0.02*(waveNumber/4.0);
+	      m_MaxMarker = m_INITIAL_MAX_MARKER + (waveNumber - 1);
+	      enemiesType = ENEMY_CLASSIC;
+	    }
+	    else{
+	      std::cout << "---------------------------------" << std::endl;
+	      std::cout << "LAUNCHING BOSS WAVE " << waveNumber << std::endl;
+	      m_EnemiesToKill = waveNumber;
+	      enemiesSpeed = 0.025;
+	      enemiesType = ENEMY_BOSS;
+	    }
 	    //Init the enemy list
 	    const game::GroundUnit * centralGroudUnit = m_Board.getCentralGroundUnit();
 	    std::pair<unsigned int, unsigned int> centralCoord = centralGroudUnit->getGroundUnitCoord();
@@ -444,7 +458,7 @@ namespace api{
 		  if(coord.first < centralCoord.first - game::Board::s_BOARD_DISTANCE_AROUND_CENTER || coord.first > centralCoord.first + game::Board::s_BOARD_DISTANCE_AROUND_CENTER){
 		    if(coord.second < centralCoord.second - game::Board::s_BOARD_DISTANCE_AROUND_CENTER || coord.second > centralCoord.second + game::Board::s_BOARD_DISTANCE_AROUND_CENTER){
 		      isValid = true;
-		      m_Enemies.push_front(game::EnemyUnit(randomGroundUnit, enemiesSpeed));
+		      m_Enemies.push_front(game::EnemyUnit(enemiesType, randomGroundUnit, enemiesSpeed));
 		    }
 		  }
 		}
@@ -488,7 +502,7 @@ namespace api{
 	      std::pair<unsigned int, unsigned int> localCoord = localGroundUnit->getGroundUnitCoord();
 	    
 	      //Verifying if the enemy is destructed
-	      bool delelteEnemy = false;
+	      bool deleteEnemy = false;
 	      for(std::vector<game::Ray>::const_iterator ray = rayVector.begin(); ray != rayVector.end(); ++ray){
 		std::pair<unsigned int, unsigned int> begin = (*ray).getBeginningCoord();
 		std::pair<unsigned int, unsigned int> end = (*ray).getEndingCoord();
@@ -496,12 +510,12 @@ namespace api{
 		//Cheking if the local ground unit is in the ray
 		if((localCoord.first >= begin.first && localCoord.first <= end.first) ||(localCoord.first <= begin.first && localCoord.first >= end.first)){
 		  if((localCoord.second >= begin.second && localCoord.second <= end.second) ||(localCoord.second <= begin.second && localCoord.second >= end.second)){
-		      delelteEnemy = true;
+		      if(enemy->shoot())deleteEnemy = true;
 		  }
 		}
 	      }
 	      //If the enemy must be deleted
-	      if(delelteEnemy){
+	      if(deleteEnemy){
 		--m_EnemiesToKill;
 		localGroundUnit->setOccupied(false);
 		enemy = m_Enemies.erase(enemy);
@@ -549,7 +563,7 @@ namespace api{
 	    }
 	  }
 	  else if(action == ENEMY_FIRING){
-	    m_LifeBar.SubstractLife(1);
+	    m_LifeBar.SubstractLife(enemy.getForce());
 	  }
 	}
 	
@@ -616,7 +630,7 @@ namespace api{
 	  //Computing the ground unit weight
 	  m_Board.computeGroundUnitsWeightFromCenter();
 	  //Initialize the current wave
-	  initWave(m_WaveNumber);
+	  initWave(m_WaveNumber, false);
 	  //Changing game status
 	  m_GameStatus = GAME_STATUS_RUNNING;
 	}
@@ -661,14 +675,30 @@ namespace api{
 	void Application::launchNextWaveTransition(){
 	    std::cout << "---------------------------------" << std::endl;
 	    std::cout << "WAVE " << m_WaveNumber << " FINISHED" << std::endl;
+	    
 	    //Delete a barrier
 	    removeRandomBarrier();
 	    m_Board.resartAllBoardExceptObstacle();
 	    m_Board.computeGroundUnitsWeightFromCenter();
 	    //m_Board.printGroundUnitsWeight();
+	    
 	    //Load the next wave
-	    ++m_WaveNumber;
-	    initWave(m_WaveNumber);
+	    if(m_BossWaveFlag){
+	      ++m_BossWaveNumber;
+	      m_BossWaveFlag = false;
+	      initWave(m_WaveNumber, false);
+	    }
+	    else{
+	      ++m_WaveNumber;
+	      if(m_WaveNumber%2==1 && m_WaveNumber != 1){
+		m_BossWaveFlag = true;
+		initWave(m_BossWaveNumber, true);
+	      }
+	      else{
+		  initWave(m_WaveNumber, false);
+	      }
+	    }
+	    
 	    m_GameStatus = GAME_STATUS_WAVE_TRANSITION;
 	    m_WaveTransitionCounter = 0;
 	    m_Pause = false;
