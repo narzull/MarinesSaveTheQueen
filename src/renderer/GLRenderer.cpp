@@ -116,6 +116,32 @@ GLRenderer::GLRenderer(int width, int height):m_Width(width), m_Height(height){
     m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_8.obj", false);
     m_EnemyAttackAnimation.addObjToAnimation("obj/ZombieAttackAnim/zombie_attack_9.obj", false);
     m_EnemyAttackAnimation.assignTexture(m_TextureManager.getTextureID("textures/zombie.png"));
+    
+    //Boss walk animation
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_0.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_1.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_2.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_3.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_4.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_5.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_6.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_7.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_8.obj", false);
+    m_BossWalkAnimation.addObjToAnimation("obj/BossWalkAnim/boss_walk_9.obj", false);
+    m_BossWalkAnimation.assignTexture(m_TextureManager.getTextureID("textures/boss.png"));
+    
+    //Boss Attack animation
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_0.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_1.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_2.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_3.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_4.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_5.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_6.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_7.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_8.obj", false);
+    m_BossAttackAnimation.addObjToAnimation("obj/BossAttackAnim/boss_attack_9.obj", false);
+    m_BossAttackAnimation.assignTexture(m_TextureManager.getTextureID("textures/boss.png"));
 }
 
 GLRenderer::~GLRenderer() {
@@ -259,18 +285,27 @@ void GLRenderer::renderGameBoard(const game::Board & board){
 
 void GLRenderer::renderGameEnemies(const std::list<game::EnemyUnit> & enemies)const{
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
+	const UniformObject * object;
 	if((*it).getAction() == ENEMY_FIRING){
-	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
-	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
-	  object->draw(GL_TRIANGLES);
+	  if((*it).getType() == ENEMY_CLASSIC){
+	    object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  }
+	  else{
+	    object = m_BossAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  }
 	}
 	else{
-	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
-	  m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	  m_GBufferLightShaderManager->setObjectTextureInShader(object);
-	  object->draw(GL_TRIANGLES);
+	  if((*it).getType() == ENEMY_CLASSIC){
+	    object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  }
+	  else{
+	    object = m_BossWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  }
+
 	}
+	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
+	m_GBufferLightShaderManager->setObjectTextureInShader(object);
+	object->draw(GL_TRIANGLES);
   }
 }
 
@@ -385,16 +420,26 @@ void GLRenderer::renderPauseBoard(const game::Board & board){
 void GLRenderer::renderPauseEnemies(const std::list<game::EnemyUnit> & enemies)const{
   m_SimpleShaderManager->setColorInShader(Color::Red());
   for(std::list<game::EnemyUnit>::const_iterator it = enemies.begin(); it != enemies.end(); ++it){
+    	const UniformObject * object;
 	if((*it).getAction() == ENEMY_FIRING){
-	  const UniformObject * object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
-	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
-	  object->draw(GL_TRIANGLES);
+	  if((*it).getType() == ENEMY_CLASSIC){
+	    object = m_EnemyAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  }
+	  else{
+	    object = m_BossAttackAnimation.getAnimationUniformObject((*it).getAttackAnimationFrameID());
+	  }
 	}
 	else{
-	  const UniformObject * object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
-	  m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
-	  object->draw(GL_TRIANGLES);
+	  if((*it).getType() == ENEMY_CLASSIC){
+	    object = m_EnemyWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  }
+	  else{
+	    object = m_BossWalkAnimation.getAnimationUniformObject((*it).getWalkAnimationFrameID());
+	  }
+
 	}
+	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
+	object->draw(GL_TRIANGLES);
   }
 }
 
@@ -437,7 +482,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/end.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -448,7 +493,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/intro.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -459,7 +504,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/waveScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/newwave.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -470,7 +515,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/goScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/go.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);

@@ -4,11 +4,19 @@
 #include <iostream>
 
 namespace game{
-  EnemyUnit::EnemyUnit(GroundUnit * groundUnit, float speed):Entity(groundUnit->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitToReach(groundUnit), m_Speed(speed), m_Action(ENEMY_WAITING), m_LoopCounter(0){
+  EnemyUnit::EnemyUnit(unsigned int type, GroundUnit * groundUnit, float speed):Entity(groundUnit->getPosition() + glm::vec3(0.0,(float)EnemyUnit::s_ENEMYUNIT_Y_COORD,0.0)), m_GroundUnitToReach(groundUnit), m_Speed(speed), m_Type(type), m_Action(ENEMY_WAITING), m_LoopCounter(0){
     m_GroundUnitToReach->setOccupied(true);
     updateModel();
     m_WalkFrameAnimationCounter = rand() % s_ENEMYUNIT_WALK_ANIM_TOTAL_FRAME;
     m_AttackFrameAnimationCounter = rand() % s_ENEMYUNIT_ATTACK_ANIM_TOTAL_FRAME;
+    if(m_Type == ENEMY_CLASSIC){
+      m_Force = 1;
+      m_Life = 1;
+    }
+    else{
+      m_Force = 40;
+      m_Life = 5;
+    }
   }
   
   bool EnemyUnit::setGroundUnitToReach(GroundUnit* groundUnitToReach){

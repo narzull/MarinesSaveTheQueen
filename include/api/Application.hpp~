@@ -57,6 +57,9 @@ private:
 	
 	//Scene Entities
 	unsigned int m_WaveNumber;
+	unsigned int m_BossWaveNumber;
+	bool m_BossWaveFlag;
+	
 	unsigned int m_EnemiesToKill;
 	unsigned int m_MaxMarker;
 	game::Board m_Board;
@@ -114,7 +117,7 @@ private:
 	void launchNextWaveTransition();
 	void updateWaveTransition();
 	//Global game methods
-	void initWave(unsigned int waveNumber);
+	void initWave(unsigned int waveNumber, bool bossWave);
 	void updateEnemy(game::EnemyUnit & enemy);
 	void updateGame();
 	void startGame();
