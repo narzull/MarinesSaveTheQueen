@@ -482,7 +482,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/end.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -493,7 +493,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/endScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/intro.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -504,7 +504,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/waveScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/newwave.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
@@ -515,7 +515,7 @@ void GLRenderer::renderPauseBarriers(const std::vector<game::Barrier> & barriers
     glUseProgram(m_BlitShaderManager->getShaderID());
     glDisable(GL_DEPTH_TEST);
     //Update light uniforms
-    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/goScreen.png"));
+    m_BlitShaderManager->setTextureInShader(m_TextureManager.getTextureID("textures/screen/go.png"));
     // Draw quad
     m_PanelObject->draw(GL_TRIANGLES);
     glEnable(GL_DEPTH_TEST);
