@@ -62,78 +62,15 @@ namespace api{
 			    m_GLRenderer->renderGame(m_LifeBar, m_Lights, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, m_Camera);
 			  }
 			  else if(m_Pause && m_GameStatus == GAME_STATUS_RUNNING){
-			     const cv::Mat * webcamImage = m_WebcamManager.grabCurrentImage();
-			     std::vector<aruco::Marker> markers;
-			     m_WebcamManager.grabMarkersInCurrentImage(markers);
-			     //m_Board.restart();
-			     //Tests
-			     if(markers.size() > 0){
-			       
-			       double modelview[16];
-			       
-			       //clear the turrets
-			       //m_Turrets.clear();
-			       
-			       //find the main marker
-			       aruco::Marker* mainMarker = NULL;
-			       unsigned int indexMainMarker;
-			       glm::mat4 modelViewMatrix;
-			       
-			       for(unsigned int i = 0 ; i < markers.size() ; ++i){
-				 if(markers[i].id == 809){
-				   
-				   std::cout << "Main marker found " << std::endl;
-				   mainMarker = &markers[i];
-				   indexMainMarker = i;
-				   
-				   mainMarker->glGetModelViewMatrix(modelview);
-				   tools::transformToMatrix(modelview, modelViewMatrix);
-				   m_Camera.setView(modelViewMatrix);
-				 }
-				 else
-				    std::cout << "Another marker " << std::endl;
-			       }
-				
-				//if the main marker has been found
-				if(mainMarker != NULL){
-				  
-				    //ground unit coord
-				    int x,z;
-				    
-				    for(unsigned int j = 0 ; j < markers.size() ; ++j){
-					  if( indexMainMarker != j){
-					    
-					    //init vecs
-					    glm::vec3 posMark = glm::vec3();
-					    glm::vec3 rotMark = glm::vec3();
-					    
-					    //angle of rotation of the turret
-					    double thetaY;
-					    
-					    //get transformation datas
-					    computePosOfMarker(markers[j],posMark,rotMark,thetaY);
-					    
-					    //adapt the scale and units
-					    x = posMark.x * 2.5 ;
-					    z = posMark.z * 2.5 ;
-					    glm::vec3 rotation(0,thetaY*180/M_PI,0);
-					    
-					    //find the correct ground unit
-					    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
-					    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
-					   
-					    //create the correct turret with good transformation
-					   //game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
-					    
-					    //add the turret to the vector of turrets
-					    //m_Turrets.push_back(newTurret);
-					  }
-				      
-				      
-				    }
-				}
-	 
-			     }
+			      
+			     //suppress existing object before detection
+			     deleteGameObjects();
+			     
+			     //capture images from webcam
+			     const cv::Mat* webcamImage = m_WebcamManager.grabCurrentImage();
+			     //capture markers and create adapted units
+			     captureMarkers();
+			     
 			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
 			  
@@ -176,6 +113,111 @@ namespace api{
 		std::cout << "---------------------------------" << std::endl;
 		std::cout << "GAME STOP" << std::endl;
 		SDL_Quit();
+	}
+	
+	
+	//capture images and do the detecting process of markers
+	void Application::captureMarkers(){
+		
+		//container of aruco markers
+		std::vector<aruco::Marker> markers;
+		
+		//detect markers
+		m_WebcamManager.grabMarkersInCurrentImage(markers);
+		
+		//if any marker is detected
+		if(markers.size() > 0){
+			
+			//modelview matrix for OpenGL
+			double modelview[16];
+			
+			//find the main marker
+			aruco::Marker* mainMarker = NULL;
+			glm::mat4 modelViewMatrix;
+			
+			for(unsigned int i = 0 ; i < markers.size(); ++i){
+			  //main marker was detected
+			  if(markers[i].id == m_ID_MAIN_MARKER){
+			    
+			    //get the main marker
+			    mainMarker = &markers[i];
+			    
+			    //update the camera according to the main marker
+			    mainMarker->glGetModelViewMatrix(modelview);
+			    tools::transformToMatrix(modelview, modelViewMatrix);
+			    m_Camera.setView(modelViewMatrix);
+			    
+			    markers.erase(markers.begin()+i);
+			  }
+			}
+			
+			//if the main marker has been found
+			if(mainMarker != NULL){
+			  
+			    //ground unit coord
+			    int x,z;
+			    
+			    //for each detected marker
+			    //for(unsigned int j = 0 ; j < markers.size() ; ++j){
+			      for(unsigned int j = 0 ; j < markers.size()  ; ++j){    
+				    //init vecs
+				    glm::vec3 posMark = glm::vec3();
+				    glm::vec3 rotMark = glm::vec3();
+				    
+				    //angle of rotation of the turret
+				    double thetaY;
+				    
+				    //get transformation datas
+				    computePosOfMarker(markers[j],posMark,rotMark,thetaY);
+				    
+				    //adapt the scale and units
+				    x = posMark.x * 2.5 ;
+				    z = posMark.z * 2.5 ;
+				    glm::vec3 rotation(0,thetaY*180/M_PI,0);
+				    
+				    //find the correct ground unit
+				    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
+				    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
+				    
+				    if(markers[j].id == m_ID_TURRET_MARKER){
+					//create the correct turret with good transformation
+					game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
+				    
+					//add the turret to the vector of turrets
+					m_Turrets.push_back(newTurret);
+				    }
+				    
+				    else if(markers[j].id == m_ID_CADENCOR_MARKER){
+					//create the cadencor with good transformation
+					game::DefenseUnit newCadencor = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+					  ,game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE);
+				    
+					//add the turret to the vector of turrets
+					m_DefenseUnit.push_back(newCadencor);
+				    }
+				    
+				    else if(markers[j].id == m_ID_MIRROR_MARKER){
+					//create the cadencor with good transformation
+					game::DefenseUnit newMirror = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+					  ,game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE);
+				    
+					//add the turret to the vector of turrets
+					m_DefenseUnit.push_back(newMirror);
+				    }
+				    
+				  }
+			      
+			      //init all game object detected
+			      
+			      for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
+					(*it).initFromOtherDefenseUnit(m_DefenseUnit);
+			      }
+			      
+			}
+		  
+		  
+		}
+	  
 	}
 	
 	// find correct datas from marker detection to use them in opengl world
@@ -227,6 +269,22 @@ namespace api{
 	      thetaY = M_PI;
 	   else;	//keep thetaY like it is
 	   
+	}
+	
+	void Application::deleteGameObjects(){
+	    
+	    //CLEAR THE CURRENT TURRETS AND THE GROUND UNIT
+		for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
+		  (*it).freeGroundUnit();
+		}
+		m_Turrets.clear();
+	
+	    //CLEAR THE CURRENT DEFENSE UNIT AND THE GROUND UNIT
+		for(std::vector<game::DefenseUnit>::iterator it = m_DefenseUnit.begin(); it != m_DefenseUnit.end(); ++it){
+		  (*it).freeGroundUnit();
+		}
+		m_DefenseUnit.clear();
+	     
 	}
 	
 	void Application::initApplication(){
@@ -578,15 +636,15 @@ namespace api{
 	  //Init some defense units
 	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(10,10);
 	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
 	  }   
 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
 	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, DEFENSEUNIT_CADENCOR));
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
 	  }   
 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
 	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, DEFENSEUNIT_MIRROR));
+	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE));
 	  }
 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
 	  if(!turretGroundUnit->isOccupied()){
@@ -605,7 +663,7 @@ namespace api{
 	  }
 	  
 	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
-	    if((*unit).getType() == DEFENSEUNIT_CADENCOR){
+	    if((*unit).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
 	      glm::vec3 pos = (*unit).getPosition();
 	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
 	    }
@@ -672,6 +730,7 @@ namespace api{
 	    m_GameStatus = GAME_STATUS_WAVE_TRANSITION;
 	    m_WaveTransitionCounter = 0;
 	    m_Pause = false;
+	  
 	}
 	
 	void Application::updateWaveTransition(){

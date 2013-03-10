@@ -309,7 +309,7 @@ void GLRenderer::renderGameRays(const std::vector<game::Ray> & rays)const{
 void GLRenderer::renderGameDefenseUnits(const std::vector<game::DefenseUnit> & defenseUnits)const{
     for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
 	m_GBufferLightShaderManager->setModelMatrixInShader((*it).getModel());
-	if((*it).getType() == DEFENSEUNIT_CADENCOR){
+	if((*it).getType() == s_DEFENSEUNIT_CADENCOR_TYPE){
 	  m_GBufferLightShaderManager->setObjectTextureInShader(m_CadencorObject);
 	  m_CadencorObject->draw(GL_TRIANGLES);
 	}
@@ -410,7 +410,7 @@ void GLRenderer::renderPauseDefenseUnits(const std::vector<game::DefenseUnit> & 
     m_SimpleShaderManager->setColorInShader(Color::Blue());
     for(std::vector<game::DefenseUnit>::const_iterator it = defenseUnits.begin(); it != defenseUnits.end(); ++it){
 	m_SimpleShaderManager->setModelMatrixInShader((*it).getModel());
-	if((*it).getType() == DEFENSEUNIT_CADENCOR){
+	if((*it).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
 	  m_CadencorObject->draw(GL_TRIANGLES);
 	}
 	else{

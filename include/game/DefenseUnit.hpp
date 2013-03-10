@@ -4,8 +4,8 @@
 #include "../api/Entity.hpp"
 #include "../game/GroundUnit.hpp"
 
-#define DEFENSEUNIT_CADENCOR -1
-#define DEFENSEUNIT_MIRROR -2
+//#define DEFENSEUNIT_CADENCOR -1
+//#define DEFENSEUNIT_MIRROR -2
 
 //GroundUnit class
 namespace game {
@@ -13,6 +13,9 @@ class DefenseUnit : public api::Entity{
 public:
     const static float s_DEFENSEUNIT_CADENCOR_Y_COORD = 0.0f;
     const static float s_DEFENSEUNIT_MIRROR_Y_COORD = 0.0f;
+    
+    const static int s_DEFENSEUNIT_CADENCOR_TYPE = -1;
+    const static int s_DEFENSEUNIT_MIRROR_TYPE = -2;
   
     //Constructor
     DefenseUnit(glm::vec3 rotation, GroundUnit * relatedGroundUnit, int type):m_RelatedGroundUnit(relatedGroundUnit), m_Type(type), m_Used(false){
@@ -21,10 +24,10 @@ public:
       setRotation(rotation);
       float yOffset = 0.0;
       switch(type){
-	case DEFENSEUNIT_CADENCOR:
+	case s_DEFENSEUNIT_CADENCOR_TYPE:
 				    yOffset = (float)s_DEFENSEUNIT_CADENCOR_Y_COORD;
 				    break;
-	case DEFENSEUNIT_MIRROR:
+	case s_DEFENSEUNIT_MIRROR_TYPE:
 				    yOffset = (float)s_DEFENSEUNIT_MIRROR_Y_COORD;
 				    break;
       }
@@ -44,6 +47,7 @@ public:
     int getType()const{return m_Type;}
     bool isUsed()const{return m_Used;};
     GroundUnit * getRelatedGroundUnit()const{return m_RelatedGroundUnit;}
+    void freeGroundUnit();
     
 protected:
     GroundUnit * m_RelatedGroundUnit;

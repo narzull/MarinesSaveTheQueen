@@ -25,10 +25,7 @@ public:
       updateModel();
     };
     
-    ~Turret(){
-      //m_RelatedGroundUnit->setOccupied(false);
-      //m_RelatedGroundUnit->setWeight(0);
-    }
+    ~Turret(){}
     
     //Getters
     void getRayVector(std::vector<Ray> & rayVector)const;
@@ -38,6 +35,7 @@ public:
     bool showRay()const;
     void update();
     void initFromOtherDefenseUnit(std::vector<DefenseUnit> & otherDefenseUnit);
+    void freeGroundUnit();
 
 private:
   

@@ -19,6 +19,11 @@ namespace game{
     ++m_TurnCounter;
   }
   
+  void Turret::freeGroundUnit(){
+    m_RelatedGroundUnit->setOccupied(false);
+    m_RelatedGroundUnit->setWeight(0);
+  }
+  
   void Turret::getRayVector(std::vector<Ray> & rayVector)const{
     for(std::vector<Ray>::const_iterator it = m_RayVector.begin(); it != m_RayVector.end(); ++it){
       rayVector.push_back((*it));
@@ -34,7 +39,7 @@ namespace game{
 	std::pair<unsigned int, unsigned int> defenseUnitCoord = (*it).getRelatedGroundUnit()->getGroundUnitCoord();
 	int deltaX = abs(coord.first - defenseUnitCoord.first);
 	int deltaZ = abs(coord.second - defenseUnitCoord.second);
-	if(std::max(deltaX, deltaZ) == 1 && (*it).getType() == DEFENSEUNIT_CADENCOR){
+	if(std::max(deltaX, deltaZ) == 1 && (*it).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
 	  m_Cadency *= 0.70;
 	  (*it).setUsed(true);
 	}
@@ -50,7 +55,7 @@ namespace game{
       
       //Checking all the defense unit
       for(std::vector<DefenseUnit>::iterator it = otherDefenseUnit.begin(); it != otherDefenseUnit.end(); ++it){
-	if((*it).getType() == DEFENSEUNIT_MIRROR && !(*it).isUsed()){
+	if((*it).getType() == game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE && !(*it).isUsed()){
 	    GroundUnit * localGroundUnit = (*it).getRelatedGroundUnit();
 	    std::pair<unsigned int, unsigned int> localCoord = localGroundUnit->getGroundUnitCoord();
 	    if((localCoord.first >= begin.first && localCoord.first <= end.first) ||(localCoord.first <= begin.first && localCoord.first >= end.first)){
