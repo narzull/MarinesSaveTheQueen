@@ -107,6 +107,8 @@ private:
 	void computePosOfMarker(aruco::Marker& currentMarker, glm::vec3& posMark, glm::vec3& rotMark, double& thetaY)	;
 	//clear object and ground units
 	void deleteGameObjects();
+	//compute ground weight and init turrets
+	void initWeightsAndUnits();
 	
 	
 	//*****************************

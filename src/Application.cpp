@@ -162,7 +162,6 @@ namespace api{
 			    int x,z;
 			    
 			    //for each detected marker
-			    //for(unsigned int j = 0 ; j < markers.size() ; ++j){
 			      for(unsigned int j = 0 ; j < markers.size() ; ++j ){    
 				    //init vecs
 				    glm::vec3 posMark = glm::vec3();
@@ -210,11 +209,6 @@ namespace api{
 				      }
 				    }
 				  }
-			      
-			      //init all game object detected
-			      for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
-					(*it).initFromOtherDefenseUnit(m_DefenseUnit);
-			      }
 			      
 			}
 		  
@@ -292,6 +286,19 @@ namespace api{
 	     
 	}
 	
+	void Application::initWeightsAndUnits(){
+	 
+	    //compute ground weight
+	    m_Board.computeGroundUnitsWeightFromCenter();
+	    
+	    //init turret with defense units
+	    for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
+		      (*it).initFromOtherDefenseUnit(m_DefenseUnit);
+	    }
+	  
+	}
+
+	
 	void Application::initApplication(){
 		//Init some game variables
 		m_WaveNumber = 1;
@@ -365,7 +372,13 @@ namespace api{
 					m_MoveFlagZ = -1;
 					break;
 				case SDLK_p :
-					if(m_GameStatus == GAME_STATUS_RUNNING) m_Pause = !m_Pause;
+					if(m_GameStatus == GAME_STATUS_RUNNING)
+					  if(m_Pause){
+					      //init weights and turrets when switching PAUSE mode to RUN mode
+					      initWeightsAndUnits();
+					      m_Board.printGroundUnitsWeight();
+					  }
+					  m_Pause = !m_Pause;
 					break;
 				case SDLK_r :
 					if(m_GameStatus == GAME_STATUS_END) restartGame();
