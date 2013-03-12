@@ -125,8 +125,6 @@ namespace api{
 		//detect markers
 		m_WebcamManager.grabMarkersInCurrentImage(markers);
 		
-		std::cout << "SIIIIZE OF MARKER VECTOR " << markers.size()  << std::endl;
-		
 		//if any marker is detected
 		if(markers.size() > 0){
 			
@@ -158,6 +156,37 @@ namespace api{
 			//if the main marker has been found
 			if(mainMarker != NULL){
 			  
+				//do a pre process to avoid double marker
+				for(std::vector<aruco::Marker>::iterator it = markers.begin(); it != markers.end(); ++it){
+				    
+				    // if there's not only one marker detected
+				    if(it+1 != markers.end()){
+					glm::vec3 posMark1 = glm::vec3();
+					glm::vec3 posMark2 = glm::vec3();
+					
+					//useless
+					glm::vec3 rotMark = glm::vec3();    
+					double thetaY;
+					
+					//get transformation datas
+					computePosOfMarker((*it),posMark1,rotMark,thetaY);
+					computePosOfMarker((*(it+1)),posMark2,rotMark,thetaY);
+					
+					int x1,x2,z1,z2;
+					x1 = posMark1.x * 2.5;
+					x2 = posMark2.x * 2.5;
+					
+					z1 = posMark1.z * 2.5;
+					z2 = posMark2.z * 2.5;
+					
+					//if it's the same marker
+					if(x1 == x2 && z1 == z2 && (*it).id == (*(it+1)).id)
+					  markers.erase(it);
+					
+				    }
+				}
+			    
+			    
 			    //ground unit coord
 			    int x,z;
 			    
@@ -180,7 +209,6 @@ namespace api{
 				    
 				    //find the correct ground unit
 				    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
-				    //std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
 				    if( !m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->isOccupied() && j < m_MaxMarker){
 				      if(markers[j].id == m_ID_TURRET_MARKER ){
 					  //create the correct turret with good transformation
@@ -376,7 +404,7 @@ namespace api{
 					  if(m_Pause){
 					      //init weights and turrets when switching PAUSE mode to RUN mode
 					      initWeightsAndUnits();
-					      m_Board.printGroundUnitsWeight();
+					      //m_Board.printGroundUnitsWeight();
 					  }
 					  m_Pause = !m_Pause;
 					break;
