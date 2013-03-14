@@ -207,36 +207,42 @@ namespace api{
 				    z = posMark.z * 2.5;
 				    glm::vec3 rotation(0,thetaY*180/M_PI,0);
 				    
+				    
 				    //find the correct ground unit
 				    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
-				    if( !m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->isOccupied() && j < m_MaxMarker){
-				      if(markers[j].id == m_ID_TURRET_MARKER ){
-					  //create the correct turret with good transformation
-					  game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
-				      
-					  //add the turret to the vector of turrets
-					  m_Turrets.push_back(newTurret);
-				      }
-				      
-				      else if(markers[j].id == m_ID_CADENCOR_MARKER ){
-					  //create the cadencor with good transformation
-					  game::DefenseUnit newCadencor = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
-					    ,game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE);
-				      
-					  //add the turret to the vector of turrets
-					  m_DefenseUnit.push_back(newCadencor);
-				      }
-				      
-				      else if(markers[j].id == m_ID_MIRROR_MARKER ){
-					  //create the cadencor with good transformation
-					  game::DefenseUnit newMirror = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
-					    ,game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE);
-				      
-					  //add the turret to the vector of turrets
-					  m_DefenseUnit.push_back(newMirror);
-				      }
+				    if(x+coordCenter.first <= game::Board::s_GROUNDUNIT_NUMBER_WIDTH && x+coordCenter.first >= 0 
+					  && z+coordCenter.second <= game::Board::s_GROUNDUNIT_NUMBER_HEIGHT && z+coordCenter.seconde >= 0
+					    && ((x <= -1 || x >= 1) && (z <= -1 || z >= 1)) ){
+					  
+					  if( !m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->isOccupied() && j < m_MaxMarker){
+					    if(markers[j].id == m_ID_TURRET_MARKER ){
+						//create the correct turret with good transformation
+						game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
+					    
+						//add the turret to the vector of turrets
+						m_Turrets.push_back(newTurret);
+					    }
+					    
+					    else if(markers[j].id == m_ID_CADENCOR_MARKER ){
+						//create the cadencor with good transformation
+						game::DefenseUnit newCadencor = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+						  ,game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE);
+					    
+						//add the turret to the vector of turrets
+						m_DefenseUnit.push_back(newCadencor);
+					    }
+					    
+					    else if(markers[j].id == m_ID_MIRROR_MARKER ){
+						//create the cadencor with good transformation
+						game::DefenseUnit newMirror = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+						  ,game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE);
+					    
+						//add the turret to the vector of turrets
+						m_DefenseUnit.push_back(newMirror);
+					    }
+					  }
 				    }
-				  }     
+			      }
 			} 
 		}
 		m_GLRenderer->renderPause(m_LifeBar, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
