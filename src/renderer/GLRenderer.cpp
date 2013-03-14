@@ -399,8 +399,10 @@ void GLRenderer::renderBackground(const cv::Mat * webcamFrame){
 void GLRenderer::renderPauseBoard(const game::Board & board){
      const std::vector<game::GroundUnit*> grid = board.getGridBoard();
      const game::GroundUnit * centralGroundUnit = board.getCentralGroundUnit();
+     std::pair<unsigned int, unsigned int > centralCoord = centralGroundUnit->getGroundUnitCoord();
      for(std::vector<game::GroundUnit*>::const_iterator it = grid.begin(); it != grid.end(); ++it){
-        if((*it)->isOccupied()){
+	std::pair<unsigned int, unsigned int> localCoord = (*it)->getGroundUnitCoord();
+        if((*it)->isOccupied() || (abs(localCoord.first - centralCoord.first) <= 1 &&  abs(localCoord.second - centralCoord.second) <= 1)){
 	  m_SimpleShaderManager->setColorInShader(Color::Red());
 	}
 	else{
