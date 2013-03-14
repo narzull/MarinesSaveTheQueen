@@ -66,12 +66,9 @@ namespace api{
 			     //suppress existing object before detection
 			     deleteGameObjects();
 			     
-			     //capture images from webcam
-			     const cv::Mat* webcamImage = m_WebcamManager.grabCurrentImage();
 			     //capture markers and create adapted units
 			     captureMarkers();
 			     
-			      m_GLRenderer->renderPause(m_LifeBar, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 			  }
 			  
 			  //GAME WAVE TRANSITION CODE
@@ -119,6 +116,9 @@ namespace api{
 	//capture images and do the detecting process of markers
 	void Application::captureMarkers(){
 		
+		//capture images from webcam
+		const cv::Mat* webcamImage = m_WebcamManager.grabCurrentImage();
+		
 		//container of aruco markers
 		std::vector<aruco::Marker> markers;
 		
@@ -149,17 +149,49 @@ namespace api{
 			    
 			    markers.erase(markers.begin()+i);
 			  }
+			  else
+			    std::cout << "ANOTHER MARKER DETECTED" << std::endl;
 			}
 			
 			//if the main marker has been found
 			if(mainMarker != NULL){
 			  
+				//do a pre process to avoid double marker
+				for(std::vector<aruco::Marker>::iterator it = markers.begin(); it != markers.end(); ++it){
+				    
+				    // if there's not only one marker detected
+				    if(it+1 != markers.end()){
+					glm::vec3 posMark1 = glm::vec3();
+					glm::vec3 posMark2 = glm::vec3();
+					
+					//useless
+					glm::vec3 rotMark = glm::vec3();    
+					double thetaY;
+					
+					//get transformation datas
+					computePosOfMarker((*it),posMark1,rotMark,thetaY);
+					computePosOfMarker((*(it+1)),posMark2,rotMark,thetaY);
+					
+					int x1,x2,z1,z2;
+					x1 = posMark1.x * 2.5;
+					x2 = posMark2.x * 2.5;
+					
+					z1 = posMark1.z * 2.5;
+					z2 = posMark2.z * 2.5;
+					
+					//if it's the same marker
+					if(x1 == x2 && z1 == z2 && (*it).id == (*(it+1)).id)
+					  markers.erase(it);
+					
+				    }
+				}
+			    
+			    
 			    //ground unit coord
 			    int x,z;
 			    
 			    //for each detected marker
-			    //for(unsigned int j = 0 ; j < markers.size() ; ++j){
-			      for(unsigned int j = 0 ; j < markers.size()  ; ++j){    
+			      for(unsigned int j = 0 ; j < markers.size() ; ++j ){    
 				    //init vecs
 				    glm::vec3 posMark = glm::vec3();
 				    glm::vec3 rotMark = glm::vec3();
@@ -171,52 +203,43 @@ namespace api{
 				    computePosOfMarker(markers[j],posMark,rotMark,thetaY);
 				    
 				    //adapt the scale and units
-				    x = posMark.x * 2.5 ;
-				    z = posMark.z * 2.5 ;
+				    x = posMark.x * 2.5;
+				    z = posMark.z * 2.5;
 				    glm::vec3 rotation(0,thetaY*180/M_PI,0);
 				    
 				    //find the correct ground unit
 				    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
-				    std::cout << "GROUND UNIT x =   " << x+coordCenter.first << " - z = " << z+coordCenter.second << std::endl;
-				    
-				    if(markers[j].id == m_ID_TURRET_MARKER){
-					//create the correct turret with good transformation
-					game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
-				    
-					//add the turret to the vector of turrets
-					m_Turrets.push_back(newTurret);
+				    if( !m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->isOccupied() && j < m_MaxMarker){
+				      if(markers[j].id == m_ID_TURRET_MARKER ){
+					  //create the correct turret with good transformation
+					  game::Turret newTurret = game::Turret(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second));
+				      
+					  //add the turret to the vector of turrets
+					  m_Turrets.push_back(newTurret);
+				      }
+				      
+				      else if(markers[j].id == m_ID_CADENCOR_MARKER ){
+					  //create the cadencor with good transformation
+					  game::DefenseUnit newCadencor = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+					    ,game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE);
+				      
+					  //add the turret to the vector of turrets
+					  m_DefenseUnit.push_back(newCadencor);
+				      }
+				      
+				      else if(markers[j].id == m_ID_MIRROR_MARKER ){
+					  //create the cadencor with good transformation
+					  game::DefenseUnit newMirror = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
+					    ,game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE);
+				      
+					  //add the turret to the vector of turrets
+					  m_DefenseUnit.push_back(newMirror);
+				      }
 				    }
-				    
-				    else if(markers[j].id == m_ID_CADENCOR_MARKER){
-					//create the cadencor with good transformation
-					game::DefenseUnit newCadencor = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
-					  ,game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE);
-				    
-					//add the turret to the vector of turrets
-					m_DefenseUnit.push_back(newCadencor);
-				    }
-				    
-				    else if(markers[j].id == m_ID_MIRROR_MARKER){
-					//create the cadencor with good transformation
-					game::DefenseUnit newMirror = game::DefenseUnit(rotation,m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)
-					  ,game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE);
-				    
-					//add the turret to the vector of turrets
-					m_DefenseUnit.push_back(newMirror);
-				    }
-				    
-				  }
-			      
-			      //init all game object detected
-			      
-			      for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
-					(*it).initFromOtherDefenseUnit(m_DefenseUnit);
-			      }
-			      
-			}
-		  
-		  
+				  }     
+			} 
 		}
+		m_GLRenderer->renderPause(m_LifeBar, m_Board, m_Barriers, m_DefenseUnit, m_Turrets, m_Enemies, webcamImage, m_Camera);
 	  
 	}
 	
@@ -268,7 +291,7 @@ namespace api{
 	   else if(thetaY > 3*M_PI/4 || thetaY < -3*M_PI/4)
 	      thetaY = M_PI;
 	   else;	//keep thetaY like it is
-	   
+
 	}
 	
 	void Application::deleteGameObjects(){
@@ -286,6 +309,19 @@ namespace api{
 		m_DefenseUnit.clear();
 	     
 	}
+	
+	void Application::initWeightsAndUnits(){
+	 
+	    //compute ground weight
+	    m_Board.computeGroundUnitsWeightFromCenter();
+	    
+	    //init turret with defense units
+	    for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
+		      (*it).initFromOtherDefenseUnit(m_DefenseUnit);
+	    }
+	    m_Board.printGroundUnitsWeight();
+	}
+
 	
 	void Application::initApplication(){
 		//Init some game variables
@@ -360,7 +396,12 @@ namespace api{
 					m_MoveFlagZ = -1;
 					break;
 				case SDLK_p :
-					if(m_GameStatus == GAME_STATUS_RUNNING) m_Pause = !m_Pause;
+					if(m_GameStatus == GAME_STATUS_RUNNING)
+					  if(m_Pause){
+					      //init weights and turrets when switching PAUSE mode to RUN mode
+					      initWeightsAndUnits();
+					  }
+					  m_Pause = !m_Pause;
 					break;
 				case SDLK_r :
 					if(m_GameStatus == GAME_STATUS_END) restartGame();
@@ -647,41 +688,41 @@ namespace api{
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));
-	  //Init some defense units
-	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(10,10);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
-	  }   
-	  turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
-	  }   
-	  turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE));
-	  }
-	  turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
-	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	  }
-	  turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
-	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	  }
-	  turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
-	  if(!turretGroundUnit->isOccupied()){
-	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
-	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-	  }
-	  
-	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
-	    if((*unit).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
-	      glm::vec3 pos = (*unit).getPosition();
-	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
-	    }
-	  }
+// 	  //Init some defense units
+// 	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(10,10);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
+// 	  }   
+// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
+// 	  }   
+// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE));
+// 	  }
+// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
+// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+// 	  }
+// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
+// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+// 	  }
+// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
+// 	  if(!turretGroundUnit->isOccupied()){
+// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
+// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
+// 	  }
+// 	  
+// 	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
+// 	    if((*unit).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
+// 	      glm::vec3 pos = (*unit).getPosition();
+// 	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
+// 	    }
+// 	  }
 	  
 	  //Init the barrier in the game
 	  initBarrier();

@@ -4,8 +4,10 @@ SRC_PATH = src
 BIN_PATH = bin
 INCLUDE_PATH = include
 EXTERNAL_PATH = externals
+LIB_PATH = lib
 
-CFLAGS = -Wall -ansi -I $(INCLUDE_PATH) -I $(EXTERNAL_PATH)/include
+LFLAGS = -L$(LIB_PATH)/  -Wl,-rpath=$(LIB_PATH)/
+CFLAGS = -Wall -ansi -I $(INCLUDE_PATH) -I $(EXTERNAL_PATH)/include 
 LDFLAGS = -lSDL -lSDL_image -lSDL_mixer -lGL -lopencv_core -lopencv_highgui -lopencv_imgproc -laruco
 
 EXEC = MarinesSaveTheQueen
@@ -16,16 +18,16 @@ OBJ_FILES = $(patsubst $(SRC_PATH)/%.cpp, $(SRC_PATH)/%.o, $(SRC_FILES))
 all: $(BIN_PATH)/$(EXEC)
 
 $(BIN_PATH)/$(EXEC): $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o
-	$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $(LFLAGS) $^ $(LDFLAGS)
 
 $(EXTERNAL_PATH)/src/glew-1.9/glew.o: $(EXTERNAL_PATH)/src/glew-1.9/glew.c
 	$(CC) -c -o $@ $(CFLAGS) $^
-
+	
 $(SRC_PATH)/%.o: $(SRC_PATH)/%.cpp
 	$(CC) -c -o $@ $(CFLAGS) $^ 
 
 clean:
-	rm $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o
+	rm $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o 
 
 cleanall:
-	rm $(BIN_PATH)/$(EXEC) $(OBJ_FILES)
+	rm $(BIN_PATH)/$(EXEC) $(OBJ_FILES) $(EXTERNAL_PATH)/src/glew-1.9/glew.o

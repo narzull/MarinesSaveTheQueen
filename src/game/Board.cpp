@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stack>
+#include <iomanip> 
 
 namespace game{
     //**********************
@@ -70,6 +71,14 @@ namespace game{
     //***************************
     
     void Board::computeGroundUnitsWeightFromCenter(){
+     //Reset the weights in the grid
+     for(unsigned int i = 0; i < m_GridBoard.size(); ++i){
+	if(m_GridBoard[i]->getWeight() != -1 && m_GridBoard[i]->getWeight() != 0){
+	  m_GridBoard[i]->setWeight(5000);
+	}
+     }
+      
+      //Recompute the weights
       std::stack<GroundUnit*> stack;
       stack.push(getGroundUnitFromBoard(m_CentralCoord.first, m_CentralCoord.second));
       while(!stack.empty()){
@@ -99,7 +108,7 @@ namespace game{
     void Board::printGroundUnitsWeight(){
      for(unsigned int i = 0; i < s_GROUNDUNIT_NUMBER_HEIGHT; ++i){
       for(unsigned int j = 0; j < s_GROUNDUNIT_NUMBER_WIDTH; ++j){
-	std::cout << getGroundUnitFromBoard(j, i)->getWeight() << " | ";
+	std::cout << std::setw(5) << getGroundUnitFromBoard(j, i)->getWeight() << " | ";
 	if(j == s_GROUNDUNIT_NUMBER_WIDTH-1) std::cout << std::endl;
       }
      }

@@ -21,7 +21,7 @@ namespace game{
   
   void Turret::freeGroundUnit(){
     m_RelatedGroundUnit->setOccupied(false);
-    m_RelatedGroundUnit->setWeight(0);
+    m_RelatedGroundUnit->setWeight(5000);
   }
   
   void Turret::getRayVector(std::vector<Ray> & rayVector)const{
