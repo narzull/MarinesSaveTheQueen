@@ -211,8 +211,7 @@ namespace api{
 				    //find the correct ground unit
 				    std::pair<unsigned int, unsigned int> coordCenter = m_Board.getCentralGroundUnit()->getGroundUnitCoord();
 				    if(x+coordCenter.first <= game::Board::s_GROUNDUNIT_NUMBER_WIDTH && x+coordCenter.first >= 0 
-					  && z+coordCenter.second <= game::Board::s_GROUNDUNIT_NUMBER_HEIGHT && z+coordCenter.seconde >= 0
-					    && ((x <= -1 || x >= 1) && (z <= -1 || z >= 1)) ){
+					  && z+coordCenter.second <= game::Board::s_GROUNDUNIT_NUMBER_HEIGHT && z+coordCenter.second >= 0 ){
 					  
 					  if( !m_Board.getGroundUnitFromBoard(x+coordCenter.first,z+coordCenter.second)->isOccupied() && j < m_MaxMarker){
 					    if(markers[j].id == m_ID_TURRET_MARKER ){
