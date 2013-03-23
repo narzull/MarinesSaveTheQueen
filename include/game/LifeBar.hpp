@@ -12,7 +12,7 @@ class LifeBar: public api::Entity{
 public:
     //Static attribute
     const static float s_LIFEBAR_Y_COORD = 0.6f;
-    const static unsigned int s_INITIAL_LIFE = 50000;
+    const static unsigned int s_INITIAL_LIFE = 25000;
   
     //Constructor
     LifeBar():m_Life(s_INITIAL_LIFE){

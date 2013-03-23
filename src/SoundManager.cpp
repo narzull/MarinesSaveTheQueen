@@ -33,6 +33,7 @@ namespace api{
     if(m_BackgroundMusic != NULL){
       Mix_FadeOutChannel(0, 1000);
     }
+    Mix_HaltChannel(0);
     destroySound(&m_BackgroundMusic);
     loadSound(&m_BackgroundMusic, filename);
     if(m_BackgroundMusic != NULL){

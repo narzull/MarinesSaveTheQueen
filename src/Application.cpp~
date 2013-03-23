@@ -325,7 +325,7 @@ namespace api{
 	    for(std::vector<game::Turret>::iterator it = m_Turrets.begin(); it != m_Turrets.end(); ++it){
 		      (*it).initFromOtherDefenseUnit(m_DefenseUnit);
 	    }
-	    m_Board.printGroundUnitsWeight();
+	    //m_Board.printGroundUnitsWeight();
 	}
 
 	
@@ -532,9 +532,9 @@ namespace api{
 	      std::cout << "---------------------------------" << std::endl;
 	      std::cout << "LAUNCHING WAVE " << waveNumber << std::endl;
 	      //Launching the music
-	      if(waveNumber == 1)m_SoundManager.launchBackGroundMusic("./audio/Sea-Of-Grass.ogg");
+	      if(waveNumber == 1)m_SoundManager.launchBackGroundMusic("./audio/Eskimo_Apocalypse.ogg");
 	      if(waveNumber == 3)m_SoundManager.launchBackGroundMusic("./audio/Lords-Of-The-Sky.ogg");
-	      if(waveNumber == 6)m_SoundManager.launchBackGroundMusic("./audio/Surrounded.ogg");
+	      if(waveNumber == 5)m_SoundManager.launchBackGroundMusic("./audio/Surrounded.ogg");
 	      //Setting the wave informations
 	      m_EnemiesToKill = rand()%(5 * waveNumber + 20) + 5 * waveNumber;
 	      enemiesSpeed = 0.02*(waveNumber/4.0);
@@ -694,41 +694,6 @@ namespace api{
 	  //Set some game unity
 	  m_Lights.push_back(renderer::Light(glm::vec4(-1.0,-1.0,-1.0,0.0), glm::vec3(0.3,0.3,1.0), 1.0));
 	  m_Lights.push_back(renderer::Light(glm::vec4(2.0,-0.3,2.0,0.0), glm::vec3(1.0,0.5,0.5), 2.0));
-// 	  //Init some defense units
-// 	  game::GroundUnit * turretGroundUnit = m_Board.getGroundUnitFromBoard(10,10);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
-// 	  }   
-// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(8,5);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE));
-// 	  }   
-// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(7,9);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_DefenseUnit.push_back(game::DefenseUnit(glm::vec3(0.0, 90.0, 0.0), turretGroundUnit, game::DefenseUnit::s_DEFENSEUNIT_MIRROR_TYPE));
-// 	  }
-// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(10,9);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -180, 0.0), turretGroundUnit));
-// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-// 	  }
-// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(6,7);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, 0.0, 0.0), turretGroundUnit));
-// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-// 	  }
-// 	  turretGroundUnit = m_Board.getGroundUnitFromBoard(9,6);
-// 	  if(!turretGroundUnit->isOccupied()){
-// 	    m_Turrets.push_back(game::Turret(glm::vec3(0.0, -90.0, 0.0), turretGroundUnit));
-// 	    m_Turrets[m_Turrets.size()-1].initFromOtherDefenseUnit(m_DefenseUnit);
-// 	  }
-// 	  
-// 	  for(std::vector<game::DefenseUnit>::const_iterator unit = m_DefenseUnit.begin(); unit != m_DefenseUnit.end(); ++unit){
-// 	    if((*unit).getType() == game::DefenseUnit::s_DEFENSEUNIT_CADENCOR_TYPE){
-// 	      glm::vec3 pos = (*unit).getPosition();
-// 	      m_Lights.push_back(renderer::Light(glm::vec4(pos.x, 0.5, pos.z,1.0), glm::vec3(0.3,1.0,0.3), 4.0));  
-// 	    }
-// 	  }
 	  
 	  //Init the barrier in the game
 	  initBarrier();

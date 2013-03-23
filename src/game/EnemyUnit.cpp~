@@ -14,8 +14,8 @@ namespace game{
       m_Life = 1;
     }
     else{
-      m_Force = 40;
-      m_Life = 5;
+      m_Force = 30;
+      m_Life = 2;
     }
   }
   
